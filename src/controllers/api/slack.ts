@@ -120,3 +120,11 @@ export const postCommand = (req: Request, res: Response) => {
 export const postEvent = (req: Request, res: Response) => {
     res.json({ hello: 'world' });
 };
+
+/**
+ * POST /api/slack/interaction
+ *
+ */
+export const postInteraction = (req: Request, res: Response) => {
+    res.json({ hello: 'world' });
+};

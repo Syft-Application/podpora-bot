@@ -151,3 +151,19 @@ describe('POST /api/slack/event', () => {
         return service({}).expect(200, done);
     });
 });
+
+/*
+ Any interactions with shortcuts, modals, or interactive components
+ on Slack will be sent to this endpoint.
+*/
+describe('POST /api/slack/interaction', () => {
+    const api_path = '/api/slack/interaction';
+
+    function service(params: Record<string, unknown>) {
+        return api().post(api_path).send(params);
+    }
+
+    it('returns 200 OK', (done) => {
+        return service({}).expect(200, done);
+    });
+});
