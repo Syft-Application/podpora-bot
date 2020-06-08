@@ -4,13 +4,11 @@ Support Slack Bot in TypeScript
 
 # Table of contents:
 
-- [Pre-reqs](#pre-reqs)
+- [Pre-reqs](#prerequisites)
 - [Getting started](#getting-started)
-- [Deploying the app](#deploying-the-app)
-- [Project Structure](#project-structure)
-- [Building the project](#building-the-project)
-- [Testing](#testing)
-- [ESLint](#eslint)
+- [Deployment](#deployment)
+- [Development](#development)
+- [TODO](#todo)
 - [License](#license)
 
 # Prerequisites
@@ -38,7 +36,7 @@ npm start
 
 Visit `http://localhost:3000`
 
-# Deploying the app
+# Deployment
 
 todo
 
@@ -51,15 +49,16 @@ todo
 
 - Clone the repository
 ```
-git clone --depth=1 https://github.com/project-owner/project_name.git <project_name>
+git clone --depth=1 https://github.com/keram/podpora-bot.git
+cd podpora-bot
 ```
 - Install dependencies
 ```
-cd <project_name>
 npm install
 ```
 - Install overcommit
 ```
+gem install overcommit
 overcommit -i
 ```
 
@@ -72,6 +71,20 @@ npm run build   // runs full build including ESLint
 npm run lint    // runs only ESLint
 ```
 
-## License
+## More
+Check all available tasks to use for developmnet.
+```
+npm run --list
+```
+
+# Todo
+
+- Readme details on app configuration.
+- Upgrade Slack dialogs to modals https://api.slack.com/block-kit/dialogs-to-modals
+- Test that correct dialog is open when different commands are send
+- Define shortcuts for support requests https://api.slack.com/interactivity/shortcuts
+- Use pattern from https://www.npmjs.com/package/@slack-wrench/jest-mock-web-client
+  to mock slack api
+# License
 Copyright (c) Marek L. All rights reserved.
 Licensed under the [MIT](LICENSE) License.
