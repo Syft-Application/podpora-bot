@@ -59,6 +59,41 @@ const openBugDialog = (text: string, trigger_id: string) => {
 };
 
 
+const openDataRequestDialog = (text: string, trigger_id: string) => {
+    const dialog: Dialog = {
+        callback_id: `syft${(new Date()).getTime()}`, // Needs to be unique
+        title: 'New Data Request',
+        submit_label: 'Submit',
+        state: 'data',
+        elements: [
+            {
+                type: 'text',
+                label: 'Title',
+                placeholder: 'eg. Number of shifts per employer in Feb 2019',
+                name: 'title',
+                value: text || '',
+            },
+            {
+                type: 'textarea',
+                label: 'Description',
+                placeholder: 'Please include any extra information required, eg. column names',
+                name: 'description',
+                value: '',
+            },
+        ],
+    };
+
+
+    slackWeb.dialog.open({
+        dialog,
+        trigger_id,
+    }).catch((err) => {
+        logger.error(err.message);
+    });
+};
+
+
+
 /**
  * POST /api/slack/command
  *
@@ -70,8 +105,10 @@ export const postCommand = (req: Request, res: Response) => {
 
     if (args[0] === 'bug') {
         response_body = null;
-
         openBugDialog('', trigger_id);
+    } else if (args[0] === 'data') {
+        response_body = null;
+        openDataRequestDialog('', trigger_id);
     }
 
     res.status(200).send(response_body);

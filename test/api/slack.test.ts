@@ -27,6 +27,10 @@ function api() {
     return request(app);
 }
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe('POST /api/slack/command', () => {
     const default_params = {
         token: 'token value',
@@ -59,6 +63,46 @@ describe('POST /api/slack/command', () => {
         });
     }
 
+    function test_support_command_with_dialog(params: Record<string, unknown>) {
+        it('sends dialog to Slack', (done) => {
+            service(params).expect(200).end((err, res) => {
+                if (err) {
+                    done(err);
+                }
+
+                expect(dialog.open.mock.calls.length).toEqual(1);
+
+                done();
+            });
+        });
+
+        describe('response.body', () => {
+            it('returns empty', (done) => {
+                response(params, (body: Record<string, unknown>) => {
+                    expect(body).toEqual({});
+                    done();
+                }, done);
+            });
+        });
+
+        describe('when opening dialog fails', () => {
+            it('logs the error', (done) => {
+                dialog.resolve = false;
+
+                service(params).expect(200).end((err, res) => {
+                    if (err) {
+                        done(err);
+                    }
+
+                    expect(loggerSpy).toHaveBeenCalled();
+
+                    done();
+                });
+            });
+        });
+    }
+
+
     it('returns 200 OK', () => {
         return service(default_params).expect(200);
     });
@@ -83,42 +127,15 @@ describe('POST /api/slack/command', () => {
 
         describe('text: bug', () => {
             const bug_params = merge(support_params, { text: 'bug' });
-            it('sends dialog to Slack', (done) => {
-                service(bug_params).expect(200).end((err, res) => {
-                    if (err) {
-                        done(err);
-                    }
 
-                    expect(dialog.open.mock.calls.length).toEqual(1);
+            test_support_command_with_dialog(bug_params);
+        });
 
-                    done();
-                });
-            });
 
-            describe('response.body', () => {
-                it('returns empty', (done) => {
-                    response(bug_params, (body: Record<string, unknown>) => {
-                        expect(body).toEqual({});
-                        done();
-                    }, done);
-                });
-            });
+        describe('text: data', () => {
+            const data_params = merge(support_params, { text: 'data' });
 
-            describe('when opening dialog fails', () => {
-                it('logs the error', (done) => {
-                    dialog.resolve = false;
-
-                    service(bug_params).expect(200).end((err, res) => {
-                        if (err) {
-                            done(err);
-                        }
-
-                        expect(loggerSpy).toHaveBeenCalled();
-
-                        done();
-                    });
-                });
-            });
+            test_support_command_with_dialog(data_params);
         });
     });
 });
