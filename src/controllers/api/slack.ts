@@ -12,7 +12,7 @@ const commandHelpResponse = {
         + '> Submit a bug report:\n>`/support bug`'
 };
 
-const openBugDialog = (text: string, trigger_id: string) => {
+const openBugDialog = (trigger_id: string) => {
     const dialog: Dialog = {
         callback_id: `syft${(new Date()).getTime()}`, // Needs to be unique
         title: 'Report Bug',
@@ -24,7 +24,7 @@ const openBugDialog = (text: string, trigger_id: string) => {
                 label: 'Title',
                 placeholder: 'eg. Employer 1234 can\'t see shifts',
                 name: 'title',
-                value: text || '',
+                value: '',
             },
             {
                 type: 'textarea',
@@ -59,7 +59,7 @@ const openBugDialog = (text: string, trigger_id: string) => {
 };
 
 
-const openDataRequestDialog = (text: string, trigger_id: string) => {
+const openDataRequestDialog = (trigger_id: string) => {
     const dialog: Dialog = {
         callback_id: `syft${(new Date()).getTime()}`, // Needs to be unique
         title: 'New Data Request',
@@ -71,7 +71,7 @@ const openDataRequestDialog = (text: string, trigger_id: string) => {
                 label: 'Title',
                 placeholder: 'eg. Number of shifts per employer in Feb 2019',
                 name: 'title',
-                value: text || '',
+                value: '',
             },
             {
                 type: 'textarea',
@@ -82,7 +82,6 @@ const openDataRequestDialog = (text: string, trigger_id: string) => {
             },
         ],
     };
-
 
     slackWeb.dialog.open({
         dialog,
@@ -105,10 +104,10 @@ export const postCommand = (req: Request, res: Response) => {
 
     if (args[0] === 'bug') {
         response_body = null;
-        openBugDialog('', trigger_id);
+        openBugDialog(trigger_id);
     } else if (args[0] === 'data') {
         response_body = null;
-        openDataRequestDialog('', trigger_id);
+        openDataRequestDialog(trigger_id);
     }
 
     res.status(200).send(response_body);
