@@ -1,10 +1,10 @@
 'use strict';
 
 import { Response, Request } from 'express';
-import logger from '../../util/logger';
-import { WebClient, Dialog } from '@slack/web-api';
+import { Dialog } from '@slack/web-api';
 
-const slackWeb = new WebClient('');
+import logger from '../../util/logger';
+import slackWeb from '../../config/slack';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
