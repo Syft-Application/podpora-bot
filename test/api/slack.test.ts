@@ -1,6 +1,6 @@
 import request from 'supertest';
 // import mockDialogOpen from slack.mock must be before we import app
-import { MockWebClient } from './slack.mock';
+import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 
@@ -153,8 +153,9 @@ describe('POST /api/slack/event', () => {
 });
 
 /*
- Any interactions with shortcuts, modals, or interactive components
- on Slack will be sent to this endpoint.
+  Any interactions with shortcuts, modals, or interactive components
+  on Slack will be sent to this endpoint.
+  (Handle dialog submissions from /support slash command)
 */
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
@@ -165,5 +166,14 @@ describe('POST /api/slack/interaction', () => {
 
     it('returns 200 OK', (done) => {
         return service({}).expect(200, done);
+    });
+
+    xit('sends slack chat message with submission to support channel', (done) => {
+
+        done();
+    });
+
+    xit('creates a jira ticket', (done) => {
+        done();
     });
 });
