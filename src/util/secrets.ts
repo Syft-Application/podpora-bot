@@ -10,8 +10,6 @@ if (fs.existsSync('.env')) {
     dotenv.config({ path: '.env.example' });  // you can delete this after you create your own .env file!
 }
 export const ENVIRONMENT = process.env.NODE_ENV;
-const prod = ENVIRONMENT === 'production'; // Anything else is treated as 'dev'
-
 export const SLACK_API_TOKEN = process.env['SLACK_API_TOKEN'];
 export const JIRA_USERNAME = process.env['JIRA_USERNAME'];
 export const JIRA_API_TOKEN = process.env['JIRA_API_TOKEN'];

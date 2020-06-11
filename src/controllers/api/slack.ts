@@ -1,10 +1,16 @@
 'use strict';
 
 import { Response, Request } from 'express';
-import { Dialog } from '@slack/web-api';
 
 import logger from '../../util/logger';
-import slackWeb from '../../config/slack';
+import {
+    webClient as slackWeb,
+    teamConfig,
+    SlackDialogs,
+    SlackMessages
+} from '../../config/slack';
+
+// import { jiraClient } from '../../config/jira';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
@@ -12,44 +18,8 @@ const commandHelpResponse = {
         + '> Submit a bug report:\n>`/support bug`'
 };
 
-const callbackPrefix = '31bafaf4';
-const openBugDialog = (trigger_id: string) => {
-    const dialog: Dialog = {
-        callback_id: `${callbackPrefix}${(new Date()).getTime()}`, // Needs to be unique
-        title: 'Report Bug',
-        submit_label: 'Submit',
-        state: 'bug',
-        elements: [
-            {
-                type: 'text',
-                label: 'Title',
-                placeholder: 'eg. Employer 1234 can\'t see shifts',
-                name: 'title',
-                value: '',
-            },
-            {
-                type: 'textarea',
-                label: 'Steps to Reproduce',
-                placeholder: 'Bullet point steps to reproduce. Incude specifics, eg. urls and ids',
-                name: 'reproduce',
-                value: '',
-            },
-            {
-                type: 'text',
-                label: 'Expected Outcome',
-                placeholder: 'What *should* happen when the above steps are taken?',
-                name: 'expected',
-                value: '',
-            },
-            {
-                type: 'text',
-                label: 'Current Outcome',
-                placeholder: 'What *currently* happens when the above steps are taken?',
-                name: 'currently',
-                value: '',
-            },
-        ]
-    };
+function openSlackDialog(trigger_id: string, request_type: string): void {
+    const dialog = SlackDialogs[request_type]();
 
     slackWeb.dialog.open({
         dialog,
@@ -57,58 +27,52 @@ const openBugDialog = (trigger_id: string) => {
     }).catch((err) => {
         logger.error(err.message);
     });
-};
+}
 
+function slackRequestMessageText(
+    submission: Record<string, string>,
+    state: string,
+    user_id: string
+): string {
+    const state_to_text = state === 'bug' ? 'bug report' : `${state} request`;
+    const descFn = (state === 'bug') ? SlackMessages.bug : SlackMessages.default;
+    const description = descFn(submission);
 
-const openDataRequestDialog = (trigger_id: string) => {
-    const dialog: Dialog = {
-        callback_id: `${callbackPrefix}${(new Date()).getTime()}`, // Needs to be unique
-        title: 'New Data Request',
-        submit_label: 'Submit',
-        state: 'data',
-        elements: [
-            {
-                type: 'text',
-                label: 'Title',
-                placeholder: 'eg. Number of shifts per employer in Feb 2019',
-                name: 'title',
-                value: '',
-            },
-            {
-                type: 'textarea',
-                label: 'Description',
-                placeholder: 'Please include any extra information required, eg. column names',
-                name: 'description',
-                value: '',
-            },
-        ],
-    };
+    return `<@${user_id}> has submitted a ${state_to_text}:\n\n` +
+        `*${submission.title}*\n\n${description}`;
+}
 
-    slackWeb.dialog.open({
-        dialog,
-        trigger_id,
+function postSlackMessage(
+    submission: Record<string, string>,
+    submission_type: string,
+    team: Record<string, string>,
+    user: Record<string, string>
+): void {
+
+    const team_config = teamConfig(team.id);
+    const msg_text = slackRequestMessageText(submission, submission_type, user.id);
+
+    slackWeb.chat.postMessage({
+        text: msg_text,
+        channel: team_config.support_channel_id
     }).catch((err) => {
         logger.error(err.message);
     });
-};
-
-
+}
 
 /**
  * POST /api/slack/command
  *
  */
-export const postCommand = (req: Request, res: Response) => {
-    const { body: { command, text, trigger_id } } = req;
+export const postCommand = (req: Request, res: Response): void => {
+    const { body: { text, trigger_id } } = req;
     const args = text.trim().split(/\s+/);
+    const request_type = args[0];
     let response_body = commandHelpResponse;
 
-    if (args[0] === 'bug') {
+    if (request_type === 'bug' || request_type === 'data') {
         response_body = null;
-        openBugDialog(trigger_id);
-    } else if (args[0] === 'data') {
-        response_body = null;
-        openDataRequestDialog(trigger_id);
+        openSlackDialog(trigger_id, request_type);
     }
 
     res.status(200).send(response_body);
@@ -118,7 +82,7 @@ export const postCommand = (req: Request, res: Response) => {
  * POST /api/slack/event
  *
  */
-export const postEvent = (req: Request, res: Response) => {
+export const postEvent = (req: Request, res: Response): void => {
     const { body } = req;
 
     res.json({ challenge: body.challenge });
@@ -128,6 +92,15 @@ export const postEvent = (req: Request, res: Response) => {
  * POST /api/slack/interaction
  *
  */
-export const postInteraction = (req: Request, res: Response) => {
+export const postInteraction = (req: Request, res: Response): void => {
+    const {
+        state,
+        user,
+        team,
+        submission
+    } = req.body.payload;
+
+    postSlackMessage(submission, state, team, user);
+
     res.status(200).send();
 };

@@ -4,17 +4,18 @@
 # For a complete list of options that you can use to customize hooks, see:
 # https://github.com/sds/overcommit#configuration
 #
-
 PreCommit:
   EsLint:
     enabled: true
-    on_warn: fail # Treat all warnings as failures
+    on_warn: fail
+    quiet: false
     required_executable: 'npm'
-    command: ['npm', 'run', 'lint']
-    flags: []
+    command: ['npm', 'run', 'lint-full', '--', '-f', 'compact']
     include:
+      - '**/*.js'
       - '**/*.ts'
-      - '.eslintrc'
+    exclude:
+     - 'src/public/**/*'
   NpmTest:
     enabled: true
     quiet: false

@@ -1,37 +1,38 @@
-import request from 'supertest';
+import request, * as supertest from 'supertest';
 // import mockDialogOpen from slack.mock must be before we import app
 import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 
+import { teamConfig } from '../../src/config/slack';
 import app from '../../src/app';
 
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
-const dialog = MockWebClient.prototype.dialog;
+const dialogSpy = MockWebClient.prototype.dialog;
+const chatSpy = MockWebClient.prototype.chat;
+const postMessage = chatSpy.postMessage;
+const slack_team_config = teamConfig('slack-test-team-id');
 
 interface ServiceResponseCallback {
     (body: Record<string, unknown>): void;
 }
 
-interface ApiService {
-    (params: Record<string, unknown>): any;
-}
-
-function merge(target: any, source: any) {
+function merge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
     const target_copy = Object.assign({}, target);
 
     return Object.assign(target_copy, source);
 }
 
 function build_service(api_path: string) {
-    return function(params: Record<string, unknown>) {
+    return function(params: Record<string, unknown>): supertest.Test {
         return request(app).post(api_path).send(params);
     };
 }
 
-function build_response(service: any) {
-    return function(callback: ServiceResponseCallback, done: jest.DoneCallback) {
-        return service.end((err: any, res: any) => {
+function build_response(service: supertest.Test) {
+    return function(callback: ServiceResponseCallback, done: jest.DoneCallback): supertest.Test {
+        // return service.end((err: any, res: Record<string, unknown>) => {
+        return service.end((err: Error, res: supertest.Response) => {
             if (err) {
                 done(err);
             }
@@ -64,14 +65,14 @@ describe('POST /api/slack/command', () => {
     const api_path = '/api/slack/command';
     const service = build_service(api_path);
 
-    function test_support_command_with_dialog(params: Record<string, unknown>) {
+    function test_support_command_with_dialog(params: Record<string, unknown>): void {
         it('sends dialog to Slack', (done) => {
-            service(params).expect(200).end((err, res) => {
+            service(params).expect(200).end((err) => {
                 if (err) {
                     done(err);
                 }
 
-                expect(dialog.open.mock.calls.length).toEqual(1);
+                expect(dialogSpy.open.mock.calls.length).toEqual(1);
 
                 done();
             });
@@ -90,9 +91,9 @@ describe('POST /api/slack/command', () => {
 
         describe('when opening dialog fails', () => {
             it('logs the error', (done) => {
-                dialog.resolve = false;
+                dialogSpy.resolve = false;
 
-                service(params).expect(200).end((err, res) => {
+                service(params).expect(200).end((err) => {
                     if (err) {
                         done(err);
                     }
@@ -177,7 +178,13 @@ describe('POST /api/slack/event', () => {
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
     const service = build_service(api_path);
-    const payload = {
+    const submission = {
+        'title': 'Android app is crashing',
+        'reproduce': 'pokojny vecer na vrsky padal',
+        'expected': 'foo',
+        'currently': 'baz'
+    };
+    const default_payload = {
         'type': 'dialog_submission',
         'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
         'action_ts': '1591735130.109259',
@@ -193,24 +200,98 @@ describe('POST /api/slack/interaction', () => {
             'id': 'CHNBT34FJ',
             'name': 'support'
         },
-        'submission': {
-            'title': 'fdsafd',
-            'reproduce': 'fdsfdsa',
-            'expected': 'fdsfdsa',
-            'currently': 'dsfdsa'
-        }, 'callback_id': 'syft1591734883700',
+        'submission': submission,
+        'callback_id': 'syft1591734883700',
         'response_url': 'https://hooks.slack.com/app/response_url',
         'state': 'bug'
     };
+    const params = { payload: default_payload };
 
     it('returns 200 OK', (done) => {
-        return service({ payload: JSON.stringify(payload) }).expect(200, done);
+        return service(params).expect(200, done);
     });
 
-    xit('sends slack chat message with submission to support channel', (done) => {
+    it('post message to slack support channel with bug description', (done) => {
+        service(params).expect(200).end((err) => {
+            if (err) {
+                done(err);
+            }
 
-        done();
+            expect(postMessage.mock.calls.length).toEqual(1);
+            const { text: msg_text, channel: msg_channel } = postMessage.mock.calls[0][0];
+
+            expect(msg_channel).toEqual(slack_team_config.support_channel_id);
+            expect(msg_text).toEqual(expect.stringContaining(submission.title));
+            expect(msg_text).toEqual(expect.stringContaining(submission.reproduce));
+            expect(msg_text).toEqual(expect.stringContaining(submission.expected));
+            expect(msg_text).toEqual(expect.stringContaining(submission.currently));
+
+            done();
+        });
     });
+
+    describe('data request submission', () => {
+        const submission = {
+            'title': 'Very Important Client report',
+            'description': 'Can I please have foo in bar from baz for Fizz.'
+        };
+
+        const params = {
+            payload: merge(default_payload,
+                { state: 'data', submission: submission })
+        };
+
+        it('post message to slack support channel with data request description', (done) => {
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    done(err);
+                }
+
+                expect(postMessage.mock.calls.length).toEqual(1);
+                const { text: msg_text, channel: msg_channel } = postMessage.mock.calls[0][0];
+
+                expect(msg_channel).toEqual(slack_team_config.support_channel_id);
+                expect(msg_text).toEqual(expect.stringContaining(submission.title));
+                expect(msg_text).toEqual(expect.stringContaining(submission.description));
+
+                done();
+            });
+        });
+    });
+
+    describe('post message to slack fails', () => {
+        it('logs the error', (done) => {
+            chatSpy.resolve = false;
+
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    done(err);
+                }
+
+                expect(loggerSpy).toHaveBeenCalled();
+                const log_message = loggerSpy.mock.calls[0][0];
+                expect(log_message).toEqual('Something went wrong with postMessage');
+
+                done();
+            });
+        });
+
+    });
+
+    // const success_response = {
+    //     "ok": true,
+    //     "channel": "C1H9RESGL",
+    //     "ts": "1503435956.000247",
+    //     "message": {
+    //         "text": "Here's a message for you",
+    //         "username": "ecto1",
+    //         "bot_id": "B19LU7CSY",
+    //         "attachments": [],
+    //         "type": "message",
+    //         "subtype": "bot_message",
+    //         "ts": "1503435956.000247"
+    //     }
+    // };
 
     xit('creates a jira ticket', (done) => {
         done();
