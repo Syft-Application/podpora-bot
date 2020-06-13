@@ -4,14 +4,20 @@ import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 
-import { teamConfig } from '../../src/config/slack';
+import * as slack from '../../src/config/slack';
+import * as jira from '../../src/config/jira';
+
 import app from '../../src/app';
 
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
 const dialogSpy = MockWebClient.prototype.dialog;
 const chatSpy = MockWebClient.prototype.chat;
 const postMessage = chatSpy.postMessage;
-const slack_team_config = teamConfig('slack-test-team-id');
+jest.spyOn(slack, 'teamConfig').mockReturnValue({ 'support_channel_id': 'foo-123' });
+const jiraSpy = jest.spyOn(jira, 'createIssueFromSlackMessage');
+jiraSpy.mockImplementation(() => {
+    return Promise.resolve({ json: () => [] });
+});
 
 interface ServiceResponseCallback {
     (body: Record<string, unknown>): void;
@@ -65,6 +71,19 @@ describe('POST /api/slack/command', () => {
     const api_path = '/api/slack/command';
     const service = build_service(api_path);
 
+    // Slack dialog open success response
+    // {
+    //   ok: true,
+    //   response_metadata: {
+    //     scopes: [
+    //       'commands',
+    //       'app_mentions:read',
+    //       'files:read',
+    //       'channels:history',
+    //       'reactions:read'
+    //     ]
+    //   }
+    // }
     function test_support_command_with_dialog(params: Record<string, unknown>): void {
         it('sends dialog to Slack', (done) => {
             service(params).expect(200).end((err) => {
@@ -205,10 +224,56 @@ describe('POST /api/slack/interaction', () => {
         'response_url': 'https://hooks.slack.com/app/response_url',
         'state': 'bug'
     };
-    const params = { payload: default_payload };
+    const params = { payload: JSON.stringify(default_payload) };
+
+    chatSpy.resolve = {
+        ok: true,
+        channel: 'CHS7JQ7PY',
+        ts: '1592066203.000100',
+        message: {
+            bot_id: 'B015AE1RR1A',
+            type: 'message',
+            text: '<@UHAV00MD0> has submitted a data request:\n\n*faaa*\n\nbaa',
+            user: 'U01548S52NN',
+            ts: '1592066203.000100',
+            team: 'THS7JQ2RL',
+            bot_profile: {
+                id: 'B015AE1RR1A',
+                deleted: false,
+                name: 'podpora',
+                updated: 1591734066,
+                app_id: 'A014LS9K1U7',
+                team_id: 'THS7JQ2RL'
+            }
+        },
+        response_metadata: {
+            scopes: [
+                'commands',
+                'app_mentions:read',
+                'files:read',
+                'channels:history',
+                'reactions:read',
+                'chat:write',
+                'chat:write.public'
+            ],
+            acceptedScopes: ['chat:write']
+        }
+    };
 
     it('returns 200 OK', (done) => {
         return service(params).expect(200, done);
+    });
+
+    it('calls create jira ticket', (done) => {
+        service(params).expect(200).end((err) => {
+            if (err) {
+                done(err);
+            }
+
+            expect(jiraSpy).toHaveBeenCalled();
+
+            done();
+        });
     });
 
     it('post message to slack support channel with bug description', (done) => {
@@ -220,7 +285,7 @@ describe('POST /api/slack/interaction', () => {
             expect(postMessage.mock.calls.length).toEqual(1);
             const { text: msg_text, channel: msg_channel } = postMessage.mock.calls[0][0];
 
-            expect(msg_channel).toEqual(slack_team_config.support_channel_id);
+            expect(msg_channel).toEqual('foo-123');
             expect(msg_text).toEqual(expect.stringContaining(submission.title));
             expect(msg_text).toEqual(expect.stringContaining(submission.reproduce));
             expect(msg_text).toEqual(expect.stringContaining(submission.expected));
@@ -237,8 +302,9 @@ describe('POST /api/slack/interaction', () => {
         };
 
         const params = {
-            payload: merge(default_payload,
-                { state: 'data', submission: submission })
+            payload: JSON.stringify(
+                merge(default_payload, { state: 'data', submission: submission })
+            )
         };
 
         it('post message to slack support channel with data request description', (done) => {
@@ -250,7 +316,7 @@ describe('POST /api/slack/interaction', () => {
                 expect(postMessage.mock.calls.length).toEqual(1);
                 const { text: msg_text, channel: msg_channel } = postMessage.mock.calls[0][0];
 
-                expect(msg_channel).toEqual(slack_team_config.support_channel_id);
+                expect(msg_channel).toEqual('foo-123');
                 expect(msg_text).toEqual(expect.stringContaining(submission.title));
                 expect(msg_text).toEqual(expect.stringContaining(submission.description));
 
@@ -275,25 +341,44 @@ describe('POST /api/slack/interaction', () => {
                 done();
             });
         });
-
     });
 
-    // const success_response = {
-    //     "ok": true,
-    //     "channel": "C1H9RESGL",
-    //     "ts": "1503435956.000247",
-    //     "message": {
-    //         "text": "Here's a message for you",
-    //         "username": "ecto1",
-    //         "bot_id": "B19LU7CSY",
-    //         "attachments": [],
-    //         "type": "message",
-    //         "subtype": "bot_message",
-    //         "ts": "1503435956.000247"
-    //     }
-    // };
-
     xit('creates a jira ticket', (done) => {
+        // {
+        //   ok: true,
+        //   channel: 'CHS7JQ7PY',
+        //   ts: '1592066203.000100',
+        //   message: {
+        //     bot_id: 'B015AE1RR1A',
+        //     type: 'message',
+        //     text: '<@UHAV00MD0> has submitted a data request:\n\n*faaa*\n\nbaa',
+        //     user: 'U01548S52NN',
+        //     ts: '1592066203.000100',
+        //     team: 'THS7JQ2RL',
+        //     bot_profile: {
+        //       id: 'B015AE1RR1A',
+        //       deleted: false,
+        //       name: 'podpora',
+        //       updated: 1591734066,
+        //       app_id: 'A014LS9K1U7',
+        //       icons: [Object],
+        //       team_id: 'THS7JQ2RL'
+        //     }
+        //   },
+        //   response_metadata: {
+        //     scopes: [
+        //       'commands',
+        //       'app_mentions:read',
+        //       'files:read',
+        //       'channels:history',
+        //       'reactions:read',
+        //       'chat:write',
+        //       'chat:write.public'
+        //     ],
+        //     acceptedScopes: [ 'chat:write' ]
+        //   }
+        // }
+
         done();
     });
 });

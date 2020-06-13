@@ -1,27 +1,25 @@
-import { SLACK_API_TOKEN } from './../util/secrets';
+import { SLACK_API_TOKEN, SLACK_TEAMS } from './../util/secrets';
 import { WebClient, Dialog } from '@slack/web-api';
 
 const webClient = new WebClient(SLACK_API_TOKEN);
-const env = process.env;
 
 // TODO:
-// returns config per team
-// at the moment taken from env but we can move it to
-// som db like redis
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// Returns support config per team.
+// At the moment taken from env but we can move it to a different storage
 function teamConfig(team_id: string): Record<string, string> {
-    return {
-        support_channel_id: env['SLACK_SUPPORT_CHANNEL_ID']
-    };
+    return SLACK_TEAMS[team_id];
 }
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const callbackPrefix = '31bafaf4';
+
+function callbackId(): string {
+    return `${callbackPrefix}${(new Date()).getTime()}`;
+}
 
 const SlackDialogs: { [index: string]: () => Dialog } = {
     bug: (): Dialog => {
         return {
-            callback_id: `${callbackPrefix}${(new Date()).getTime()}`, // Needs to be unique
+            callback_id: callbackId(), // Needs to be unique
             title: 'Report Bug',
             submit_label: 'Submit',
             state: 'bug',
@@ -60,7 +58,7 @@ const SlackDialogs: { [index: string]: () => Dialog } = {
 
     data: (): Dialog => {
         return {
-            callback_id: `${callbackPrefix}${(new Date()).getTime()}`, // Needs to be unique
+            callback_id: callbackId(), // Needs to be unique
             title: 'New Data Request',
             submit_label: 'Submit',
             state: 'data',

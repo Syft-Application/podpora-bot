@@ -9,8 +9,9 @@ if (fs.existsSync('.env')) {
     logger.debug('Using .env.example file to supply config environment variables');
     dotenv.config({ path: '.env.example' });  // you can delete this after you create your own .env file!
 }
-export const ENVIRONMENT = process.env.NODE_ENV;
+
 export const SLACK_API_TOKEN = process.env['SLACK_API_TOKEN'];
+export const SLACK_TEAMS: { [index: string]: Record<string, string> } = JSON.parse(process.env['SLACK_TEAMS']);
 export const JIRA_USERNAME = process.env['JIRA_USERNAME'];
 export const JIRA_API_TOKEN = process.env['JIRA_API_TOKEN'];
 export const JIRA_HOST = process.env['JIRA_HOST'];

@@ -1,7 +1,7 @@
 'use strict';
 
 import { Response, Request } from 'express';
-
+import { WebAPICallResult } from '@slack/web-api';
 import logger from '../../util/logger';
 import {
     webClient as slackWeb,
@@ -10,7 +10,7 @@ import {
     SlackMessages
 } from '../../config/slack';
 
-// import { jiraClient } from '../../config/jira';
+import * as jira from '../../config/jira';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
@@ -42,23 +42,45 @@ function slackRequestMessageText(
         `*${submission.title}*\n\n${description}`;
 }
 
-function postSlackMessage(
+function linkJiraIssueToSlackMessage(team: Record<string, string>, slack_message: Record<string, string>, jira_response: Record<string, string>): void {
+    logger.debug(team);
+    logger.debug(slack_message);
+    logger.debug(jira_response);
+}
+
+interface ChatPostMessageResult extends WebAPICallResult {
+    channel: string;
+    ts: string;
+    message: {
+        text: string;
+    }
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function postUserRequestToSlack(
     submission: Record<string, string>,
     submission_type: string,
     team: Record<string, string>,
     user: Record<string, string>
-): void {
+): Promise<any> {
 
     const team_config = teamConfig(team.id);
     const msg_text = slackRequestMessageText(submission, submission_type, user.id);
 
-    slackWeb.chat.postMessage({
+    return slackWeb.chat.postMessage({
         text: msg_text,
         channel: team_config.support_channel_id
+    }).then((value: ChatPostMessageResult) => {
+        const slack_message = value.message;
+        jira.createIssueFromSlackMessage(slack_message)
+            .then((jira_response: Record<string, string>) => {
+                linkJiraIssueToSlackMessage(team, slack_message, jira_response);
+            });
     }).catch((err) => {
         logger.error(err.message);
     });
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
  * POST /api/slack/command
@@ -93,14 +115,15 @@ export const postEvent = (req: Request, res: Response): void => {
  *
  */
 export const postInteraction = (req: Request, res: Response): void => {
+    const body = JSON.parse(req.body.payload);
     const {
         state,
         user,
         team,
-        submission
-    } = req.body.payload;
+        submission,
+    } = body;
 
-    postSlackMessage(submission, state, team, user);
+    postUserRequestToSlack(submission, state, team, user);
 
     res.status(200).send();
 };

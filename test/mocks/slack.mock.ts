@@ -1,3 +1,5 @@
+// import { WebAPICallResult } from '@slack/web-api';
+
 function MockWebClient(token: string): void {
     this.token = token;
 }
@@ -24,7 +26,7 @@ MockWebClient.prototype = {
             return new Promise((resolve, reject) => {
                 process.nextTick(() => {
                     if (this.resolve) {
-                        resolve();
+                        resolve(this.resolve);
                     } else {
                         reject(new Error('Something went wrong with postMessage'));
                     }
