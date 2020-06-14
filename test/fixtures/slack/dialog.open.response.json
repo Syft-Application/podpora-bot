@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "response_metadata": {
+    "scopes": [
+      "commands",
+      "app_mentions:read",
+      "files:read",
+      "channels:history",
+      "reactions:read"
+    ]
+  }
+}

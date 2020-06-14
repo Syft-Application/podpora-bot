@@ -13,10 +13,18 @@ describe('SlackTeam', () => {
     });
 
     describe('#postSupportRequest', () => {
+        const postSupportRequest = team.postSupportRequest;
         it('exists', (done) => {
-            expect(team.postSupportRequest).toBeDefined();
+            expect(postSupportRequest).toBeDefined();
 
             done();
         });
+
+        it('returns a Promise', (done) => {
+            // expect(postSupportRequest()).resolves.toEqual();
+
+            done();
+        });
+
     });
 });

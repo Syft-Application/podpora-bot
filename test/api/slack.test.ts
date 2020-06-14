@@ -71,19 +71,6 @@ describe('POST /api/slack/command', () => {
     const api_path = '/api/slack/command';
     const service = build_service(api_path);
 
-    // Slack dialog open success response
-    // {
-    //   ok: true,
-    //   response_metadata: {
-    //     scopes: [
-    //       'commands',
-    //       'app_mentions:read',
-    //       'files:read',
-    //       'channels:history',
-    //       'reactions:read'
-    //     ]
-    //   }
-    // }
     function test_support_command_with_dialog(params: Record<string, unknown>): void {
         it('sends dialog to Slack', (done) => {
             service(params).expect(200).end((err) => {
@@ -344,40 +331,6 @@ describe('POST /api/slack/interaction', () => {
     });
 
     xit('creates a jira ticket', (done) => {
-        // {
-        //   ok: true,
-        //   channel: 'CHS7JQ7PY',
-        //   ts: '1592066203.000100',
-        //   message: {
-        //     bot_id: 'B015AE1RR1A',
-        //     type: 'message',
-        //     text: '<@UHAV00MD0> has submitted a data request:\n\n*faaa*\n\nbaa',
-        //     user: 'U01548S52NN',
-        //     ts: '1592066203.000100',
-        //     team: 'THS7JQ2RL',
-        //     bot_profile: {
-        //       id: 'B015AE1RR1A',
-        //       deleted: false,
-        //       name: 'podpora',
-        //       updated: 1591734066,
-        //       app_id: 'A014LS9K1U7',
-        //       icons: [Object],
-        //       team_id: 'THS7JQ2RL'
-        //     }
-        //   },
-        //   response_metadata: {
-        //     scopes: [
-        //       'commands',
-        //       'app_mentions:read',
-        //       'files:read',
-        //       'channels:history',
-        //       'reactions:read',
-        //       'chat:write',
-        //       'chat:write.public'
-        //     ],
-        //     acceptedScopes: [ 'chat:write' ]
-        //   }
-        // }
 
         done();
     });
