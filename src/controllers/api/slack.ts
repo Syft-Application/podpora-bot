@@ -75,10 +75,6 @@ function postUserRequestToSlack(
     const slack_team = new SlackTeam(team);
     return slack_team.postSupportRequest(msg_text)
         .then((value: ChatPostMessageResult) => {
-            // return slackWeb.chat.postMessage({
-            //     text: msg_text,
-            //     channel: team_config.support_channel_id
-            // }).then((value: ChatPostMessageResult) => {
             const slack_message = value.message;
             jira.createIssueFromSlackMessage(slack_message)
                 .then((jira_response: Record<string, string>) => {

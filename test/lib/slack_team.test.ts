@@ -18,6 +18,7 @@ describe('SlackTeam', () => {
     const team = new SlackTeam({ id: 'abc', domain: 'foo' });
     team.config = { support_channel_id: 'channel-1234' };
     const postMessageMock = jest.spyOn(team.client.chat, 'postMessage');
+    const dialogOpenMock = jest.spyOn(team.client.dialog, 'open');
     it('exists', (done) => {
         expect(SlackTeam).toBeDefined();
 
@@ -58,6 +59,38 @@ describe('SlackTeam', () => {
 
                 expect(team.postSupportRequest(msg)).rejects.toEqual({ ok: false });
                 team.postSupportRequest(msg).catch(() => {
+                    expect(loggerSpy).toHaveBeenCalled();
+                });
+
+                done();
+            });
+        });
+    });
+
+    describe('#showSupportRequestForm()', () => {
+        const request_type = 'bug';
+        const trigger_id = 'tr123';
+
+        it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
+            dialogOpenMock.mockImplementation(() => {
+                return Promise.resolve({ ok: true });
+            });
+
+            expect(team.showSupportRequestForm(request_type, trigger_id))
+                .resolves.toEqual({ ok: true });
+
+            done();
+        });
+
+        describe('failure', () => {
+            it('it catch and log the failure', (done) => {
+                dialogOpenMock.mockImplementation(() => {
+                    return Promise.reject({ ok: false });
+                });
+
+                expect(team.showSupportRequestForm(request_type, trigger_id))
+                    .rejects.toEqual({ ok: false });
+                team.showSupportRequestForm(request_type, trigger_id).catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
                 });
 
