@@ -4,8 +4,6 @@ import { Response, Request } from 'express';
 import { WebAPICallResult } from '@slack/web-api';
 import logger from '../../util/logger';
 import {
-    webClient as slackWeb,
-    SlackDialogs,
     SlackMessages
 } from '../../config/slack';
 
@@ -20,17 +18,6 @@ const commandHelpResponse = {
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
-
-function openSlackDialog(trigger_id: string, request_type: string): void {
-    const dialog = SlackDialogs[request_type]();
-
-    slackWeb.dialog.open({
-        dialog,
-        trigger_id,
-    }).catch((err) => {
-        logger.error(err.message);
-    });
-}
 
 function slackRequestMessageText(
     submission: Record<string, string>,
@@ -93,14 +80,19 @@ function postUserRequestToSlack(
  *
  */
 export const postCommand = (req: Request, res: Response): void => {
-    const { body: { text, trigger_id } } = req;
+    const { body: { text, trigger_id, team_id, team_domain } } = req;
     const args = text.trim().split(/\s+/);
     const request_type = args[0];
     let response_body = commandHelpResponse;
+    const team = { id: team_id, domain: team_domain };
+    const slack_team = new SlackTeam(team);
 
     if (request_type === 'bug' || request_type === 'data') {
         response_body = null;
-        openSlackDialog(trigger_id, request_type);
+        slack_team.showSupportRequestForm(request_type, trigger_id)
+            .catch((err) => {
+                logger.error(err.message);
+            });
     }
 
     res.status(200).send(response_body);
