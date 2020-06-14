@@ -67,7 +67,6 @@ function postUserRequestToSlack(
     team: { id: string, domain: string },
     user: Record<string, string>
 ): Promise<any> {
-
     const msg_text = slackRequestMessageText(submission, submission_type, user.id);
     const slack_team = new SlackTeam(team);
     return slack_team.postSupportRequest(msg_text)
