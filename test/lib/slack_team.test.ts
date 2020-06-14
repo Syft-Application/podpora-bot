@@ -24,13 +24,28 @@ describe('SlackTeam', () => {
         done();
     });
 
-    describe('#postSupportRequest', () => {
+    describe('#postSupportRequest(message)', () => {
+        const msg = 'This is my message';
+
         it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
             postMessageMock.mockImplementation(() => {
                 return Promise.resolve(postMsgResponse);
             });
 
-            expect(team.postSupportRequest()).resolves.toEqual(postMsgResponse);
+            expect(team.postSupportRequest(msg)).resolves.toEqual(postMsgResponse);
+
+            done();
+        });
+
+        it('sends the message to team slack', (done) => {
+            postMessageMock.mockImplementation(() => {
+                return Promise.resolve(postMsgResponse);
+            });
+
+            team.postSupportRequest(msg);
+            const call = postMessageMock.mock.calls[0][0];
+            expect(call.text).toEqual(msg);
+            expect(call.channel).toEqual('channel-1234');
 
             done();
         });
@@ -41,9 +56,8 @@ describe('SlackTeam', () => {
                     return Promise.reject({ ok: false });
                 });
 
-
-                expect(team.postSupportRequest()).rejects.toEqual({ ok: false });
-                team.postSupportRequest().catch(() => {
+                expect(team.postSupportRequest(msg)).rejects.toEqual({ ok: false });
+                team.postSupportRequest(msg).catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
                 });
 

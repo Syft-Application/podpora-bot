@@ -42,11 +42,11 @@ class SlackTeam {
     client: WebClient;
     config: TeamConfig;
 
-    postSupportRequest(): Promise<WebAPICallResult> {
+    postSupportRequest(msg: string): Promise<WebAPICallResult> {
         const channel_id = this.config.support_channel_id;
 
         return this.client.chat.postMessage({
-            text: 'some text',
+            text: msg,
             channel: channel_id
         }).catch((error) => {
             logger.error(error);

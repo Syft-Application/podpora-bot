@@ -10,6 +10,10 @@ import {
     SlackMessages
 } from '../../config/slack';
 
+// import {
+//     SlackTeam
+// } from '../../lib/slack_team';
+
 import * as jira from '../../config/jira';
 
 const commandHelpResponse = {
@@ -60,13 +64,14 @@ interface ChatPostMessageResult extends WebAPICallResult {
 function postUserRequestToSlack(
     submission: Record<string, string>,
     submission_type: string,
-    team: Record<string, string>,
+    team: { id: string, domain: string },
     user: Record<string, string>
 ): Promise<any> {
 
     const team_config = teamConfig(team.id);
     const msg_text = slackRequestMessageText(submission, submission_type, user.id);
-
+    // const slack_team = new SlackTeam(team);
+    // return slack_team.postSupportRequest(msg_text)
     return slackWeb.chat.postMessage({
         text: msg_text,
         channel: team_config.support_channel_id
