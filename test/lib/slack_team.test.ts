@@ -1,7 +1,10 @@
 // import { Logger } from 'winston';
-// import logger from '../../src/util/logger';
+import logger from '../../src/util/logger';
+import { fixture } from '../helpers';
 
 import SlackTeam from '../../src/lib/slack_team';
+
+const postMsgResponse = fixture('slack/chat.postMessage.response');
 
 describe('SlackTeam', () => {
     const team = new SlackTeam({ id: 'abc', domain: 'foo' });
@@ -21,7 +24,8 @@ describe('SlackTeam', () => {
         });
 
         it('returns a Promise', (done) => {
-            // expect(postSupportRequest()).resolves.toEqual();
+            logger.info(postMsgResponse);
+            // expect(postSupportRequest()).resolves.toEqual(postMsgResponse);
 
             done();
         });

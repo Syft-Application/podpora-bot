@@ -1,4 +1,5 @@
-import request, * as supertest from 'supertest';
+import { merge, build_service, build_response } from '../helpers';
+
 // import mockDialogOpen from slack.mock must be before we import app
 import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
@@ -18,34 +19,6 @@ const jiraSpy = jest.spyOn(jira, 'createIssueFromSlackMessage');
 jiraSpy.mockImplementation(() => {
     return Promise.resolve({ json: () => [] });
 });
-
-interface ServiceResponseCallback {
-    (body: Record<string, unknown>): void;
-}
-
-function merge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
-    const target_copy = Object.assign({}, target);
-
-    return Object.assign(target_copy, source);
-}
-
-function build_service(api_path: string) {
-    return function(params: Record<string, unknown>): supertest.Test {
-        return request(app).post(api_path).send(params);
-    };
-}
-
-function build_response(service: supertest.Test) {
-    return function(callback: ServiceResponseCallback, done: jest.DoneCallback): supertest.Test {
-        // return service.end((err: any, res: Record<string, unknown>) => {
-        return service.end((err: Error, res: supertest.Response) => {
-            if (err) {
-                done(err);
-            }
-            return callback(res.body);
-        });
-    };
-}
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -69,7 +42,7 @@ describe('POST /api/slack/command', () => {
     };
 
     const api_path = '/api/slack/command';
-    const service = build_service(api_path);
+    const service = build_service(app, api_path);
 
     function test_support_command_with_dialog(params: Record<string, unknown>): void {
         it('sends dialog to Slack', (done) => {
@@ -153,7 +126,7 @@ describe('POST /api/slack/command', () => {
 
 describe('POST /api/slack/event', () => {
     const api_path = '/api/slack/event';
-    const service = build_service(api_path);
+    const service = build_service(app, api_path);
 
     it('returns 200 OK', (done) => {
         return service({}).expect(200, done);
@@ -183,7 +156,7 @@ describe('POST /api/slack/event', () => {
 */
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
-    const service = build_service(api_path);
+    const service = build_service(app, api_path);
     const submission = {
         'title': 'Android app is crashing',
         'reproduce': 'pokojny vecer na vrsky padal',
