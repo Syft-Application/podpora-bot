@@ -16,44 +16,50 @@ function callbackId(): string {
     return `${callbackPrefix}${(new Date()).getTime()}`;
 }
 
+const bug_form_tpl: Dialog = {
+    callback_id: '',
+    title: 'Report Bug',
+    submit_label: 'Submit',
+    state: 'bug',
+    elements: [
+        {
+            type: 'text',
+            label: 'Title',
+            placeholder: 'eg. Employer 1234 can\'t see shifts',
+            name: 'title',
+            value: '',
+        },
+        {
+            type: 'textarea',
+            label: 'Steps to Reproduce',
+            placeholder: 'Bullet point steps to reproduce. Include specifics, eg. urls and ids',
+            name: 'reproduce',
+            value: '',
+        },
+        {
+            type: 'text',
+            label: 'Expected Outcome',
+            placeholder: 'What *should* happen when the above steps are taken?',
+            name: 'expected',
+            value: '',
+        },
+        {
+            type: 'text',
+            label: 'Current Outcome',
+            placeholder: 'What *currently* happens when the above steps are taken?',
+            name: 'currently',
+            value: '',
+        },
+
+    ]
+};
+
 const SlackDialogs: { [index: string]: () => Dialog } = {
     bug: (): Dialog => {
-        return {
-            callback_id: callbackId(), // Needs to be unique
-            title: 'Report Bug',
-            submit_label: 'Submit',
-            state: 'bug',
-            elements: [
-                {
-                    type: 'text',
-                    label: 'Title',
-                    placeholder: 'eg. Employer 1234 can\'t see shifts',
-                    name: 'title',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Steps to Reproduce',
-                    placeholder: 'Bullet point steps to reproduce. Incude specifics, eg. urls and ids',
-                    name: 'reproduce',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Expected Outcome',
-                    placeholder: 'What *should* happen when the above steps are taken?',
-                    name: 'expected',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Current Outcome',
-                    placeholder: 'What *currently* happens when the above steps are taken?',
-                    name: 'currently',
-                    value: '',
-                },
-            ]
-        };
+        const form = bug_form_tpl;
+        form.callback_id = callbackId();
+
+        return form;
     },
 
     data: (): Dialog => {

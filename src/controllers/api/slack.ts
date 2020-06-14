@@ -45,7 +45,11 @@ function slackRequestMessageText(
         `*${submission.title}*\n\n${description}`;
 }
 
-function linkJiraIssueToSlackMessage(team: Record<string, string>, slack_message: Record<string, string>, jira_response: Record<string, string>): void {
+function linkJiraIssueToSlackMessage(
+    team: Record<string, string>,
+    slack_message: Record<string, string>,
+    jira_response: Record<string, string>
+): void {
     logger.debug(team);
     logger.debug(slack_message);
     logger.debug(jira_response);
@@ -82,6 +86,7 @@ function postUserRequestToSlack(
                 });
         })
         .catch((err) => {
+            // TODO: log function arguments for debug purposes
             logger.error(err);
         });
 }

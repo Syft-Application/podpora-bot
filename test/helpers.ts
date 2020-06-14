@@ -18,7 +18,10 @@ interface ServiceResponseCallback {
     (body: Record<string, unknown>): void;
 }
 
-export function merge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+export function merge(
+    target: Record<string, unknown>,
+    source: Record<string, unknown>
+): Record<string, unknown> {
     const target_copy = Object.assign({}, target);
 
     return Object.assign(target_copy, source);
