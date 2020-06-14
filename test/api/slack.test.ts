@@ -299,7 +299,7 @@ describe('POST /api/slack/interaction', () => {
 
                 expect(loggerSpy).toHaveBeenCalled();
                 const log_message = loggerSpy.mock.calls[0][0];
-                expect(log_message).toEqual('Something went wrong with postMessage');
+                expect(log_message).toEqual(expect.stringContaining('Something went wrong with postMessage'));
 
                 done();
             });

@@ -49,7 +49,8 @@ class SlackTeam {
             text: msg,
             channel: channel_id
         }).catch((error) => {
-            logger.error(error);
+            logger.error(error.message);
+
             return Promise.reject({ ok: false });
         });
     }

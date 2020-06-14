@@ -5,14 +5,13 @@ import { WebAPICallResult } from '@slack/web-api';
 import logger from '../../util/logger';
 import {
     webClient as slackWeb,
-    teamConfig,
     SlackDialogs,
     SlackMessages
 } from '../../config/slack';
 
-// import {
-//     SlackTeam
-// } from '../../lib/slack_team';
+import {
+    SlackTeam
+} from '../../lib/slack_team';
 
 import * as jira from '../../config/jira';
 
@@ -68,22 +67,23 @@ function postUserRequestToSlack(
     user: Record<string, string>
 ): Promise<any> {
 
-    const team_config = teamConfig(team.id);
     const msg_text = slackRequestMessageText(submission, submission_type, user.id);
-    // const slack_team = new SlackTeam(team);
-    // return slack_team.postSupportRequest(msg_text)
-    return slackWeb.chat.postMessage({
-        text: msg_text,
-        channel: team_config.support_channel_id
-    }).then((value: ChatPostMessageResult) => {
-        const slack_message = value.message;
-        jira.createIssueFromSlackMessage(slack_message)
-            .then((jira_response: Record<string, string>) => {
-                linkJiraIssueToSlackMessage(team, slack_message, jira_response);
-            });
-    }).catch((err) => {
-        logger.error(err.message);
-    });
+    const slack_team = new SlackTeam(team);
+    return slack_team.postSupportRequest(msg_text)
+        .then((value: ChatPostMessageResult) => {
+            // return slackWeb.chat.postMessage({
+            //     text: msg_text,
+            //     channel: team_config.support_channel_id
+            // }).then((value: ChatPostMessageResult) => {
+            const slack_message = value.message;
+            jira.createIssueFromSlackMessage(slack_message)
+                .then((jira_response: Record<string, string>) => {
+                    linkJiraIssueToSlackMessage(team, slack_message, jira_response);
+                });
+        })
+        .catch((err) => {
+            logger.error(err);
+        });
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
