@@ -4,14 +4,24 @@ import { Response, Request } from 'express';
 import { WebAPICallResult } from '@slack/web-api';
 import logger from '../../util/logger';
 import {
-    SlackMessages
-} from '../../config/slack';
-
-import {
     SlackTeam
 } from '../../lib/slack_team';
 
 import * as jira from '../../config/jira';
+
+const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
+    bug: (submission: Record<string, string>): string => {
+        const { reproduce, currently, expected } = submission;
+
+        return '*Steps to Reproduce*\n\n' +
+            `${reproduce}\n\n` +
+            '*Currently*\n\n' + `${currently}\n\n` +
+            `*Expected*\n\n${expected}`;
+    },
+    default: (submission: Record<string, string>): string => {
+        return submission.description;
+    }
+};
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
