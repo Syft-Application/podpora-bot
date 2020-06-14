@@ -40,7 +40,6 @@ describe('POST /api/slack/command', () => {
         response_url: 'https://hooks.slack.com/commands/1234/5678',
         trigger_id: '13345224609.738474920.8088930838d88f008e0'
     };
-
     const api_path = '/api/slack/command';
     const service = build_service(app, api_path);
 
@@ -84,7 +83,6 @@ describe('POST /api/slack/command', () => {
             });
         });
     }
-
 
     it('returns 200 OK', () => {
         return service(default_params).expect(200);
