@@ -1,11 +1,14 @@
-// import { Logger } from 'winston';
-// import logger from '../../src/util/logger';
+import { Logger } from 'winston';
+import logger from '../../src/util/logger';
 import { fixture } from '../helpers';
-import { WebAPICallResult } from '@slack/web-api';
 
-import SlackTeam from '../../src/lib/slack_team';
+import {
+    ChatPostMessageResult,
+    SlackTeam
+} from '../../src/lib/slack_team';
 
-const postMsgResponse = fixture('slack/chat.postMessage.response') as WebAPICallResult;
+const postMsgResponse = fixture('slack/chat.postMessage.response') as ChatPostMessageResult;
+const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -38,7 +41,11 @@ describe('SlackTeam', () => {
                     return Promise.reject({ ok: false });
                 });
 
+
                 expect(team.postSupportRequest()).rejects.toEqual({ ok: false });
+                team.postSupportRequest().catch(() => {
+                    expect(loggerSpy).toHaveBeenCalled();
+                });
 
                 done();
             });

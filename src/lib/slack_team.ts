@@ -13,6 +13,14 @@ interface TeamConfig {
     support_channel_id: string
 }
 
+interface ChatPostMessageResult extends WebAPICallResult {
+    channel: string;
+    ts: string;
+    message: {
+        text: string;
+    }
+}
+
 function teamConfig(team_id: string): TeamConfig {
     // return (<TeamConfig>SLACK_TEAMS[team_id]);
     // return (SLACK_TEAMS[team_id] as TeamConfig);
@@ -34,15 +42,20 @@ class SlackTeam {
     client: WebClient;
     config: TeamConfig;
 
-    postSupportRequest(): Promise<WebAPICallResult | void> {
+    postSupportRequest(): Promise<WebAPICallResult> {
+        const channel_id = this.config.support_channel_id;
+
         return this.client.chat.postMessage({
             text: 'some text',
-            channel: 'this.config.support_channel_id'
+            channel: channel_id
         }).catch((error) => {
-            logger.debug(error);
+            logger.error(error);
             return Promise.reject({ ok: false });
         });
     }
 }
 
-export default SlackTeam;
+export {
+    ChatPostMessageResult,
+    SlackTeam
+};
