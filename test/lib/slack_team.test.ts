@@ -7,8 +7,13 @@ import SlackTeam from '../../src/lib/slack_team';
 
 const postMsgResponse = fixture('slack/chat.postMessage.response') as WebAPICallResult;
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe('SlackTeam', () => {
     const team = new SlackTeam({ id: 'abc', domain: 'foo' });
+    team.config = { support_channel_id: 'channel-1234' };
     const postMessageMock = jest.spyOn(team.client.chat, 'postMessage');
     it('exists', (done) => {
         expect(SlackTeam).toBeDefined();
@@ -17,13 +22,7 @@ describe('SlackTeam', () => {
     });
 
     describe('#postSupportRequest', () => {
-        it('exists', (done) => {
-            expect(team.postSupportRequest).toBeDefined();
-
-            done();
-        });
-
-        it('returns a Promise', (done) => {
+        it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
             postMessageMock.mockImplementation(() => {
                 return Promise.resolve(postMsgResponse);
             });
@@ -33,5 +32,16 @@ describe('SlackTeam', () => {
             done();
         });
 
+        describe('failure', () => {
+            it('it catch and log the failure', (done) => {
+                postMessageMock.mockImplementation(() => {
+                    return Promise.reject({ ok: false });
+                });
+
+                expect(team.postSupportRequest()).rejects.toEqual({ ok: false });
+
+                done();
+            });
+        });
     });
 });

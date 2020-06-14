@@ -34,10 +34,13 @@ class SlackTeam {
     client: WebClient;
     config: TeamConfig;
 
-    postSupportRequest(): Promise<WebAPICallResult> {
+    postSupportRequest(): Promise<WebAPICallResult | void> {
         return this.client.chat.postMessage({
             text: 'some text',
             channel: 'this.config.support_channel_id'
+        }).catch((error) => {
+            logger.debug(error);
+            return Promise.reject({ ok: false });
         });
     }
 }
