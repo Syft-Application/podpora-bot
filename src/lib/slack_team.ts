@@ -5,6 +5,7 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
+import { templates as slack_form_templates } from './slack_form_templates';
 
 interface TeamApiObject {
     id: string,
@@ -31,88 +32,11 @@ function teamConfig(team_id: string): TeamConfig {
     return SLACK_TEAMS[team_id];
 }
 
-const bug_form_tpl: Dialog = {
-    callback_id: '',
-    title: 'Report Bug',
-    submit_label: 'Submit',
-    state: 'bug',
-    elements: [
-        {
-            type: 'text',
-            label: 'Title',
-            placeholder: 'eg. Employer 1234 can\'t see shifts',
-            name: 'title',
-            value: '',
-        },
-        {
-            type: 'textarea',
-            label: 'Steps to Reproduce',
-            placeholder: 'Bullet point steps to reproduce. Include specifics, eg. urls and ids',
-            name: 'reproduce',
-            value: '',
-        },
-        {
-            type: 'text',
-            label: 'Expected Outcome',
-            placeholder: 'What *should* happen when the above steps are taken?',
-            name: 'expected',
-            value: '',
-        },
-        {
-            type: 'text',
-            label: 'Current Outcome',
-            placeholder: 'What *currently* happens when the above steps are taken?',
-            name: 'currently',
-            value: '',
-        },
-
-    ]
-};
-
-const data_form_tpl: Dialog = {
-    callback_id: '',
-    title: 'New Data Request',
-    submit_label: 'Submit',
-    state: 'data',
-    elements: [
-        {
-            type: 'text',
-            name: 'title',
-            label: 'Title',
-            placeholder: 'eg. Number of shifts per employer in Feb 2019',
-            value: '',
-        },
-        {
-            type: 'textarea',
-            label: 'Description',
-            placeholder: 'Please include any extra information required, eg. column names',
-            name: 'description',
-            value: '',
-        },
-    ]
-};
-
 const callbackPrefix = '31bafaf4';
 
 function callbackId(): string {
     return `${callbackPrefix}${(new Date()).getTime()}`;
 }
-
-const SlackDialogs: { [index: string]: () => Dialog } = {
-    bug: (): Dialog => {
-        const form = bug_form_tpl;
-        form.callback_id = callbackId();
-
-        return form;
-    },
-
-    data: (): Dialog => {
-        const form = data_form_tpl;
-        form.callback_id = callbackId();
-
-        return form;
-    }
-};
 
 const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
     bug: (submission: Record<string, string>): string => {
@@ -175,7 +99,8 @@ class SlackTeam {
     }
 
     showSupportRequestForm(request_type: string, trigger_id: string): Promise<WebAPICallResult> {
-        const dialog = SlackDialogs[request_type]();
+        const dialog: Dialog = slack_form_templates[request_type];
+        dialog.callback_id = callbackId();
 
         return this.client.dialog.open({
             dialog,
