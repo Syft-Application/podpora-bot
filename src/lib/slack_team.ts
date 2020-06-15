@@ -32,12 +32,6 @@ function teamConfig(team_id: string): TeamConfig {
     return SLACK_TEAMS[team_id];
 }
 
-const callbackPrefix = '31bafaf4';
-
-function callbackId(): string {
-    return `${callbackPrefix}${(new Date()).getTime()}`;
-}
-
 const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
     bug: (submission: Record<string, string>): string => {
         const { reproduce, currently, expected } = submission;
@@ -80,6 +74,10 @@ class SlackTeam {
     client: WebClient;
     config: TeamConfig;
 
+    callbackId(): string {
+        return `${this.domain}${(new Date()).getTime()}`;
+    }
+
     postSupportRequest(
         submission: Record<string, string>,
         submission_type: string,
@@ -100,7 +98,7 @@ class SlackTeam {
 
     showSupportRequestForm(request_type: string, trigger_id: string): Promise<WebAPICallResult> {
         const dialog: Dialog = slack_form_templates[request_type];
-        dialog.callback_id = callbackId();
+        dialog.callback_id = this.callbackId();
 
         return this.client.dialog.open({
             dialog,
