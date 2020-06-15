@@ -26,12 +26,6 @@ interface ChatPostMessageResult extends WebAPICallResult {
     }
 }
 
-function teamConfig(team_id: string): TeamConfig {
-    // return (<TeamConfig>SLACK_TEAMS[team_id]);
-    // return (SLACK_TEAMS[team_id] as TeamConfig);
-    return SLACK_TEAMS[team_id];
-}
-
 const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
     bug: (submission: Record<string, string>): string => {
         const { reproduce, currently, expected } = submission;
@@ -64,7 +58,7 @@ class SlackTeam {
         logger.debug(team);
         this.id = team.id;
         this.domain = team.domain;
-        this.config = teamConfig(this.id);
+        this.config = SLACK_TEAMS[team.id];
         // TODO: api token should be per team
         this.client = new WebClient(SLACK_API_TOKEN);
     }
