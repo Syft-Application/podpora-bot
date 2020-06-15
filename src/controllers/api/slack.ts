@@ -1,9 +1,9 @@
 'use strict';
 
 import { Response, Request } from 'express';
-import { WebAPICallResult } from '@slack/web-api';
 import logger from '../../util/logger';
 import {
+    ChatPostMessageResult,
     SlackTeam
 } from '../../lib/slack_team';
 
@@ -23,14 +23,6 @@ function linkJiraIssueToSlackMessage(
     logger.debug(team);
     logger.debug(slack_message);
     logger.debug(jira_response);
-}
-
-interface ChatPostMessageResult extends WebAPICallResult {
-    channel: string;
-    ts: string;
-    message: {
-        text: string;
-    }
 }
 
 /**
