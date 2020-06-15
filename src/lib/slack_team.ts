@@ -69,6 +69,29 @@ const bug_form_tpl: Dialog = {
     ]
 };
 
+const data_form_tpl: Dialog = {
+    callback_id: '',
+    title: 'New Data Request',
+    submit_label: 'Submit',
+    state: 'data',
+    elements: [
+        {
+            type: 'text',
+            name: 'title',
+            label: 'Title',
+            placeholder: 'eg. Number of shifts per employer in Feb 2019',
+            value: '',
+        },
+        {
+            type: 'textarea',
+            label: 'Description',
+            placeholder: 'Please include any extra information required, eg. column names',
+            name: 'description',
+            value: '',
+        },
+    ]
+};
+
 const callbackPrefix = '31bafaf4';
 
 function callbackId(): string {
@@ -84,30 +107,39 @@ const SlackDialogs: { [index: string]: () => Dialog } = {
     },
 
     data: (): Dialog => {
-        return {
-            callback_id: callbackId(), // Needs to be unique
-            title: 'New Data Request',
-            submit_label: 'Submit',
-            state: 'data',
-            elements: [
-                {
-                    type: 'text',
-                    label: 'Title',
-                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
-                    name: 'title',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Description',
-                    placeholder: 'Please include any extra information required, eg. column names',
-                    name: 'description',
-                    value: '',
-                },
-            ],
-        };
+        const form = data_form_tpl;
+        form.callback_id = callbackId();
+
+        return form;
     }
 };
+
+const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
+    bug: (submission: Record<string, string>): string => {
+        const { reproduce, currently, expected } = submission;
+
+        return '*Steps to Reproduce*\n\n' +
+            `${reproduce}\n\n` +
+            '*Currently*\n\n' + `${currently}\n\n` +
+            `*Expected*\n\n${expected}`;
+    },
+    default: (submission: Record<string, string>): string => {
+        return submission.description;
+    }
+};
+
+function slackRequestMessageText(
+    submission: Record<string, string>,
+    state: string,
+    user_id: string
+): string {
+    const state_to_text = state === 'bug' ? 'bug report' : `${state} request`;
+    const descFn = (state === 'bug') ? SlackMessages.bug : SlackMessages.default;
+    const description = descFn(submission);
+
+    return `<@${user_id}> has submitted a ${state_to_text}:\n\n` +
+        `*${submission.title}*\n\n${description}`;
+}
 
 class SlackTeam {
     constructor(team: TeamApiObject) {
@@ -124,11 +156,16 @@ class SlackTeam {
     client: WebClient;
     config: TeamConfig;
 
-    postSupportRequest(msg: string): Promise<WebAPICallResult> {
+    postSupportRequest(
+        submission: Record<string, string>,
+        submission_type: string,
+        user: { id: string, name: string }
+    ): Promise<WebAPICallResult> {
         const channel_id = this.config.support_channel_id;
+        const msg_text = slackRequestMessageText(submission, submission_type, user.id);
 
         return this.client.chat.postMessage({
-            text: msg,
+            text: msg_text,
             channel: channel_id
         }).catch((error) => {
             logger.error(error.message);

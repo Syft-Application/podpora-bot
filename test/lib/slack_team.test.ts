@@ -20,15 +20,26 @@ describe('SlackTeam', () => {
     const postMessageMock = jest.spyOn(team.client.chat, 'postMessage');
     const dialogOpenMock = jest.spyOn(team.client.dialog, 'open');
 
-    describe('#postSupportRequest(message)', () => {
-        const msg = 'This is my message';
+    describe('#postSupportRequest(submission, state, user)', () => {
+        const submission = {
+            'title': 'Android app is crashing',
+            'reproduce': 'pokojny vecer na vrsky padal',
+            'expected': 'foo',
+            'currently': 'baz'
+        };
+        const state = 'bug';
+        const user = {
+            'id': 'UHAV00MD0',
+            'name': 'joe_wick'
+        };
 
         it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
             postMessageMock.mockImplementation(() => {
                 return Promise.resolve(postMsgResponse);
             });
 
-            expect(team.postSupportRequest(msg)).resolves.toEqual(postMsgResponse);
+            expect(team.postSupportRequest(submission, state, user))
+                .resolves.toEqual(postMsgResponse);
 
             done();
         });
@@ -38,9 +49,12 @@ describe('SlackTeam', () => {
                 return Promise.resolve(postMsgResponse);
             });
 
-            team.postSupportRequest(msg);
+            team.postSupportRequest(submission, state, user);
             const call = postMessageMock.mock.calls[0][0];
-            expect(call.text).toEqual(msg);
+            expect(call.text).toEqual(expect.stringContaining(submission.title));
+            expect(call.text).toEqual(expect.stringContaining(submission.reproduce));
+            expect(call.text).toEqual(expect.stringContaining(submission.expected));
+            expect(call.text).toEqual(expect.stringContaining(submission.currently));
             expect(call.channel).toEqual('channel-1234');
 
             done();
@@ -52,8 +66,9 @@ describe('SlackTeam', () => {
                     return Promise.reject({ ok: false });
                 });
 
-                expect(team.postSupportRequest(msg)).rejects.toEqual({ ok: false });
-                team.postSupportRequest(msg).catch(() => {
+                expect(team.postSupportRequest(submission, state, user))
+                    .rejects.toEqual({ ok: false });
+                team.postSupportRequest(submission, state, user).catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
                 });
 
