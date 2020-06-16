@@ -1,4 +1,4 @@
-import { merge, build_service, build_response } from '../helpers';
+import { merge, build_service, build_response, fixture } from '../helpers';
 
 // import mockDialogOpen from slack.mock must be before we import app
 import { MockWebClient } from '../mocks/slack.mock';
@@ -15,8 +15,9 @@ const dialogSpy = MockWebClient.prototype.dialog;
 const chatSpy = MockWebClient.prototype.chat;
 const postMessage = chatSpy.postMessage;
 const jiraSpy = jest.spyOn(jira, 'createIssue');
+const createIssueResponse = fixture('jira/issues.createIssue.response');
 jiraSpy.mockImplementation(() => {
-    return Promise.resolve({});
+    return Promise.resolve(createIssueResponse);
 });
 
 const mock_teams = {

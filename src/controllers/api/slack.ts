@@ -69,12 +69,12 @@ export const postInteraction = (req: Request, res: Response): void => {
                 team: team,
                 user: user,
                 submission: submission,
-                type: state
+                type: state,
+                channel: value.channel
             };
             jira.createIssue(support_request)
                 .then((jira_response: Record<string, string>) => {
                     logger.debug(jira_response);
-                    // linkJiraIssueToSlackMessage(support_request, jira_response);
                 });
         }).catch((err) => {
             // TODO: log function arguments for debug purposes

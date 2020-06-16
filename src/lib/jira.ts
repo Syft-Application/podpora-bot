@@ -14,19 +14,12 @@ const cfg = {
 
 const client = new Client(cfg);
 
-// function linkSlackSupportRequestToIssue(
-//     support_request: Record<string, string>,
-//     issue: Record<string, string>
-// ): void {
-//     logger.debug(team);
-//     logger.debug(slack_message);
-//     logger.debug(jira_response);
-// }
-
+const slack_icon = {
+    url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
+    title: 'Slack'
+};
 
 interface SupportRequest {
-    // [index: string]: string;
-
     id: string
     team: {
         id: string,
@@ -39,12 +32,35 @@ interface SupportRequest {
     type: string
     submission: {
         title: string
-    }
+    },
+    channel: string
+}
+
+interface Issue {
+    [index: string]: string;
+
+    id: string
+    key: string,
+    self: string
+}
+
+const request_type_to_issue_type_name: { [index: string]: string } = {
+    bug: 'Bug',
+    task: 'Task',
+    data: 'Task'
+};
+
+// function boardKey(request_type: string): string {
+//     return 'SUP';
+// }
+
+function issueTypeName(request_type: string): string {
+    return request_type_to_issue_type_name[request_type];
 }
 
 function ticketBody(request: SupportRequest): Record<string, unknown> {
     const submission = request.submission;
-    const issue_type = request.type;
+    const issue_type = issueTypeName(request.type);
     const title = submission.title;
     const board = 'SUP';
     const desc = 'This is description';
@@ -59,51 +75,49 @@ function ticketBody(request: SupportRequest): Record<string, unknown> {
     };
 }
 
-// TODO: remove eslint-disable
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function createIssue(request: SupportRequest): Promise<any> {
-    // TODO: implementation
-    const ticket = ticketBody(request);
+function linkRequestToIssue(
+    request: SupportRequest,
+    issue: Issue
+): Promise<Record<string, unknown>> {
+    const id = request.id;
+    const team_domain = request.team.domain;
+    const channel = request.channel;
+    const url = `https://${team_domain}.slack.com/archives/${channel}/p${id}`;
+    const title = url;
+    const icon = slack_icon;
 
-    return client.issues.createIssue(ticket)
+    const link_params = {
+        issueIdOrKey: issue.key,
+        object: {
+            url,
+            title,
+            icon
+        }
+    };
+
+    return client.issueRemoteLinks.createOrUpdateRemoteIssueLink(link_params);
+}
+
+function createIssue(request: SupportRequest): Promise<Record<string, unknown>> {
+    const issue_params = ticketBody(request);
+
+    return client.issues.createIssue(issue_params)
+        .then((issue: Issue) => {
+            return linkRequestToIssue(request, issue)
+                .then(() => {
+                    // TODO: decorate issue with link
+                    // .then((link: Record<string, unknown>) => {
+                    return Promise.resolve(issue);
+                });
+        })
         .catch((err) => {
             logger.error(err);
 
             return Promise.reject({ ok: false });
         });
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export {
     createIssue,
     client
 };
-
-// let issue_params = {
-//     fields: {
-//         pid: 10000,
-//         issuetype: 10004,
-//         summary: 'this ssparta',
-//         description: 'black lives matter'
-//     }
-// }
-
-// Promise { { id: '10005', key: 'SUP-6',
-// self: 'https://podpora-bot.atlassian.net/rest/api/2/issue/10005' } }
-// let description = "this is \n multiline \n *description*"
-// let desc = `Submitted by: joe doe\n\n${description}\n`
-// let params8 = {
-//     fields: {
-//         project: { key: 'SUP' },
-//         summary: 'bug summary',
-//         description: desc,
-//         issuetype: { name: 'Bug' },
-//     }
-// }
-// prom.then((val) => {
-//     let v = JSON.stringify(val, undefined, 2);
-//     console.log(v);
-// }, (err) => {
-//     console.log('-t- err');
-//     console.log(err);
-// });
