@@ -7,23 +7,13 @@ import {
     SlackTeam
 } from '../../lib/slack_team';
 
-import * as jira from '../../config/jira';
+import * as jira from '../../lib/jira';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
-
-function linkJiraIssueToSlackMessage(
-    team: Record<string, string>,
-    slack_message: Record<string, string>,
-    jira_response: Record<string, string>
-): void {
-    logger.debug(team);
-    logger.debug(slack_message);
-    logger.debug(jira_response);
-}
 
 /**
  * POST /api/slack/command
@@ -74,13 +64,19 @@ export const postInteraction = (req: Request, res: Response): void => {
     const slack_team = new SlackTeam(team);
     slack_team.postSupportRequest(submission, state, user)
         .then((value: ChatPostMessageResult) => {
-            const slack_message = value.message;
-            jira.createIssueFromSlackMessage(slack_message)
+            const support_request = {
+                id: value.ts,
+                team: team,
+                user: user,
+                submission: submission,
+                type: state
+            };
+            jira.createIssue(support_request)
                 .then((jira_response: Record<string, string>) => {
-                    linkJiraIssueToSlackMessage(team, slack_message, jira_response);
+                    logger.debug(jira_response);
+                    // linkJiraIssueToSlackMessage(support_request, jira_response);
                 });
-        })
-        .catch((err) => {
+        }).catch((err) => {
             // TODO: log function arguments for debug purposes
             logger.error(err);
         });

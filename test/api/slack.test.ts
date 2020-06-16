@@ -5,7 +5,7 @@ import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 
-import * as jira from '../../src/config/jira';
+import * as jira from '../../src/lib/jira';
 import * as secrets from '../../src/util/secrets';
 
 import app from '../../src/app';
@@ -14,10 +14,11 @@ const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as
 const dialogSpy = MockWebClient.prototype.dialog;
 const chatSpy = MockWebClient.prototype.chat;
 const postMessage = chatSpy.postMessage;
-const jiraSpy = jest.spyOn(jira, 'createIssueFromSlackMessage');
+const jiraSpy = jest.spyOn(jira, 'createIssue');
 jiraSpy.mockImplementation(() => {
-    return Promise.resolve({ json: () => [] });
+    return Promise.resolve({});
 });
+
 const mock_teams = {
     'THS7JQ2RL': {
         'support_channel_id': 'foo-123'

@@ -1,0 +1,20 @@
+[
+  {
+    "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+    "self": "https://podpora-bot.atlassian.net/rest/api/2/project/10000",
+    "id": "10000",
+    "key": "SUP",
+    "name": "support",
+    "avatarUrls": {
+      "48x48": "https://some-jira-subdomain.atlassian.net/secure/projectavatar?pid=10000&avatarId=10414",
+      "24x24": "https://some-jira-subdomain.atlassian.net/secure/projectavatar?size=small&s=small&pid=10000&avatarId=10414",
+      "16x16": "https://some-jira-subdomain.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10000&avatarId=10414",
+      "32x32": "https://some-jira-subdomain.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10000&avatarId=10414"
+    },
+    "projectTypeKey": "software",
+    "simplified": false,
+    "style": "classic",
+    "isPrivate": false,
+    "properties": {}
+  }
+]
