@@ -5,6 +5,10 @@ import { fixture } from '../helpers';
 import * as jira from '../../src/lib/jira';
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
+const issueWithLink = {
+    ...createIssueResponse,
+    url: `https://podpora-bot.atlassian.net/browse/${createIssueResponse.key}`
+} as jira.IssueWithUrl;
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
 const jiraCreateIssueMock = jest.spyOn(jira.client.issues, 'createIssue');
 const createLinkMock = jest.spyOn(
@@ -68,7 +72,7 @@ describe('Jira', () => {
             expect(fields.project.key).toEqual('SUP');
 
             expect(createIssue(bug_report))
-                .resolves.toEqual(createIssueResponse);
+                .resolves.toEqual(issueWithLink);
         });
 
         it('links the slack message to created issue', (done) => {

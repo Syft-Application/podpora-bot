@@ -6,6 +6,7 @@ import {
 } from '@slack/web-api';
 import logger from '../util/logger';
 import { templates as slack_form_templates } from './slack_form_templates';
+import { IssueWithUrl } from './jira';
 
 interface TeamApiObject {
     id: string,
@@ -24,6 +25,21 @@ interface ChatPostMessageResult extends WebAPICallResult {
     message: {
         text: string;
     }
+}
+
+interface SupportRequest {
+    id: string,
+    team: TeamApiObject,
+    user: Record<string, string>,
+    submission: Record<string, string>,
+    type: string,
+    channel: string
+}
+
+function slackError(error: Record<string, string>): Promise<WebAPICallResult> {
+    logger.error(error.message);
+
+    return Promise.reject({ ok: false });
 }
 
 const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
@@ -83,11 +99,7 @@ class SlackTeam {
         return this.client.chat.postMessage({
             text: msg_text,
             channel: channel_id
-        }).catch((error) => {
-            logger.error(error.message);
-
-            return Promise.reject({ ok: false });
-        });
+        }).catch(slackError);
     }
 
     showSupportRequestForm(request_type: string, trigger_id: string): Promise<WebAPICallResult> {
@@ -97,10 +109,23 @@ class SlackTeam {
         return this.client.dialog.open({
             dialog,
             trigger_id,
-        }).catch((err) => {
-            logger.error(err.message);
-            return Promise.reject({ ok: false });
-        });
+        }).catch(slackError);
+    }
+
+    postIssueLinkOnThread(
+        support_request: SupportRequest,
+        issue: IssueWithUrl
+    ): Promise<WebAPICallResult> {
+        const msg_text =
+            'Jira ticket created! \n' +
+            'Please keep an eye on ticket status to see when it is done! \n' +
+            `${issue.url}`;
+
+        return this.client.chat.postMessage({
+            text: msg_text,
+            channel: support_request.channel,
+            thread_ts: support_request.id
+        }).catch(slackError);
     }
 }
 

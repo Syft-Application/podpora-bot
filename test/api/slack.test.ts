@@ -16,8 +16,9 @@ const chatSpy = MockWebClient.prototype.chat;
 const postMessage = chatSpy.postMessage;
 const jiraSpy = jest.spyOn(jira, 'createIssue');
 const createIssueResponse = fixture('jira/issues.createIssue.response');
-jiraSpy.mockImplementation(() => {
-    return Promise.resolve(createIssueResponse);
+const issueWithUrl = { ...createIssueResponse, url: 'http://for.bar' } as jira.IssueWithUrl;
+jiraSpy.mockImplementation((): Promise<jira.IssueWithUrl> => {
+    return Promise.resolve(issueWithUrl);
 });
 
 const mock_teams = {

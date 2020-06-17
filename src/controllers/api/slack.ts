@@ -73,8 +73,11 @@ export const postInteraction = (req: Request, res: Response): void => {
                 channel: value.channel
             };
             jira.createIssue(support_request)
-                .then((jira_response: Record<string, string>) => {
-                    logger.debug(jira_response);
+                .then((jira_issue: jira.IssueWithUrl) => {
+                    slack_team.postIssueLinkOnThread(
+                        support_request,
+                        jira_issue
+                    );
                 }).catch((err) => {
                     logger.error(err);
                 });

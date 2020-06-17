@@ -44,6 +44,10 @@ interface Issue {
     self: string
 }
 
+interface IssueWithUrl extends Issue {
+    url: string
+}
+
 const request_type_to_issue_type_name: { [index: string]: string } = {
     bug: 'Bug',
     task: 'Task',
@@ -98,16 +102,20 @@ function linkRequestToIssue(
     return client.issueRemoteLinks.createOrUpdateRemoteIssueLink(link_params);
 }
 
-function createIssue(request: SupportRequest): Promise<Record<string, unknown>> {
+function createIssue(request: SupportRequest): Promise<IssueWithUrl> {
     const issue_params = ticketBody(request);
 
     return client.issues.createIssue(issue_params)
         .then((issue: Issue) => {
-            return linkRequestToIssue(request, issue)
+            // TODO: remove hardcoded subdomain
+            const issue_with_url = {
+                ...issue,
+                url: `https://podpora-bot.atlassian.net/browse/${issue.key}`
+            } as IssueWithUrl;
+
+            return linkRequestToIssue(request, issue_with_url)
                 .then(() => {
-                    // TODO: decorate issue with link
-                    // .then((link: Record<string, unknown>) => {
-                    return Promise.resolve(issue);
+                    return Promise.resolve(issue_with_url);
                 });
         })
         .catch((err) => {
@@ -119,5 +127,6 @@ function createIssue(request: SupportRequest): Promise<Record<string, unknown>> 
 
 export {
     createIssue,
+    IssueWithUrl,
     client
 };
