@@ -75,7 +75,10 @@ export const postInteraction = (req: Request, res: Response): void => {
             jira.createIssue(support_request)
                 .then((jira_response: Record<string, string>) => {
                     logger.debug(jira_response);
+                }).catch((err) => {
+                    logger.error(err);
                 });
+
         }).catch((err) => {
             // TODO: log function arguments for debug purposes
             logger.error(err);

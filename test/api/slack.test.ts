@@ -241,6 +241,20 @@ describe('POST /api/slack/interaction', () => {
         });
     });
 
+    describe('when creating jira ticket fails', () => {
+        it('logs the error', (done) => {
+            jiraSpy.mockImplementation(() => {
+                return Promise.reject({ ok: false });
+            });
+
+            service(params).expect(200).end(() => {
+                expect(loggerSpy).toHaveBeenCalled();
+                done();
+            });
+        });
+
+    });
+
     it('post message to slack support channel with bug description', (done) => {
         service(params).expect(200).end((err) => {
             if (err) {
