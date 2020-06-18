@@ -63,17 +63,17 @@ function slackError(error: Record<string, string>): Promise<ErrorResponse> {
     return Promise.reject({ ok: false });
 }
 
-const SlackMessages: { [index: string]: (submission: Submission) => string } = {
-    bug: (submission: BugSubmission): string => {
-        const { reproduce, currently, expected } = submission;
-
-        return '*Steps to Reproduce*\n\n' +
-            `${reproduce}\n\n` +
-            '*Currently*\n\n' + `${currently}\n\n` +
-            `*Expected*\n\n${expected}`;
+const SlackMessages: { [index: string]: (submission: Submission, user_id: string) => string } = {
+    bug: (submission: BugSubmission, user_id: string): string => {
+        return `<@${user_id}> has submitted a bug report:\n\n` +
+            `*${submission.title}*\n\n` +
+            `*Steps to Reproduce*\n\n${submission.reproduce}\n\n` +
+            `*Currently*\n\n${submission.currently}\n\n` +
+            `*Expected*\n\n${submission.expected}`;
     },
-    default: (submission: DataSubmission): string => {
-        return submission.description;
+    data: (submission: DataSubmission, user_id: string): string => {
+        return `<@${user_id}> has submitted a data request:\n\n` +
+            `*${submission.title}*\n\n${submission.description}`;
     }
 };
 
@@ -82,12 +82,7 @@ function slackRequestMessageText(
     state: string,
     user_id: string
 ): string {
-    const state_to_text = state === 'bug' ? 'bug report' : `${state} request`;
-    const descFn = (state === 'bug') ? SlackMessages.bug : SlackMessages.default;
-    const description = descFn(submission);
-
-    return `<@${user_id}> has submitted a ${state_to_text}:\n\n` +
-        `*${submission.title}*\n\n${description}`;
+    return SlackMessages[state](submission, user_id);
 }
 
 // enum SupportRequestTypes {
