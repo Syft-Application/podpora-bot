@@ -92,7 +92,7 @@ function slackRequestMessageText(
 
 interface SupportRequest {
     id: string,
-    team: { id: string, domain: string },
+    team: TeamApiObject,
     user: SlackUser,
     submission: Submission,
     type: string,
