@@ -1,5 +1,6 @@
 import { JIRA_API_TOKEN, JIRA_HOST, JIRA_USERNAME } from './../util/secrets';
 import { Client } from 'jira.js';
+import { SupportRequest } from './slack_team';
 import logger from '../util/logger';
 
 const cfg = {
@@ -19,23 +20,6 @@ const slack_icon = {
     title: 'Slack'
 };
 
-interface SupportRequest {
-    id: string
-    team: {
-        id: string,
-        domain: string
-    },
-    user: {
-        id: string,
-        name: string
-    },
-    type: string
-    submission: {
-        title: string
-    },
-    channel: string
-}
-
 interface Issue {
     [index: string]: string;
 
@@ -50,13 +34,8 @@ interface IssueWithUrl extends Issue {
 
 const request_type_to_issue_type_name: { [index: string]: string } = {
     bug: 'Bug',
-    task: 'Task',
     data: 'Task'
 };
-
-// function boardKey(request_type: string): string {
-//     return 'SUP';
-// }
 
 function issueTypeName(request_type: string): string {
     return request_type_to_issue_type_name[request_type];

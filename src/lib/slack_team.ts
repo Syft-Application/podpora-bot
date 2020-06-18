@@ -85,20 +85,6 @@ function slackRequestMessageText(
     return SlackMessages[state](submission, user_id);
 }
 
-// enum SupportRequestTypes {
-//     bug = 'bug',
-//     data = 'data'
-// }
-
-interface SupportRequest {
-    id: string,
-    team: TeamApiObject,
-    user: SlackUser,
-    submission: Submission,
-    type: string,
-    channel: string
-}
-
 class SlackTeam {
     constructor(team: TeamApiObject) {
         logger.debug(team);
