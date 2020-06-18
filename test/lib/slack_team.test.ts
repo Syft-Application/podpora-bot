@@ -15,8 +15,9 @@ afterEach(() => {
 });
 
 describe('SlackTeam', () => {
+    const team_config = { support_channel_id: 'channel-1234' };
     const team = new SlackTeam({ id: 'abc', domain: 'foo' });
-    team.config = { support_channel_id: 'channel-1234' };
+    team.config = team_config;
     const postMessageMock = jest.spyOn(team.client.chat, 'postMessage');
     const dialogOpenMock = jest.spyOn(team.client.dialog, 'open');
 
@@ -32,14 +33,22 @@ describe('SlackTeam', () => {
             'id': 'UHAV00MD0',
             'name': 'joe_wick'
         };
+        const support_request = {
+            id: postMsgResponse.ts,
+            team: team,
+            user: user,
+            submission: submission,
+            type: state,
+            channel: team_config.support_channel_id
+        };
 
-        it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
+        it('returns a Promise that resolves to SupportRequest', (done) => {
             postMessageMock.mockImplementation(() => {
                 return Promise.resolve(postMsgResponse);
             });
 
             expect(team.postSupportRequest(submission, state, user))
-                .resolves.toEqual(postMsgResponse);
+                .resolves.toEqual(support_request);
 
             done();
         });
@@ -61,18 +70,20 @@ describe('SlackTeam', () => {
         });
 
         describe('failure', () => {
-            it('it catch and log the failure', (done) => {
+            it('it log the failure and returns error response', (done) => {
+                expect.assertions(2);
+
                 postMessageMock.mockImplementation(() => {
                     return Promise.reject({ ok: false });
                 });
 
                 expect(team.postSupportRequest(submission, state, user))
                     .rejects.toEqual({ ok: false });
+
                 team.postSupportRequest(submission, state, user).catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
+                    done();
                 });
-
-                done();
             });
         });
     });
@@ -94,6 +105,8 @@ describe('SlackTeam', () => {
 
         describe('failure', () => {
             it('it catch and log the failure', (done) => {
+                expect.assertions(2);
+
                 dialogOpenMock.mockImplementation(() => {
                     return Promise.reject({ ok: false });
                 });
@@ -102,9 +115,8 @@ describe('SlackTeam', () => {
                     .rejects.toEqual({ ok: false });
                 team.showSupportRequestForm(request_type, trigger_id).catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
+                    done();
                 });
-
-                done();
             });
         });
     });

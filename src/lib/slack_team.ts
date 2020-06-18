@@ -27,23 +27,44 @@ interface ChatPostMessageResult extends WebAPICallResult {
     }
 }
 
+interface SlackUser { id: string, name: string }
+
 interface SupportRequest {
     id: string,
     team: TeamApiObject,
-    user: Record<string, string>,
-    submission: Record<string, string>,
+    user: SlackUser,
+    submission: Submission,
     type: string,
     channel: string
 }
 
-function slackError(error: Record<string, string>): Promise<WebAPICallResult> {
+interface ErrorResponse {
+    ok: false
+}
+
+interface Submission {
+    title: string
+}
+
+interface BugSubmission extends Submission {
+    reproduce: string,
+    currently: string,
+    expected: string
+}
+
+interface DataSubmission {
+    title: string,
+    description: string
+}
+
+function slackError(error: Record<string, string>): Promise<ErrorResponse> {
     logger.error(error.message);
 
     return Promise.reject({ ok: false });
 }
 
-const SlackMessages: { [index: string]: (submission: Record<string, string>) => string } = {
-    bug: (submission: Record<string, string>): string => {
+const SlackMessages: { [index: string]: (submission: Submission) => string } = {
+    bug: (submission: BugSubmission): string => {
         const { reproduce, currently, expected } = submission;
 
         return '*Steps to Reproduce*\n\n' +
@@ -51,13 +72,13 @@ const SlackMessages: { [index: string]: (submission: Record<string, string>) => 
             '*Currently*\n\n' + `${currently}\n\n` +
             `*Expected*\n\n${expected}`;
     },
-    default: (submission: Record<string, string>): string => {
+    default: (submission: DataSubmission): string => {
         return submission.description;
     }
 };
 
 function slackRequestMessageText(
-    submission: Record<string, string>,
+    submission: Submission,
     state: string,
     user_id: string
 ): string {
@@ -67,6 +88,20 @@ function slackRequestMessageText(
 
     return `<@${user_id}> has submitted a ${state_to_text}:\n\n` +
         `*${submission.title}*\n\n${description}`;
+}
+
+// enum SupportRequestTypes {
+//     bug = 'bug',
+//     data = 'data'
+// }
+
+interface SupportRequest {
+    id: string,
+    team: { id: string, domain: string },
+    user: SlackUser,
+    submission: Submission,
+    type: string,
+    channel: string
 }
 
 class SlackTeam {
@@ -89,20 +124,32 @@ class SlackTeam {
     }
 
     postSupportRequest(
-        submission: Record<string, string>,
+        submission: Submission,
         submission_type: string,
         user: { id: string, name: string }
-    ): Promise<WebAPICallResult> {
+    ): Promise<SupportRequest | ErrorResponse> {
         const channel_id = this.config.support_channel_id;
         const msg_text = slackRequestMessageText(submission, submission_type, user.id);
-
         return this.client.chat.postMessage({
             text: msg_text,
             channel: channel_id
+        }).then((value: ChatPostMessageResult) => {
+            const support_request = {
+                id: value.ts,
+                team: this,
+                user: user,
+                submission: submission,
+                type: submission_type,
+                channel: channel_id
+            };
+            return Promise.resolve(support_request);
         }).catch(slackError);
     }
 
-    showSupportRequestForm(request_type: string, trigger_id: string): Promise<WebAPICallResult> {
+    showSupportRequestForm(
+        request_type: string,
+        trigger_id: string
+    ): Promise<WebAPICallResult | ErrorResponse> {
         const dialog: Dialog = slack_form_templates[request_type];
         dialog.callback_id = this.callbackId();
 
@@ -115,7 +162,7 @@ class SlackTeam {
     postIssueLinkOnThread(
         support_request: SupportRequest,
         issue: IssueWithUrl
-    ): Promise<WebAPICallResult> {
+    ): Promise<WebAPICallResult | ErrorResponse> {
         const msg_text =
             'Jira ticket created! \n' +
             'Please keep an eye on ticket status to see when it is done! \n' +
@@ -131,5 +178,6 @@ class SlackTeam {
 
 export {
     ChatPostMessageResult,
+    SupportRequest,
     SlackTeam
 };

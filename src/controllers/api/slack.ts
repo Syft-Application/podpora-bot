@@ -3,7 +3,7 @@
 import { Response, Request } from 'express';
 import logger from '../../util/logger';
 import {
-    ChatPostMessageResult,
+    SupportRequest,
     SlackTeam
 } from '../../lib/slack_team';
 
@@ -63,15 +63,7 @@ export const postInteraction = (req: Request, res: Response): void => {
 
     const slack_team = new SlackTeam(team);
     slack_team.postSupportRequest(submission, state, user)
-        .then((value: ChatPostMessageResult) => {
-            const support_request = {
-                id: value.ts,
-                team: team,
-                user: user,
-                submission: submission,
-                type: state,
-                channel: value.channel
-            };
+        .then((support_request: SupportRequest) => {
             jira.createIssue(support_request)
                 .then((jira_issue: jira.IssueWithUrl) => {
                     slack_team.postIssueLinkOnThread(
