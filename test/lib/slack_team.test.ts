@@ -25,7 +25,7 @@ describe('SlackTeam', () => {
     describe('#postSupportRequest(submission, state, user)', () => {
         const submission = {
             'title': 'Android app is crashing',
-            'reproduce': 'pokojny vecer na vrsky padal',
+            'description': 'pokojny vecer na vrsky padal',
             'expected': 'foo',
             'currently': 'baz'
         };
@@ -62,7 +62,7 @@ describe('SlackTeam', () => {
             team.postSupportRequest(submission, state, user);
             const call = postMessageMock.mock.calls[0][0];
             expect(call.text).toEqual(expect.stringContaining(submission.title));
-            expect(call.text).toEqual(expect.stringContaining(submission.reproduce));
+            expect(call.text).toEqual(expect.stringContaining(submission.description));
             expect(call.text).toEqual(expect.stringContaining(submission.expected));
             expect(call.text).toEqual(expect.stringContaining(submission.currently));
             expect(call.channel).toEqual('channel-1234');

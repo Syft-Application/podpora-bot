@@ -38,17 +38,12 @@ interface ErrorResponse {
 
 interface Submission {
     title: string
+    description: string,
 }
 
 interface BugSubmission extends Submission {
-    reproduce: string,
     currently: string,
     expected: string
-}
-
-interface DataSubmission {
-    title: string,
-    description: string
 }
 
 function slackError(error: Record<string, string>): Promise<ErrorResponse> {
@@ -61,11 +56,11 @@ const SlackMessages: { [index: string]: (submission: Submission, user_id: string
     bug: (submission: BugSubmission, user_id: string): string => {
         return `<@${user_id}> has submitted a bug report:\n\n` +
             `*${submission.title}*\n\n` +
-            `*Steps to Reproduce*\n\n${submission.reproduce}\n\n` +
+            `*Steps to Reproduce*\n\n${submission.description}\n\n` +
             `*Currently*\n\n${submission.currently}\n\n` +
             `*Expected*\n\n${submission.expected}`;
     },
-    data: (submission: DataSubmission, user_id: string): string => {
+    data: (submission: Submission, user_id: string): string => {
         return `<@${user_id}> has submitted a data request:\n\n` +
             `*${submission.title}*\n\n${submission.description}`;
     }

@@ -170,7 +170,7 @@ describe('POST /api/slack/interaction', () => {
     const service = build_service(app, api_path);
     const submission = {
         'title': 'Android app is crashing',
-        'reproduce': 'pokojny vecer na vrsky padal',
+        'description': 'pokojny vecer na vrsky padal',
         'expected': 'foo',
         'currently': 'baz'
     };
@@ -276,7 +276,7 @@ describe('POST /api/slack/interaction', () => {
 
             expect(msg_channel).toEqual('foo-123');
             expect(msg_text).toEqual(expect.stringContaining(submission.title));
-            expect(msg_text).toEqual(expect.stringContaining(submission.reproduce));
+            expect(msg_text).toEqual(expect.stringContaining(submission.description));
             expect(msg_text).toEqual(expect.stringContaining(submission.expected));
             expect(msg_text).toEqual(expect.stringContaining(submission.currently));
 
