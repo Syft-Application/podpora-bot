@@ -1,4 +1,4 @@
-import { SLACK_API_TOKEN, SLACK_TEAMS } from './../util/secrets';
+import { store } from './../util/secrets';
 import {
     Dialog,
     WebClient,
@@ -11,12 +11,6 @@ import { IssueWithUrl } from './jira';
 interface TeamApiObject {
     id: string,
     domain: string
-}
-
-interface TeamConfig {
-    [index: string]: string;
-
-    support_channel_id: string
 }
 
 interface ChatPostMessageResult extends WebAPICallResult {
@@ -90,15 +84,18 @@ class SlackTeam {
         logger.debug(team);
         this.id = team.id;
         this.domain = team.domain;
-        this.config = SLACK_TEAMS[team.id];
+        this.config = store.slackTeamConfig(team.id);
         // TODO: api token should be per team
-        this.client = new WebClient(SLACK_API_TOKEN);
+        this.client = new WebClient(this.config.api_token);
     }
 
     id: string;
     domain: string;
     client: WebClient;
-    config: TeamConfig;
+    config: {
+        api_token: string,
+        support_channel_id: string
+    }
 
     callbackId(): string {
         return `${this.domain}${(new Date()).getTime()}`;

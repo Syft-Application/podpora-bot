@@ -7,7 +7,10 @@ import {
     SlackTeam
 } from '../../lib/slack_team';
 
-import * as jira from '../../lib/jira';
+import {
+    IssueWithUrl,
+    Jira
+} from '../../lib/jira';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
@@ -64,11 +67,12 @@ export const postInteraction = (req: Request, res: Response): void => {
     const slack_team = new SlackTeam(team);
     slack_team.postSupportRequest(submission, state, user)
         .then((support_request: SupportRequest) => {
+            const jira = new Jira(team.id);
             jira.createIssue(support_request)
-                .then((jira_issue: jira.IssueWithUrl) => {
+                .then((issue: IssueWithUrl) => {
                     slack_team.postIssueLinkOnThread(
                         support_request,
-                        jira_issue
+                        issue
                     );
                 }).catch((err) => {
                     logger.error(err);

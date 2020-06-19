@@ -4,29 +4,35 @@ import { merge, build_service, build_response, fixture } from '../helpers';
 import { MockWebClient } from '../mocks/slack.mock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
+import { IssueWithUrl } from '../../src/lib/jira';
+const createIssueSpy = jest.fn();
+const linkRequestToIssueSpy = jest.fn();
 
-import * as jira from '../../src/lib/jira';
-import * as secrets from '../../src/util/secrets';
-
+import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
 const dialogSpy = MockWebClient.prototype.dialog;
 const chatSpy = MockWebClient.prototype.chat;
 const postMessage = chatSpy.postMessage;
-const jiraSpy = jest.spyOn(jira, 'createIssue');
 const createIssueResponse = fixture('jira/issues.createIssue.response');
-const issueWithUrl = { ...createIssueResponse, url: 'http://for.bar' } as jira.IssueWithUrl;
-jiraSpy.mockImplementation((): Promise<jira.IssueWithUrl> => {
-    return Promise.resolve(issueWithUrl);
-});
+const issueWithUrl = { ...createIssueResponse, url: 'http://for.bar' } as IssueWithUrl;
 
-const mock_teams = {
-    'THS7JQ2RL': {
-        'support_channel_id': 'foo-123'
-    }
+const mock_team_config = {
+    'support_channel_id': 'foo-123',
+    'api_token': 'foo'
 };
-Object.defineProperty(secrets, 'SLACK_TEAMS', { get: () => mock_teams });
+jest.spyOn(store, 'slackTeamConfig').mockReturnValue(mock_team_config);
+jest.mock('../../src/lib/jira', () => {
+    return {
+        Jira: jest.fn().mockImplementation(() => {
+            return {
+                createIssue: createIssueSpy,
+                linkRequestToIssue: linkRequestToIssueSpy
+            };
+        }),
+    };
+});
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -120,7 +126,6 @@ describe('POST /api/slack/command', () => {
 
             test_support_command_with_dialog(bug_params);
         });
-
 
         describe('text: data', () => {
             const data_params = merge(support_params, { text: 'data' });
@@ -231,12 +236,16 @@ describe('POST /api/slack/interaction', () => {
     });
 
     it('calls create jira ticket', (done) => {
+        createIssueSpy.mockImplementation((): Promise<IssueWithUrl> => {
+            return Promise.resolve(issueWithUrl);
+        });
+
         service(params).expect(200).end((err) => {
             if (err) {
                 done(err);
             }
 
-            expect(jiraSpy).toHaveBeenCalled();
+            expect(createIssueSpy).toHaveBeenCalled();
 
             done();
         });
@@ -244,7 +253,7 @@ describe('POST /api/slack/interaction', () => {
 
     describe('when creating jira ticket fails', () => {
         it('logs the error', (done) => {
-            jiraSpy.mockImplementation(() => {
+            createIssueSpy.mockImplementation(() => {
                 return Promise.reject({ ok: false });
             });
 

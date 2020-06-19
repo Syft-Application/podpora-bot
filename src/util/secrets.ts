@@ -11,17 +11,33 @@ if (fs.existsSync('.env')) {
     process.exit(1);
 }
 
-interface TeamConfig {
+export interface TeamConfig {
     [index: string]: string;
 
+    api_token: string,
     support_channel_id: string
 }
 
-export const SLACK_API_TOKEN = process.env['SLACK_API_TOKEN'];
-export const SLACK_TEAMS: { [index: string]: TeamConfig } = JSON.parse(process.env['SLACK_TEAMS']);
-export const JIRA_USERNAME = process.env['JIRA_USERNAME'];
-export const JIRA_API_TOKEN = process.env['JIRA_API_TOKEN'];
-export const JIRA_HOST = process.env['JIRA_HOST'];
+export interface JiraConfig {
+    [index: string]: string;
+
+    username: string,
+    api_token: string,
+    host: string
+}
+
+const SLACK_TEAMS: { [index: string]: TeamConfig } = JSON.parse(process.env['SLACK_TEAMS']);
+const JIRA_CONFIGS: { [index: string]: JiraConfig } = JSON.parse(process.env['JIRA_CONFIGS']);
+
+const store = {
+    slackTeamConfig: (id: string): TeamConfig => {
+        return SLACK_TEAMS[id];
+    },
+    jiraConfig: (id: string): JiraConfig => {
+        return JIRA_CONFIGS[id];
+    }
+};
+
 
 export const SESSION_SECRET = process.env['SESSION_SECRET'];
 
@@ -29,3 +45,5 @@ if (!SESSION_SECRET) {
     logger.error('No client secret. Set SESSION_SECRET environment variable.');
     process.exit(1);
 }
+
+export { store };

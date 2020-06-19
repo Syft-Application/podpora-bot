@@ -1,23 +1,29 @@
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 import { fixture } from '../helpers';
+import { store } from '../../src/util/secrets';
 
-import * as jira from '../../src/lib/jira';
+import {
+    IssueWithUrl,
+    Jira
+} from '../../src/lib/jira';
 
+const mock_config = {
+    username: 'some name',
+    api_token: 'abc-123',
+    host: 'http://example.com'
+};
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 const issueWithLink = {
     ...createIssueResponse,
-    url: `https://podpora-bot.atlassian.net/browse/${createIssueResponse.key}`
-} as jira.IssueWithUrl;
+    url: `${mock_config.host}/browse/${createIssueResponse.key}`
+} as IssueWithUrl;
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
-const jiraCreateIssueMock = jest.spyOn(jira.client.issues, 'createIssue');
-const createLinkMock = jest.spyOn(
-    jira.client.issueRemoteLinks, 'createOrUpdateRemoteIssueLink'
-).mockReturnValue(Promise.resolve({}));
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
     title: 'Slack'
 };
+jest.spyOn(store, 'jiraConfig').mockReturnValue(mock_config);
 
 const bug_report = {
     id: '1592066203.000100',
@@ -57,25 +63,30 @@ afterEach(() => {
 });
 
 describe('Jira', () => {
-    describe('#createIssue()', () => {
-        const createIssue = jira.createIssue;
+    const jira = new Jira('slack-team-random-id');
+    const jiraCreateIssueMock = jest.spyOn(jira.client.issues, 'createIssue');
+    const createLinkMock = jest.spyOn(
+        jira.client.issueRemoteLinks, 'createOrUpdateRemoteIssueLink'
+    ).mockReturnValue(Promise.resolve({}));
 
+    describe('#createIssue()', () => {
         it('returns a Promise', () => {
             jiraCreateIssueMock.mockImplementation(() => {
                 return Promise.resolve(createIssueResponse);
             });
 
-            expect(createIssue(bug_report)).toBeInstanceOf(Promise);
+            expect(jira.createIssue(bug_report)).toBeInstanceOf(Promise);
             const fields = jiraCreateIssueMock.mock.calls[0][0].fields;
             expect(fields.summary).toEqual(bug_report.submission.title);
             expect(fields.issuetype.name).toEqual('Bug');
             expect(fields.project.key).toEqual('SUP');
 
-            expect(createIssue(bug_report))
+            expect(jira.createIssue(bug_report))
                 .resolves.toEqual(issueWithLink);
         });
 
         it('links the slack message to created issue', (done) => {
+            expect.assertions(1);
             jiraCreateIssueMock.mockImplementation(() => {
                 return Promise.resolve(createIssueResponse);
             });
@@ -96,7 +107,7 @@ describe('Jira', () => {
                 }
             };
 
-            createIssue(bug_report).then(() => {
+            jira.createIssue(bug_report).then(() => {
                 expect(createLinkMock).toHaveBeenCalledWith(link_params);
                 done();
             });
@@ -104,13 +115,14 @@ describe('Jira', () => {
 
         describe('failure', () => {
             it('it catch and log the failure', (done) => {
+                expect.assertions(2);
                 jiraCreateIssueMock.mockImplementation(() => {
                     return Promise.reject({ ok: false });
                 });
 
-                expect(createIssue(bug_report)).rejects.toEqual({ ok: false });
+                expect(jira.createIssue(bug_report)).rejects.toEqual({ ok: false });
 
-                createIssue(bug_report)
+                jira.createIssue(bug_report)
                     .catch(() => {
                         expect(loggerSpy).toHaveBeenCalled();
                         done();
@@ -124,7 +136,7 @@ describe('Jira', () => {
                     return Promise.resolve(createIssueResponse);
                 });
 
-                createIssue(data_request);
+                jira.createIssue(data_request);
                 const fields = jiraCreateIssueMock.mock.calls[0][0].fields;
                 expect(fields.summary).toEqual(data_request.submission.title);
                 expect(fields.issuetype.name).toEqual('Task');
