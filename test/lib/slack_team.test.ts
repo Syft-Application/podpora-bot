@@ -14,6 +14,14 @@ const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as
 const mock_team_config = { support_channel_id: 'channel-1234', api_token: 'foo' };
 jest.spyOn(store, 'slackTeamConfig').mockReturnValue(mock_team_config);
 
+beforeAll(() => {
+    return nock.disableNetConnect();
+});
+
+afterAll(() => {
+    return nock.enableNetConnect();
+});
+
 afterEach(() => {
     jest.clearAllMocks();
 });

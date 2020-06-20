@@ -9,7 +9,6 @@ import {
     Jira
 } from '../../src/lib/jira';
 
-nock.disableNetConnect();
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 // const slack_icon = {
 //     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
@@ -62,6 +61,14 @@ const data_request = {
     },
     channel: 'CHS7JQ7PY'
 };
+
+beforeAll(() => {
+    return nock.disableNetConnect();
+});
+
+afterAll(() => {
+    return nock.enableNetConnect();
+});
 
 afterEach(() => {
     jest.clearAllMocks();
