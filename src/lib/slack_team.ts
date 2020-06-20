@@ -166,5 +166,6 @@ class SlackTeam {
 export {
     ChatPostMessageResult,
     SupportRequest,
+    BugSubmission,
     SlackTeam
 };

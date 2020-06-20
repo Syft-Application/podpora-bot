@@ -9,8 +9,8 @@ import {
     Jira
 } from '../../src/lib/jira';
 
+nock.disableNetConnect();
 const createIssueResponse = fixture('jira/issues.createIssue.response');
-const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
 // const slack_icon = {
 //     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
 //     title: 'Slack'
@@ -26,6 +26,13 @@ const issueWithLink = {
     url: `${mock_config.host}/browse/${createIssueResponse.key}`
 } as IssueWithUrl;
 
+const submission = {
+    title: 'bug report title',
+    description: 'bug report description',
+    expected: 'foo',
+    currently: 'baz'
+};
+
 const bug_report = {
     id: '1592066203.000100',
     team: {
@@ -37,10 +44,7 @@ const bug_report = {
         name: 'sherlock_holmes'
     },
     type: 'bug',
-    submission: {
-        title: 'bug report title',
-        description: 'bug report description'
-    },
+    submission: submission,
     channel: 'CHS7JQ7PY'
 };
 // const data_request = {
@@ -70,25 +74,36 @@ describe('Jira', () => {
 
     describe('#createIssue()', () => {
         it('returns a Promise', (done) => {
-            expect.assertions(1);
+            expect.assertions(5);
             nock(mock_config.host)
-                .post('/rest/api/2/issue', new RegExp('title'))
+                .post('/rest/api/2/issue', (body) => {
+                    const body_str = JSON.stringify(body);
+                    expect(body_str).toEqual(expect.stringContaining(submission.title));
+                    expect(body_str).toEqual(expect.stringContaining(submission.description));
+                    expect(body_str).toEqual(expect.stringContaining(submission.expected));
+                    expect(body_str).toEqual(expect.stringContaining(bug_report.user.name));
+                    return body;
+                })
                 .reply(200, createIssueResponse);
+
             nock(mock_config.host)
                 .post(
-                    `/rest/api/2/issue/${createIssueResponse.key}/remotelink`,
-                    new RegExp('slack')
+                    `/rest/api/2/issue/${createIssueResponse.key}/remotelink`
                 ).reply(200, {});
 
             jira.createIssue(bug_report)
                 .then((res) => {
                     expect(res).toEqual(issueWithLink);
                     done();
+                }).catch((err) => {
+                    done(err);
                 });
         });
 
         describe('createIssue api failure', () => {
             it('it catch and log the failure', (done) => {
+                const loggerSpy = jest.spyOn(logger, 'error')
+                    .mockReturnValue(({} as unknown) as Logger);
                 expect.assertions(3);
 
                 nock(mock_config.host)
@@ -97,7 +112,7 @@ describe('Jira', () => {
 
                 jira.createIssue(bug_report)
                     .catch((res) => {
-                        expect(loggerSpy).toHaveBeenCalled()
+                        expect(loggerSpy).toHaveBeenCalled();
                         const logger_call = loggerSpy.mock.calls[0].toString();
                         expect(logger_call).toEqual(
                             expect.stringContaining('createIssue')
@@ -110,6 +125,9 @@ describe('Jira', () => {
 
         describe('link slack message to created issue api failure', () => {
             it('it catch and log the failure but resolves successfuly', (done) => {
+                const loggerSpy = jest.spyOn(logger, 'error')
+                    .mockReturnValue(({} as unknown) as Logger);
+
                 expect.assertions(3);
                 nock(mock_config.host)
                     .post('/rest/api/2/issue', new RegExp('title'))
@@ -123,7 +141,7 @@ describe('Jira', () => {
 
                 jira.createIssue(bug_report)
                     .then((res) => {
-                        expect(loggerSpy).toHaveBeenCalled()
+                        expect(loggerSpy).toHaveBeenCalled();
                         const logger_call = loggerSpy.mock.calls[0].toString();
                         expect(logger_call).toEqual(
                             expect.stringContaining('linkRequestToIssue')

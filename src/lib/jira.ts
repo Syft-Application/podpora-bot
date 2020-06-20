@@ -1,6 +1,6 @@
 import { store } from './../util/secrets';
 import { Client } from 'jira.js';
-import { SupportRequest } from './slack_team';
+import { SupportRequest, BugSubmission } from './slack_team';
 import logger from '../util/logger';
 
 const slack_icon = {
@@ -97,12 +97,33 @@ function issueTypeName(request_type: string): string {
     return request_type_to_issue_type_name[request_type];
 }
 
+const Descriptions: { [index: string]: (request: SupportRequest) => string } = {
+    bug: (request: SupportRequest): string => {
+        const submission = request.submission as BugSubmission;
+        const slack_user = request.user;
+
+        return `${submission.description}
+
+Expected:
+${submission.expected}
+
+Submitted by: ${slack_user.name}`;
+    },
+    data: (request: SupportRequest): string => {
+        const submission = request.submission;
+        const slack_user = request.user;
+        return `${submission.description}
+
+Submitted by: ${slack_user.name}`;
+    }
+};
+
 function ticketBody(request: SupportRequest): Record<string, unknown> {
     const submission = request.submission;
     const issue_type = issueTypeName(request.type);
     const title = submission.title;
     const board = 'SUP';
-    const desc = 'This is description';
+    const desc = Descriptions[request.type](request);
 
     return {
         fields: {
