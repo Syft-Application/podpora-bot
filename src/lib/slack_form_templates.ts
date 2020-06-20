@@ -17,7 +17,7 @@ const bug: Dialog = {
             type: 'textarea',
             label: 'Steps to Reproduce',
             placeholder: 'Bullet point steps to reproduce. Include specifics, eg. urls and ids',
-            name: 'reproduce',
+            name: 'description',
             value: '',
         },
         {

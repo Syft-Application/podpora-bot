@@ -46,10 +46,22 @@ interface BugSubmission extends Submission {
     expected: string
 }
 
+interface ApiErrorHandler {
+    (error: Record<string, string>): Promise<ErrorResponse>
+}
+
 function slackError(error: Record<string, string>): Promise<ErrorResponse> {
     logger.error(error.message);
 
     return Promise.reject({ ok: false });
+}
+
+function slackError2(source: string): ApiErrorHandler {
+    return function(error: Record<string, string>): Promise<ErrorResponse> {
+        logger.error(source, error.message);
+
+        return Promise.reject({ ok: false });
+    };
 }
 
 const SlackMessages: { [index: string]: (submission: Submission, user_id: string) => string } = {
@@ -116,7 +128,7 @@ class SlackTeam {
                 channel: channel_id
             };
             return Promise.resolve(support_request);
-        }).catch(slackError);
+        }).catch(slackError2('postSupportRequest'));
     }
 
     showSupportRequestForm(
@@ -129,7 +141,9 @@ class SlackTeam {
         return this.client.dialog.open({
             dialog,
             trigger_id,
-        }).catch(slackError);
+        }).then(() => {
+            return Promise.resolve({ ok: true });
+        }).catch(slackError2('showSupportRequestForm'));
     }
 
     postIssueLinkOnThread(

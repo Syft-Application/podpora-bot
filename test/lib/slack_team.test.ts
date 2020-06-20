@@ -2,6 +2,7 @@ import { Logger } from 'winston';
 import logger from '../../src/util/logger';
 import { fixture } from '../helpers';
 import { store } from '../../src/util/secrets';
+import nock from 'nock';
 
 import {
     ChatPostMessageResult,
@@ -18,9 +19,8 @@ afterEach(() => {
 });
 
 describe('SlackTeam', () => {
-    const team = new SlackTeam({ id: 'abc', domain: 'foo' });
-    const postMessageMock = jest.spyOn(team.client.chat, 'postMessage');
-    const dialogOpenMock = jest.spyOn(team.client.dialog, 'open');
+    const team_cfg = { id: 'abc', domain: 'foo' };
+    const team = new SlackTeam(team_cfg);
 
     describe('#postSupportRequest(submission, state, user)', () => {
         const submission = {
@@ -44,47 +44,35 @@ describe('SlackTeam', () => {
         };
 
         it('returns a Promise that resolves to SupportRequest', (done) => {
-            postMessageMock.mockImplementation(() => {
-                return Promise.resolve(postMsgResponse);
-            });
+            expect.assertions(1);
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', new RegExp('crashing'))
+                .reply(200, postMsgResponse);
 
-            expect(team.postSupportRequest(submission, state, user))
-                .resolves.toEqual(support_request);
-
-            done();
-        });
-
-        it('sends the message to team slack', (done) => {
-            postMessageMock.mockImplementation(() => {
-                return Promise.resolve(postMsgResponse);
-            });
-
-            team.postSupportRequest(submission, state, user);
-            const call = postMessageMock.mock.calls[0][0];
-            expect(call.text).toEqual(expect.stringContaining(submission.title));
-            expect(call.text).toEqual(expect.stringContaining(submission.description));
-            expect(call.text).toEqual(expect.stringContaining(submission.expected));
-            expect(call.text).toEqual(expect.stringContaining(submission.currently));
-            expect(call.channel).toEqual('channel-1234');
-
-            done();
+            team.postSupportRequest(submission, state, user)
+                .then((res) => {
+                    expect(res).toEqual(support_request);
+                    done();
+                });
         });
 
         describe('failure', () => {
             it('it log the failure and returns error response', (done) => {
-                expect.assertions(2);
+                expect.assertions(3);
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage', new RegExp('crashing'))
+                    .reply(200, { ok: false });
 
-                postMessageMock.mockImplementation(() => {
-                    return Promise.reject({ ok: false });
-                });
-
-                expect(team.postSupportRequest(submission, state, user))
-                    .rejects.toEqual({ ok: false });
-
-                team.postSupportRequest(submission, state, user).catch(() => {
-                    expect(loggerSpy).toHaveBeenCalled();
-                    done();
-                });
+                team.postSupportRequest(submission, state, user)
+                    .catch((res) => {
+                        expect(res).toEqual({ ok: false });
+                        expect(loggerSpy).toHaveBeenCalled();
+                        const logger_call = loggerSpy.mock.calls[0].toString();
+                        expect(logger_call).toEqual(
+                            expect.stringContaining('postSupportRequest')
+                        );
+                        done();
+                    });
             });
         });
     });
@@ -94,30 +82,35 @@ describe('SlackTeam', () => {
         const trigger_id = 'tr123';
 
         it('returns a Promise that resolves to slack WebAPICallResult', (done) => {
-            dialogOpenMock.mockImplementation(() => {
-                return Promise.resolve({ ok: true });
-            });
+            expect.assertions(1);
+            nock('https://slack.com')
+                .post('/api/dialog.open', new RegExp(trigger_id))
+                .reply(200, { ok: true });
 
-            expect(team.showSupportRequestForm(request_type, trigger_id))
-                .resolves.toEqual({ ok: true });
-
-            done();
+            team.showSupportRequestForm(request_type, trigger_id)
+                .then((res) => {
+                    expect(res).toEqual({ ok: true });
+                    done();
+                });
         });
 
         describe('failure', () => {
             it('it catch and log the failure', (done) => {
-                expect.assertions(2);
+                expect.assertions(3);
+                nock('https://slack.com')
+                    .post('/api/dialog.open', /trigger/)
+                    .reply(200, { ok: false });
 
-                dialogOpenMock.mockImplementation(() => {
-                    return Promise.reject({ ok: false });
-                });
-
-                expect(team.showSupportRequestForm(request_type, trigger_id))
-                    .rejects.toEqual({ ok: false });
-                team.showSupportRequestForm(request_type, trigger_id).catch(() => {
-                    expect(loggerSpy).toHaveBeenCalled();
-                    done();
-                });
+                team.showSupportRequestForm(request_type, trigger_id)
+                    .catch((res) => {
+                        expect(res).toEqual({ ok: false });
+                        expect(loggerSpy).toHaveBeenCalled();
+                        const logger_call = loggerSpy.mock.calls[0].toString();
+                        expect(logger_call).toEqual(
+                            expect.stringContaining('showSupportRequestForm')
+                        );
+                        done();
+                    });
             });
         });
     });

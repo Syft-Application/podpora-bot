@@ -37,7 +37,8 @@ const bug_report = {
     },
     type: 'bug',
     submission: {
-        title: 'bug report title'
+        title: 'bug report title',
+        description: 'bug report description'
     },
     channel: 'CHS7JQ7PY'
 };
@@ -53,7 +54,8 @@ const data_request = {
     },
     type: 'data',
     submission: {
-        title: 'data request title'
+        title: 'data request title',
+        description: 'data request description'
     },
     channel: 'CHS7JQ7PY'
 };
