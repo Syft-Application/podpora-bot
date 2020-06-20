@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 
 if (fs.existsSync('.env')) {
-    logger.debug('Using .env file to supply config environment variables');
+    if (process.env.NODE_ENV !== 'test') {
+        logger.debug('Using .env file to supply config environment variables');
+    }
     dotenv.config({ path: '.env' });
 } else if (process.env.NODE_ENV !== 'production') {
     logger.error('No .env file present in non production environment.');
