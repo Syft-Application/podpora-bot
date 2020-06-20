@@ -104,6 +104,9 @@ const Descriptions: { [index: string]: (request: SupportRequest) => string } = {
 
         return `${submission.description}
 
+Currently:
+${submission.currently}
+
 Expected:
 ${submission.expected}
 

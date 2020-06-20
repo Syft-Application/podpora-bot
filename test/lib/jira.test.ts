@@ -26,13 +26,6 @@ const issueWithLink = {
     url: `${mock_config.host}/browse/${createIssueResponse.key}`
 } as IssueWithUrl;
 
-const submission = {
-    title: 'bug report title',
-    description: 'bug report description',
-    expected: 'foo',
-    currently: 'baz'
-};
-
 const bug_report = {
     id: '1592066203.000100',
     team: {
@@ -44,26 +37,31 @@ const bug_report = {
         name: 'sherlock_holmes'
     },
     type: 'bug',
-    submission: submission,
+    submission: {
+        title: 'bug report title',
+        description: 'bug report description',
+        expected: 'we like this to happen',
+        currently: 'this is what happens now'
+    },
     channel: 'CHS7JQ7PY'
 };
-// const data_request = {
-//     id: '1592066203.000200',
-//     team: {
-//         id: 'THS7JQ2RL',
-//         domain: 'supportdemo'
-//     },
-//     user: {
-//         id: 'UHAV00MD1',
-//         name: 'john_watson'
-//     },
-//     type: 'data',
-//     submission: {
-//         title: 'data request title',
-//         description: 'data request description'
-//     },
-//     channel: 'CHS7JQ7PY'
-// };
+const data_request = {
+    id: '1592066203.000200',
+    team: {
+        id: 'THS7JQ2RL',
+        domain: 'supportdemo'
+    },
+    user: {
+        id: 'UHAV00MD1',
+        name: 'john_watson'
+    },
+    type: 'data',
+    submission: {
+        title: 'data request title',
+        description: 'data request description'
+    },
+    channel: 'CHS7JQ7PY'
+};
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -74,26 +72,28 @@ describe('Jira', () => {
 
     describe('#createIssue()', () => {
         it('returns a Promise', (done) => {
-            expect.assertions(5);
+            let api_call_body: string;
+            expect.assertions(7);
             nock(mock_config.host)
                 .post('/rest/api/2/issue', (body) => {
-                    const body_str = JSON.stringify(body);
-                    expect(body_str).toEqual(expect.stringContaining(submission.title));
-                    expect(body_str).toEqual(expect.stringContaining(submission.description));
-                    expect(body_str).toEqual(expect.stringContaining(submission.expected));
-                    expect(body_str).toEqual(expect.stringContaining(bug_report.user.name));
+                    api_call_body = JSON.stringify(body);
                     return body;
-                })
-                .reply(200, createIssueResponse);
+                }).reply(200, createIssueResponse);
 
             nock(mock_config.host)
-                .post(
-                    `/rest/api/2/issue/${createIssueResponse.key}/remotelink`
-                ).reply(200, {});
+                .post(`/rest/api/2/issue/${createIssueResponse.key}/remotelink`)
+                .reply(200);
 
             jira.createIssue(bug_report)
                 .then((res) => {
+                    const submission = bug_report.submission;
                     expect(res).toEqual(issueWithLink);
+                    expect(api_call_body).toContain(submission.title);
+                    expect(api_call_body).toContain(submission.description);
+                    expect(api_call_body).toContain(submission.expected);
+                    expect(api_call_body).toContain(submission.currently);
+                    expect(api_call_body).toContain(bug_report.user.name);
+                    expect(api_call_body).toContain('Bug');
                     done();
                 }).catch((err) => {
                     done(err);
@@ -130,13 +130,12 @@ describe('Jira', () => {
 
                 expect.assertions(3);
                 nock(mock_config.host)
-                    .post('/rest/api/2/issue', new RegExp('title'))
+                    .post('/rest/api/2/issue')
                     .reply(200, createIssueResponse);
 
                 nock(mock_config.host)
                     .post(
-                        `/rest/api/2/issue/${createIssueResponse.key}/remotelink`,
-                        new RegExp('slack')
+                        `/rest/api/2/issue/${createIssueResponse.key}/remotelink`
                     ).reply(503, {});
 
                 jira.createIssue(bug_report)
@@ -152,19 +151,33 @@ describe('Jira', () => {
             });
         });
 
-        // describe('data request', () => {
-        //     it('changes issuetype to data', () => {
-        //         jiraCreateIssueMock.mockImplementation(() => {
-        //             return Promise.resolve(createIssueResponse);
-        //         });
+        describe('data request', () => {
+            it('changes issuetype to data', (done) => {
+                let api_call_body: string;
+                expect.assertions(5);
+                nock(mock_config.host)
+                    .post('/rest/api/2/issue', (body) => {
+                        api_call_body = JSON.stringify(body);
+                        return body;
+                    }).reply(200, createIssueResponse);
 
-        //         jira.createIssue(data_request);
-        //         const fields = jiraCreateIssueMock.mock.calls[0][0].fields;
-        //         expect(fields.summary).toEqual(data_request.submission.title);
-        //         expect(fields.issuetype.name).toEqual('Task');
-        //         expect(fields.project.key).toEqual('SUP');
-        //     });
-        // });
+                nock(mock_config.host)
+                    .post(`/rest/api/2/issue/${createIssueResponse.key}/remotelink`)
+                    .reply(200);
 
+                jira.createIssue(data_request)
+                    .then((res) => {
+                        const submission = data_request.submission;
+                        expect(res).toEqual(issueWithLink);
+                        expect(api_call_body).toContain(submission.title);
+                        expect(api_call_body).toContain(submission.description);
+                        expect(api_call_body).toContain(data_request.user.name);
+                        expect(api_call_body).toContain('Task');
+                        done();
+                    }).catch((err) => {
+                        done(err);
+                    });
+            });
+        });
     });
 });
