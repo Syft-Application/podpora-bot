@@ -69,6 +69,7 @@ class Jira {
 
     createIssue(request: SupportRequest): Promise<IssueWithUrl> {
         const issue_params = ticketBody(request);
+
         return this.client.issues.createIssue(issue_params)
             .then((issue: Issue) => {
                 const issue_with_url = {
@@ -79,11 +80,14 @@ class Jira {
                 return this.linkRequestToIssue(request, issue_with_url)
                     .then(() => {
                         return Promise.resolve(issue_with_url);
+                    })
+                    .catch((err) => {
+                        logger.error('linkRequestToIssue', err);
+                        return Promise.resolve(issue_with_url);
                     });
             })
             .catch((err) => {
-                logger.error(err);
-
+                logger.error('createIssue', err);
                 return Promise.reject({ ok: false });
             });
     }
