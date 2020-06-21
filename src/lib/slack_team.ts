@@ -45,13 +45,7 @@ interface ApiErrorHandler {
     (error: Record<string, string>): Promise<ErrorResponse>
 }
 
-function slackError(error: Record<string, string>): Promise<ErrorResponse> {
-    logger.error(error.message);
-
-    return Promise.reject({ ok: false });
-}
-
-function slackError2(source: string): ApiErrorHandler {
+function slackError(source: string): ApiErrorHandler {
     return function(error: Record<string, string>): Promise<ErrorResponse> {
         logger.error(source, error.message);
 
@@ -125,7 +119,7 @@ class SlackTeam {
                 channel: channel_id
             };
             return Promise.resolve(support_request);
-        }).catch(slackError2('postSupportRequest'));
+        }).catch(slackError('postSupportRequest'));
     }
 
     showSupportRequestForm(
@@ -140,7 +134,7 @@ class SlackTeam {
             trigger_id,
         }).then(() => {
             return Promise.resolve({ ok: true });
-        }).catch(slackError2('showSupportRequestForm'));
+        }).catch(slackError('showSupportRequestForm'));
     }
 
     postIssueLinkOnThread(
@@ -156,7 +150,7 @@ class SlackTeam {
             text: msg_text,
             channel: support_request.channel,
             thread_ts: support_request.id
-        }).catch(slackError);
+        }).catch(slackError('postIssueLinkOnThread'));
     }
 }
 
