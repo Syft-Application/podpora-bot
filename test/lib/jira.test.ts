@@ -1,26 +1,20 @@
-import { Logger } from 'winston';
-import logger from '../../src/util/logger';
-import { fixture } from '../helpers';
-import { store } from '../../src/util/secrets';
 import nock from 'nock';
-
+import { fixture } from '../helpers';
+import logger from '../../src/util/logger';
+import { store } from '../../src/util/secrets';
 import {
     IssueWithUrl,
     Jira
 } from '../../src/lib/jira';
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
-// const slack_icon = {
-//     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
-//     title: 'Slack'
-// };
 const mock_config = {
     username: 'some name',
     api_token: 'abc-123',
     host: 'http://example.com'
 };
 jest.spyOn(store, 'jiraConfig').mockReturnValue(mock_config);
-const issueWithLink = {
+const issueWithUrl = {
     ...createIssueResponse,
     url: `${mock_config.host}/browse/${createIssueResponse.key}`
 } as IssueWithUrl;
@@ -78,7 +72,7 @@ describe('Jira', () => {
     const jira = new Jira('slack-team-random-id');
 
     describe('#createIssue()', () => {
-        it('returns a Promise', (done) => {
+        it('returns a Promise to create issue and link it to the slack thread', (done) => {
             let api_call_body: string;
             expect.assertions(7);
             nock(mock_config.host)
@@ -94,7 +88,7 @@ describe('Jira', () => {
             jira.createIssue(bug_report)
                 .then((res) => {
                     const submission = bug_report.submission;
-                    expect(res).toEqual(issueWithLink);
+                    expect(res).toEqual(issueWithUrl);
                     expect(api_call_body).toContain(submission.title);
                     expect(api_call_body).toContain(submission.description);
                     expect(api_call_body).toContain(submission.expected);
@@ -102,15 +96,12 @@ describe('Jira', () => {
                     expect(api_call_body).toContain(bug_report.user.name);
                     expect(api_call_body).toContain('Bug');
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                }).catch(done);
         });
 
-        describe('createIssue api failure', () => {
+        describe('API failure', () => {
             it('it catch and log the failure', (done) => {
-                const loggerSpy = jest.spyOn(logger, 'error')
-                    .mockReturnValue(({} as unknown) as Logger);
+                const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
                 expect.assertions(3);
 
                 nock(mock_config.host)
@@ -130,10 +121,9 @@ describe('Jira', () => {
             });
         });
 
-        describe('link slack message to created issue api failure', () => {
+        describe('link slack message to an issue fails', () => {
             it('it catch and log the failure but resolves successfuly', (done) => {
-                const loggerSpy = jest.spyOn(logger, 'error')
-                    .mockReturnValue(({} as unknown) as Logger);
+                const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
 
                 expect.assertions(3);
                 nock(mock_config.host)
@@ -152,7 +142,7 @@ describe('Jira', () => {
                         expect(logger_call).toEqual(
                             expect.stringContaining('linkRequestToIssue')
                         );
-                        expect(res).toEqual(issueWithLink);
+                        expect(res).toEqual(issueWithUrl);
                         done();
                     });
             });
@@ -175,15 +165,13 @@ describe('Jira', () => {
                 jira.createIssue(data_request)
                     .then((res) => {
                         const submission = data_request.submission;
-                        expect(res).toEqual(issueWithLink);
+                        expect(res).toEqual(issueWithUrl);
                         expect(api_call_body).toContain(submission.title);
                         expect(api_call_body).toContain(submission.description);
                         expect(api_call_body).toContain(data_request.user.name);
                         expect(api_call_body).toContain('Task');
                         done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }).catch(done);
             });
         });
     });
