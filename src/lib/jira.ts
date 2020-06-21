@@ -46,13 +46,9 @@ class Jira {
         request: SupportRequest,
         issue: Issue
     ): Promise<Record<string, unknown>> {
-        const id = request.id;
-        const team_domain = request.team.domain;
-        const channel = request.channel;
-        const url = `https://${team_domain}.slack.com/archives/${channel}/p${id}`;
-        const title = url;
+        const url = request.url;
+        const title = request.url;
         const icon = slack_icon;
-
         const link_params = {
             issueIdOrKey: issue.key,
             object: {

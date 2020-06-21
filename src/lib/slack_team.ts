@@ -19,10 +19,11 @@ interface SlackUser { id: string, name: string }
 
 interface SupportRequest {
     id: string,
-    team: SlackTeam,
+    team_id: string,
     user: SlackUser,
     submission: Submission,
     type: string,
+    url: string,
     channel: string
 }
 
@@ -116,10 +117,11 @@ class SlackTeam {
         }).then((value: ChatPostMessageResult) => {
             const support_request = {
                 id: value.ts,
-                team: this,
+                team_id: this.id,
                 user: user,
                 submission: submission,
                 type: submission_type,
+                url: `https://${this.domain}.slack.com/archives/${channel_id}/p${value.ts}`,
                 channel: channel_id
             };
             return Promise.resolve(support_request);

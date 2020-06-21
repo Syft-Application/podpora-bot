@@ -43,10 +43,11 @@ describe('SlackTeam', () => {
         };
         const support_request = {
             id: postMsgResponse.ts,
-            team: team,
+            team_id: team.id,
             user: user,
             submission: submission,
             type: state,
+            url: 'https://qwerty.slack.com/archives/channel-1234/p1592066203.000100',
             channel: team_config.support_channel_id
         };
 

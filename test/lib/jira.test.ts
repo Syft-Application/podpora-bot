@@ -10,10 +10,7 @@ const createIssueResponse = fixture('jira/issues.createIssue.response');
 
 const bug_report = {
     id: '1592066203.000100',
-    team: {
-        id: 'THS7JQ2RL',
-        domain: 'supportdemo'
-    },
+    team_id: 'THS7JQ2RL',
     user: {
         id: 'UHAV00MD0',
         name: 'sherlock_holmes'
@@ -25,14 +22,12 @@ const bug_report = {
         expected: 'we like this to happen',
         currently: 'this is what happens now'
     },
+    url: 'http://example.com/bug',
     channel: 'CHS7JQ7PY'
 };
 const data_request = {
     id: '1592066203.000200',
-    team: {
-        id: 'THS7JQ2RL',
-        domain: 'supportdemo'
-    },
+    team_id: 'THS7JQ2RL',
     user: {
         id: 'UHAV00MD1',
         name: 'john_watson'
@@ -42,6 +37,7 @@ const data_request = {
         title: 'data request title',
         description: 'data request description'
     },
+    url: 'http://example.com/data',
     channel: 'CHS7JQ7PY'
 };
 
