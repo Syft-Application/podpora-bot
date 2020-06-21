@@ -1,8 +1,7 @@
-import { Logger } from 'winston';
-import logger from '../../src/util/logger';
-import { fixture } from '../helpers';
-import { store } from '../../src/util/secrets';
 import nock from 'nock';
+import { fixture } from '../helpers';
+import logger from '../../src/util/logger';
+import { store } from '../../src/util/secrets';
 
 import {
     ChatPostMessageResult,
@@ -10,7 +9,7 @@ import {
 } from '../../src/lib/slack_team';
 
 const postMsgResponse = fixture('slack/chat.postMessage.response') as ChatPostMessageResult;
-const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(({} as unknown) as Logger);
+const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
 const mock_team_config = { support_channel_id: 'channel-1234', api_token: 'foo' };
 jest.spyOn(store, 'slackTeamConfig').mockReturnValue(mock_team_config);
 
