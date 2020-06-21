@@ -1,6 +1,7 @@
 import { Client } from 'jira.js';
-import { SupportRequest, BugSubmission } from './slack_team';
+import { SupportRequest } from './slack_team';
 import logger from '../util/logger';
+import create_issue_params from './jira_create_issue_params';
 
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
@@ -18,11 +19,6 @@ interface Issue {
 interface IssueWithUrl extends Issue {
     url: string
 }
-
-const request_type_to_issue_type_name: { [index: string]: string } = {
-    bug: 'Bug',
-    data: 'Task'
-};
 
 class Jira {
     constructor(config: { username: string, api_token: string, host: string }) {
@@ -62,7 +58,7 @@ class Jira {
     }
 
     createIssue(request: SupportRequest): Promise<IssueWithUrl> {
-        const issue_params = ticketBody(request);
+        const issue_params = create_issue_params[request.type](request);
 
         return this.client.issues.createIssue(issue_params)
             .then((issue: Issue) => {
@@ -85,51 +81,6 @@ class Jira {
                 return Promise.reject({ ok: false });
             });
     }
-}
-
-function issueTypeName(request_type: string): string {
-    return request_type_to_issue_type_name[request_type];
-}
-
-const Descriptions: { [index: string]: (request: SupportRequest) => string } = {
-    bug: (request: SupportRequest): string => {
-        const submission = request.submission as BugSubmission;
-        const slack_user = request.user;
-
-        return `${submission.description}
-
-Currently:
-${submission.currently}
-
-Expected:
-${submission.expected}
-
-Submitted by: ${slack_user.name}`;
-    },
-    data: (request: SupportRequest): string => {
-        const submission = request.submission;
-        const slack_user = request.user;
-        return `${submission.description}
-
-Submitted by: ${slack_user.name}`;
-    }
-};
-
-function ticketBody(request: SupportRequest): Record<string, unknown> {
-    const submission = request.submission;
-    const issue_type = issueTypeName(request.type);
-    const title = submission.title;
-    const board = 'SUP';
-    const desc = Descriptions[request.type](request);
-
-    return {
-        fields: {
-            project: { key: board },
-            summary: title,
-            issuetype: { name: issue_type },
-            description: desc,
-        },
-    };
 }
 
 export {
