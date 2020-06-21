@@ -1,8 +1,6 @@
 import nock from 'nock';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
-import { store } from '../../src/util/secrets';
-
 import {
     ChatPostMessageResult,
     SlackTeam
@@ -10,9 +8,6 @@ import {
 
 const postMsgResponse = fixture('slack/chat.postMessage.response') as ChatPostMessageResult;
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
-const mock_team_config = { support_channel_id: 'channel-1234', api_token: 'foo' };
-jest.spyOn(store, 'slackTeamConfig').mockReturnValue(mock_team_config);
-
 beforeAll(() => {
     return nock.disableNetConnect();
 });
@@ -26,8 +21,13 @@ afterEach(() => {
 });
 
 describe('SlackTeam', () => {
-    const team_cfg = { id: 'abc', domain: 'foo' };
-    const team = new SlackTeam(team_cfg);
+    const id = 'abc';
+    const domain = 'qwerty';
+    const team_config = {
+        support_channel_id: 'channel-1234',
+        api_token: 'foo'
+    };
+    const team = new SlackTeam(id, domain, team_config);
 
     describe('#postSupportRequest(submission, state, user)', () => {
         const submission = {
@@ -47,7 +47,7 @@ describe('SlackTeam', () => {
             user: user,
             submission: submission,
             type: state,
-            channel: mock_team_config.support_channel_id
+            channel: team_config.support_channel_id
         };
 
         it('returns a Promise that resolves to SupportRequest', (done) => {

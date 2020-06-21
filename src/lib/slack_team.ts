@@ -1,4 +1,3 @@
-import { store } from './../util/secrets';
 import {
     Dialog,
     WebClient,
@@ -7,11 +6,6 @@ import {
 import logger from '../util/logger';
 import { templates as slack_form_templates } from './slack_form_templates';
 import { IssueWithUrl } from './jira';
-
-interface TeamApiObject {
-    id: string,
-    domain: string
-}
 
 interface ChatPostMessageResult extends WebAPICallResult {
     channel: string;
@@ -25,7 +19,7 @@ interface SlackUser { id: string, name: string }
 
 interface SupportRequest {
     id: string,
-    team: TeamApiObject,
+    team: SlackTeam,
     user: SlackUser,
     submission: Submission,
     type: string,
@@ -86,26 +80,27 @@ function slackRequestMessageText(
     return SlackMessages[state](submission, user_id);
 }
 
+export interface TeamConfig {
+    [index: string]: string;
+    api_token: string,
+    support_channel_id: string
+}
+
 class SlackTeam {
-    constructor(team: TeamApiObject) {
-        logger.debug(team);
-        this.id = team.id;
-        this.domain = team.domain;
-        this.config = store.slackTeamConfig(team.id);
+    constructor(id: string, domain: string, config: TeamConfig) {
+        this.id = id;
+        this.domain = domain;
+        this.config = config;
         // TODO: api token should be per team
         this.client = new WebClient(this.config.api_token);
     }
-
     id: string;
     domain: string;
     client: WebClient;
-    config: {
-        api_token: string,
-        support_channel_id: string
-    }
+    config: TeamConfig;
 
     callbackId(): string {
-        return `${this.domain}${(new Date()).getTime()}`;
+        return `${this.id}${(new Date()).getTime()}`;
     }
 
     postSupportRequest(
