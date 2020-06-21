@@ -1,4 +1,3 @@
-import { store } from './../util/secrets';
 import { Client } from 'jira.js';
 import { SupportRequest, BugSubmission } from './slack_team';
 import logger from '../util/logger';
@@ -26,8 +25,7 @@ const request_type_to_issue_type_name: { [index: string]: string } = {
 };
 
 class Jira {
-    constructor(slack_team_id: string) {
-        const config = store.jiraConfig(slack_team_id);
+    constructor(config: { username: string, api_token: string, host: string }) {
         const client_cfg = {
             host: config.host,
             authentication: {

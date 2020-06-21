@@ -1,23 +1,12 @@
 import nock from 'nock';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
-import { store } from '../../src/util/secrets';
 import {
     IssueWithUrl,
     Jira
 } from '../../src/lib/jira';
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
-const mock_config = {
-    username: 'some name',
-    api_token: 'abc-123',
-    host: 'http://example.com'
-};
-jest.spyOn(store, 'jiraConfig').mockReturnValue(mock_config);
-const issueWithUrl = {
-    ...createIssueResponse,
-    url: `${mock_config.host}/browse/${createIssueResponse.key}`
-} as IssueWithUrl;
 
 const bug_report = {
     id: '1592066203.000100',
@@ -69,7 +58,17 @@ afterEach(() => {
 });
 
 describe('Jira', () => {
-    const jira = new Jira('slack-team-random-id');
+    const mock_config = {
+        username: 'some name',
+        api_token: 'abc-123',
+        host: 'http://example.com'
+    };
+    const issueWithUrl = {
+        ...createIssueResponse,
+        url: `${mock_config.host}/browse/${createIssueResponse.key}`
+    } as IssueWithUrl;
+
+    const jira = new Jira(mock_config);
 
     describe('#createIssue()', () => {
         it('returns a Promise to create issue and link it to the slack thread', (done) => {

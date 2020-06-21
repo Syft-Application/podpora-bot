@@ -2,6 +2,7 @@
 
 import { Response, Request } from 'express';
 import logger from '../../util/logger';
+import { store } from '../../util/secrets';
 import {
     SupportRequest,
     SlackTeam
@@ -64,10 +65,12 @@ export const postInteraction = (req: Request, res: Response): void => {
         submission,
     } = body;
 
+    const jira_config = store.jiraConfig(team.id);
+
     const slack_team = new SlackTeam(team);
     slack_team.postSupportRequest(submission, state, user)
         .then((support_request: SupportRequest) => {
-            const jira = new Jira(team.id);
+            const jira = new Jira(jira_config);
             jira.createIssue(support_request)
                 .then((issue: IssueWithUrl) => {
                     slack_team.postIssueLinkOnThread(
