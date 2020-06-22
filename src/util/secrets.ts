@@ -1,12 +1,11 @@
 import logger from './logger';
 import dotenv from 'dotenv';
 import fs from 'fs';
-
-if (fs.existsSync('.env')) {
-    if (process.env.NODE_ENV !== 'test') {
-        logger.debug('Using .env file to supply config environment variables');
-    }
+if (process.env.NODE_ENV === 'test') {
+    dotenv.config({ path: '.env.example' });
+} else if (fs.existsSync('.env')) {
     dotenv.config({ path: '.env' });
+    logger.debug('Using .env file to supply config environment variables');
 } else if (process.env.NODE_ENV !== 'production') {
     logger.error('No .env file present in non production environment.');
     logger.error('See README.md for development setup instructions.');
@@ -39,7 +38,6 @@ const store = {
         return JIRA_CONFIGS[id];
     }
 };
-
 
 export const SESSION_SECRET = process.env['SESSION_SECRET'];
 
