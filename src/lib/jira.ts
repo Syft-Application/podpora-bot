@@ -85,5 +85,6 @@ class Jira {
 
 export {
     IssueWithUrl,
+    Issue,
     Jira
 };

@@ -25,19 +25,21 @@ const commandHelpResponse = {
  */
 export const postCommand = (req: Request, res: Response): void => {
     const { body: { text, trigger_id, team_id, team_domain } } = req;
-    const args = text.trim().split(/\s+/);
-    const request_type = args[0];
+    let response_body = null;
 
-    const slack_config = store.slackTeamConfig(team_id);
-    const slack_team = new SlackTeam(team_id, team_domain, slack_config);
-    let response_body = commandHelpResponse;
+    try {
+        const args = text.trim().split(/\s+/);
+        const request_type = args[0];
+        const slack_config = store.slackTeamConfig(team_id);
+        const slack_team = new SlackTeam(team_id, team_domain, slack_config);
 
-    if (request_type === 'bug' || request_type === 'data') {
-        response_body = null;
-        slack_team.showSupportRequestForm(request_type, trigger_id)
-            .catch((err) => {
-                logger.error(err.message);
-            });
+        if (request_type === 'bug' || request_type === 'data') {
+            slack_team.showSupportRequestForm(request_type, trigger_id);
+        } else {
+            response_body = commandHelpResponse;
+        }
+    } catch (error) {
+        logger.error('postCommand', error);
     }
 
     res.status(200).send(response_body);
@@ -66,27 +68,26 @@ export const postInteraction = (req: Request, res: Response): void => {
         submission,
     } = body;
 
-    const slack_config = store.slackTeamConfig(team.id);
-    const jira_config = store.jiraConfig(team.id);
+    try {
+        const slack_config = store.slackTeamConfig(team.id);
+        const jira_config = store.jiraConfig(team.id);
 
-    const slack_team = new SlackTeam(team.id, team.domain, slack_config);
-    slack_team.postSupportRequest(submission, state, user)
-        .then((support_request: SupportRequest) => {
-            const jira = new Jira(jira_config);
-            jira.createIssue(support_request)
-                .then((issue: IssueWithUrl) => {
-                    slack_team.postIssueLinkOnThread(
-                        support_request,
-                        issue
-                    );
-                }).catch((err) => {
-                    logger.error(err);
-                });
-
-        }).catch((err) => {
-            // TODO: log function arguments for debug purposes
-            logger.error(err);
-        });
+        const slack_team = new SlackTeam(team.id, team.domain, slack_config);
+        slack_team.postSupportRequest(submission, state, user)
+            .then((support_request: SupportRequest) => {
+                const jira = new Jira(jira_config);
+                jira.createIssue(support_request)
+                    .then((issue: IssueWithUrl) => {
+                        slack_team.postIssueLinkOnThread(
+                            support_request,
+                            issue
+                        );
+                    });
+            });
+    } catch (error) {
+        // TODO: log params for debuging
+        logger.error('postInteraction', error);
+    }
 
     res.status(200).send();
 };
