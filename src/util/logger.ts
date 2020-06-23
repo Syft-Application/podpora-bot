@@ -15,13 +15,13 @@ const options: winston.LoggerOptions = {
 
 const logger = winston.createLogger(options);
 // allow console log in prod temporarily
-if (true || process.env.NODE_ENV !== 'production') {
-    logger.add(
-        new winston.transports.Console({
-            level: 'silly',
-            format: winston.format.simple()
-        })
-    );
-}
+// if (process.env.NODE_ENV !== 'production') {
+logger.add(
+    new winston.transports.Console({
+        level: 'silly',
+        format: winston.format.simple()
+    })
+);
+// }
 
 export default logger;
