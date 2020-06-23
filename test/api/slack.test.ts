@@ -4,7 +4,8 @@ import logger from '../../src/util/logger';
 import { Issue } from '../../src/lib/jira';
 import app from '../../src/app';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
+const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
+const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue(null);
 const createIssueResponse = fixture('jira/issues.createIssue.response') as Issue;
 
 beforeAll(() => {
@@ -72,8 +73,8 @@ describe('POST /api/slack/command', () => {
                     if (err) {
                         done(err);
                     }
-                    expect(loggerSpy).toHaveBeenCalled();
-                    expect(loggerSpy.mock.calls[0].toString())
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    expect(logErrorSpy.mock.calls[0].toString())
                         .toContain('postCommand');
                     done();
                 });
@@ -140,6 +141,28 @@ describe('POST /api/slack/event', () => {
                 done();
             }, done);
         });
+    });
+
+    describe('file_created', () => {
+        const params = fixture('slack/events.file_created');
+
+        it('returns 200 OK', (done) => {
+            return service(params).expect(200, done);
+        });
+
+        it('logs the event without token', (done) => {
+            expect.assertions(3);
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    return done(err);
+                }
+                expect(logInfoSpy).toHaveBeenCalled();
+                const log_args = JSON.stringify(logInfoSpy.mock.calls[0])
+                expect(log_args).toContain('postEvent');
+                expect(log_args).not.toContain(params.token);
+                done();
+            });
+        })
     });
 });
 
@@ -208,8 +231,8 @@ describe('POST /api/slack/interaction', () => {
                 if (err) {
                     done(err);
                 }
-                expect(loggerSpy).toHaveBeenCalled();
-                expect(loggerSpy.mock.calls[0].toString())
+                expect(logErrorSpy).toHaveBeenCalled();
+                expect(logErrorSpy.mock.calls[0].toString())
                     .toContain('postInteraction');
                 done();
             });

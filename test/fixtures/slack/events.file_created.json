@@ -1,0 +1,18 @@
+{
+  "token": "z26uFbvR1xHJEdHE1OQiO6t8",
+  "team_id": "T061EG9RZ",
+  "api_app_id": "A0FFV41KK",
+  "event": {
+    "type": "file_created",
+    "file_id": "F2147483862",
+    "file": {
+        "id": "F2147483862"
+    }
+  },
+  "type": "event_callback",
+  "authed_users": [
+    "U061F7AUR"
+  ],
+  "event_id": "Ev9UQ52YNA",
+  "event_time": 1234567890
+}

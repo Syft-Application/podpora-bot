@@ -19,6 +19,13 @@ const commandHelpResponse = {
         + '> Submit a bug report:\n>`/support bug`'
 };
 
+function sanitise_for_log(data: Record<string, unknown>): Record<string, unknown> {
+    let copy = Object.assign({}, data);
+
+    copy.token = 'sanitised';
+    return copy;
+}
+
 /**
  * POST /api/slack/command
  *
@@ -52,7 +59,13 @@ export const postCommand = (req: Request, res: Response): void => {
 export const postEvent = (req: Request, res: Response): void => {
     const { body } = req;
 
-    res.json({ challenge: body.challenge });
+    if (body.challenge) {
+        res.json({ challenge: body.challenge });
+        return;
+    }
+
+    logger.info('postEvent', sanitise_for_log(body));
+    res.status(200).send(null);
 };
 
 /**
