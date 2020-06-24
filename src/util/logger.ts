@@ -15,7 +15,7 @@ const options: winston.LoggerOptions = {
 
 const logger = winston.createLogger(options);
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' || !!process.env.CONSOLE_LOG) {
     logger.add(
         new winston.transports.Console({
             level: 'silly',
