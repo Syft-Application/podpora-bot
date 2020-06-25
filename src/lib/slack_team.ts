@@ -77,8 +77,8 @@ function slackRequestMessageText(
 }
 
 class SlackTeam {
-    constructor(id: string, config: TeamConfig) {
-        this.id = id;
+    constructor(config: TeamConfig) {
+        this.id = config.id;
         this.domain = config.domain;
         this.config = config;
         // TODO: api token should be per team

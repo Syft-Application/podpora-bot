@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === 'test') {
 export interface TeamConfig {
     [index: string]: string;
 
+    id: string,
     api_token: string,
     support_channel_id: string,
     domain: string

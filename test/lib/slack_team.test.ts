@@ -21,13 +21,13 @@ afterEach(() => {
 });
 
 describe('SlackTeam', () => {
-    const id = 'abc';
     const team_config = {
+        id: 'abc',
         support_channel_id: 'channel-1234',
         api_token: 'foo',
         domain: 'qwerty'
     };
-    const team = new SlackTeam(id, team_config);
+    const team = new SlackTeam(team_config);
 
     describe('#postSupportRequest(submission, state, user)', () => {
         const submission = {
