@@ -1,18 +1,21 @@
 {
   "token": "z26uFbvR1xHJEdHE1OQiO6t8",
-  "team_id": "T061EG9RZ",
-  "api_app_id": "A0FFV41KK",
+  "token": "sanitised",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
   "event": {
     "type": "file_created",
-    "file_id": "F2147483862",
     "file": {
-        "id": "F2147483862"
-    }
+      "id": "F015Y3JFPH9"
+    },
+    "file_id": "F015Y3JFPH9",
+    "user_id": "UHAV00MD0",
+    "event_ts": "1592954617.001600"
   },
   "type": "event_callback",
+  "event_id": "Ev016AFS9LLR",
+  "event_time": 1592954617,
   "authed_users": [
-    "U061F7AUR"
-  ],
-  "event_id": "Ev9UQ52YNA",
-  "event_time": 1234567890
+    "UHAV00MD0"
+  ]
 }
