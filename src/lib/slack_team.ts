@@ -6,6 +6,7 @@ import {
 import logger from '../util/logger';
 import { templates as slack_form_templates } from './slack_form_templates';
 import { IssueWithUrl } from './jira';
+import { TeamConfig } from '../util/secrets';
 
 interface ChatPostMessageResult extends WebAPICallResult {
     channel: string;
@@ -75,16 +76,10 @@ function slackRequestMessageText(
     return SlackMessages[state](submission, user_id);
 }
 
-export interface TeamConfig {
-    [index: string]: string;
-    api_token: string,
-    support_channel_id: string
-}
-
 class SlackTeam {
-    constructor(id: string, domain: string, config: TeamConfig) {
+    constructor(id: string, config: TeamConfig) {
         this.id = id;
-        this.domain = domain;
+        this.domain = config.domain;
         this.config = config;
         // TODO: api token should be per team
         this.client = new WebClient(this.config.api_token);

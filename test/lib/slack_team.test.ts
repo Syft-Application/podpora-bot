@@ -22,12 +22,12 @@ afterEach(() => {
 
 describe('SlackTeam', () => {
     const id = 'abc';
-    const domain = 'qwerty';
     const team_config = {
         support_channel_id: 'channel-1234',
-        api_token: 'foo'
+        api_token: 'foo',
+        domain: 'qwerty'
     };
-    const team = new SlackTeam(id, domain, team_config);
+    const team = new SlackTeam(id, team_config);
 
     describe('#postSupportRequest(submission, state, user)', () => {
         const submission = {

@@ -31,14 +31,14 @@ function sanitise_for_log(data: Record<string, unknown>): Record<string, unknown
  *
  */
 export const postCommand = (req: Request, res: Response): void => {
-    const { body: { text, trigger_id, team_id, team_domain } } = req;
+    const { body: { text, trigger_id, team_id } } = req;
     let response_body = null;
 
     try {
         const args = text.trim().split(/\s+/);
         const request_type = args[0];
         const slack_config = store.slackTeamConfig(team_id);
-        const slack_team = new SlackTeam(team_id, team_domain, slack_config);
+        const slack_team = new SlackTeam(team_id, slack_config);
 
         if (request_type === 'bug' || request_type === 'data') {
             slack_team.showSupportRequestForm(request_type, trigger_id);
@@ -85,7 +85,7 @@ export const postInteraction = (req: Request, res: Response): void => {
         const slack_config = store.slackTeamConfig(team.id);
         const jira_config = store.jiraConfig(team.id);
 
-        const slack_team = new SlackTeam(team.id, team.domain, slack_config);
+        const slack_team = new SlackTeam(team.id, slack_config);
         slack_team.postSupportRequest(submission, state, user)
             .then((support_request: SupportRequest) => {
                 const jira = new Jira(jira_config);
