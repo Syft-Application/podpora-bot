@@ -1,0 +1,21 @@
+{
+  "token": "dummy token",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "type": "file_shared",
+    "channel_id": "CHS7JQ7PY",
+    "file_id": "F015XSUL1K4",
+    "user_id": "UHAV00MD0",
+    "file": {
+      "id": "F015XSUL1K4"
+    },
+    "event_ts": "1592954645.002800"
+  },
+  "type": "event_callback",
+  "event_id": "Ev015XSUNQV8",
+  "event_time": 1592954645,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}

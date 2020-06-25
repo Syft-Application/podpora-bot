@@ -1,0 +1,69 @@
+{
+  "token": "dummy token",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "type": "message",
+    "text": "some bin file",
+    "files": [
+      {
+        "id": "F0161DPRHLM",
+        "created": 1593120109,
+        "timestamp": 1593120109,
+        "name": "USS.jcp",
+        "title": "USS.jcp",
+        "mimetype": "application/octet-stream",
+        "filetype": "binary",
+        "pretty_type": "Binary",
+        "user": "UHAV00MD0",
+        "editable": false,
+        "size": 8192,
+        "mode": "hosted",
+        "is_external": false,
+        "external_type": "",
+        "is_public": true,
+        "public_url_shared": false,
+        "display_as_bot": false,
+        "username": "",
+        "url_private": "https://files.slack.com/files-pri/THS7JQ2RL-F0161DPRHLM/uss.jcp",
+        "url_private_download": "https://files.slack.com/files-pri/THS7JQ2RL-F0161DPRHLM/download/uss.jcp",
+        "permalink": "https://kudosdemo.slack.com/files/UHAV00MD0/F0161DPRHLM/uss.jcp",
+        "permalink_public": "https://slack-files.com/THS7JQ2RL-F0161DPRHLM-93793d04c5",
+        "has_rich_preview": false
+      }
+    ],
+    "upload": false,
+    "blocks": [
+      {
+        "type": "rich_text",
+        "block_id": "e+b",
+        "elements": [
+          {
+            "type": "rich_text_section",
+            "elements": [
+              {
+                "type": "text",
+                "text": "some bin file"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "user": "UHAV00MD0",
+    "display_as_bot": false,
+    "ts": "1593120118.002100",
+    "thread_ts": "1593117373.000100",
+    "parent_user_id": "U01548S52NN",
+    "channel": "CHS7JQ7PY",
+    "subtype": "file_share",
+    "event_ts": "1593120118.002100",
+    "channel_type": "channel"
+  },
+  "type": "event_callback",
+  "event_id": "Ev0161DQ4S93",
+  "event_time": 1593120118,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}

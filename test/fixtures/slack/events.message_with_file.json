@@ -1,0 +1,61 @@
+{
+  "token": "dummy token",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "type": "message",
+    "text": "",
+    "files": [
+      {
+        "id": "F015N0DGC87",
+        "created": 1593117553,
+        "timestamp": 1593117553,
+        "name": "Cover.jpg",
+        "title": "Cover.jpg",
+        "mimetype": "image/jpeg",
+        "filetype": "jpg",
+        "pretty_type": "JPEG",
+        "user": "UHAV00MD0",
+        "editable": false,
+        "size": 11441,
+        "mode": "hosted",
+        "is_external": false,
+        "external_type": "",
+        "is_public": true,
+        "public_url_shared": false,
+        "display_as_bot": false,
+        "username": "",
+        "url_private": "https://files.slack.com/files-pri/THS7JQ2RL-F015N0DGC87/cover.jpg",
+        "url_private_download": "https://files.slack.com/files-pri/THS7JQ2RL-F015N0DGC87/download/cover.jpg",
+        "thumb_64": "https://files.slack.com/files-tmb/THS7JQ2RL-F015N0DGC87-428249289d/cover_64.jpg",
+        "thumb_80": "https://files.slack.com/files-tmb/THS7JQ2RL-F015N0DGC87-428249289d/cover_80.jpg",
+        "thumb_360": "https://files.slack.com/files-tmb/THS7JQ2RL-F015N0DGC87-428249289d/cover_360.jpg",
+        "thumb_360_w": 250,
+        "thumb_360_h": 250,
+        "thumb_160": "https://files.slack.com/files-tmb/THS7JQ2RL-F015N0DGC87-428249289d/cover_160.jpg",
+        "original_w": 250,
+        "original_h": 250,
+        "thumb_tiny": "AwAwADDSZgqlmOAOpNZ8t88r+XB8oP8AEabqVwWfyVPC8t7mqFAFlo5XOWkyfcmhY5UIKyYPbBNMhYoD8m4GllO4AiPbjqfWgC1FfPG+yf5h/eHUVoKQygqcg9DXP1f02chvJY8HlaAKMjF5GY9yTTafKpSVlPYkUygDTt7c42KQNo+Zsc554pLmE4ZSQSRkNjHTtRBOcb1wSwG5Scc880lzOcMxxnG0KDnGe9AGfUkLbJkYdmFR1JAu+ZFHdhQBb1KAh/OUcHhvY1QAyeK6BgGBDDIPUGs6405gS0ByP7pPIoApqG6EkD2oYMcjJI96dseNx5iPgdsdaQJK7fIrn8KAGYwav6bAc+cw46LSW+nsSGn4H90d60gAAABgCgD/2Q==",
+        "permalink": "https://kudosdemo.slack.com/files/UHAV00MD0/F015N0DGC87/cover.jpg",
+        "permalink_public": "https://slack-files.com/THS7JQ2RL-F015N0DGC87-bcd4f0fe25",
+        "has_rich_preview": false
+      }
+    ],
+    "upload": false,
+    "user": "UHAV00MD0",
+    "display_as_bot": false,
+    "ts": "1593117566.000400",
+    "thread_ts": "1593117373.000100",
+    "parent_user_id": "U01548S52NN",
+    "channel": "CHS7JQ7PY",
+    "subtype": "file_share",
+    "event_ts": "1593117566.000400",
+    "channel_type": "channel"
+  },
+  "type": "event_callback",
+  "event_id": "Ev015W0PRC78",
+  "event_time": 1593117566,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}

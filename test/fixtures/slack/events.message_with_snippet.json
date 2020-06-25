@@ -1,0 +1,58 @@
+{
+  "token": "dummy token",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "type": "message",
+    "text": "this is some usefull code snippet",
+    "files": [
+      {
+        "id": "F015XSUL1K4",
+        "created": 1592954639,
+        "timestamp": 1592954639,
+        "name": "puzzle.org",
+        "title": "puzzle.org",
+        "mimetype": "text/plain",
+        "filetype": "text",
+        "pretty_type": "Plain Text",
+        "user": "UHAV00MD0",
+        "editable": true,
+        "size": 537,
+        "mode": "snippet",
+        "is_external": false,
+        "external_type": "",
+        "is_public": true,
+        "public_url_shared": false,
+        "display_as_bot": false,
+        "username": "",
+        "url_private": "https://files.slack.com/files-pri/THS7JQ2RL-F015XSUL1K4/puzzle.org",
+        "url_private_download": "https://files.slack.com/files-pri/THS7JQ2RL-F015XSUL1K4/download/puzzle.org",
+        "permalink": "https://kudosdemo.slack.com/files/UHAV00MD0/F015XSUL1K4/puzzle.org",
+        "permalink_public": "https://slack-files.com/THS7JQ2RL-F015XSUL1K4-b0d770cfec",
+        "edit_link": "https://kudosdemo.slack.com/files/UHAV00MD0/F015XSUL1K4/puzzle.org/edit",
+        "preview": "#+begin_src ruby :output verbatim\nrequire 'json'\njson = JSON.parse(File.read('puzzle5.json'));nil\nsorted_keys = json.keys.sort do |a, b|\n  m1 = /([0-9]+)$/.match(a).captures.first.to_i",
+        "preview_highlight": "<div class=\"CodeMirror cm-s-default CodeMirrorServer\" oncopy=\"if(event.clipboardData){event.clipboardData.setData('text/plain',window.getSelection().toString().replace(/\\u200b/g,''));event.preventDefault();event.stopPropagation();}\">\n<div class=\"CodeMirror-code\">\n<div><pre>#+begin_src ruby :output verbatim</pre></div>\n<div><pre>require 'json'</pre></div>\n<div><pre>json = JSON.parse(File.read('puzzle5.json'));nil</pre></div>\n<div><pre>sorted_keys = json.keys.sort do |a, b|</pre></div>\n<div><pre>  m1 = /([0-9]+)$/.match(a).captures.first.to_i</pre></div>\n</div>\n</div>\n",
+        "lines": 21,
+        "lines_more": 16,
+        "preview_is_truncated": false,
+        "has_rich_preview": false
+      }
+    ],
+    "upload": false,
+    "user": "UHAV00MD0",
+    "display_as_bot": false,
+    "ts": "1592954644.001800",
+    "thread_ts": "1592951567.000200",
+    "parent_user_id": "U01548S52NN",
+    "channel": "CHS7JQ7PY",
+    "subtype": "file_share",
+    "event_ts": "1592954644.001800",
+    "channel_type": "channel"
+  },
+  "type": "event_callback",
+  "event_id": "Ev01642QNMEY",
+  "event_time": 1592954644,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}
