@@ -29,8 +29,10 @@ export interface JiraConfig {
     host: string
 }
 
-const SLACK_TEAMS: { [index: string]: TeamConfig } = JSON.parse(process.env['SLACK_TEAMS']);
-const JIRA_CONFIGS: { [index: string]: JiraConfig } = JSON.parse(process.env['JIRA_CONFIGS']);
+const SLACK_TEAMS: { [index: string]: TeamConfig }
+    = JSON.parse(process.env['SLACK_TEAMS'] as string);
+const JIRA_CONFIGS: { [index: string]: JiraConfig }
+    = JSON.parse(process.env['JIRA_CONFIGS'] as string);
 
 const store = {
     slackTeamConfig: (id: string): TeamConfig => {
