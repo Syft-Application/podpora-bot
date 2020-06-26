@@ -28,10 +28,10 @@ export const postCommand = (req: Request, res: Response): void => {
     let response_body = null;
 
     try {
-        const args = text.trim().split(/\s+/);
-        const request_type = args[0];
         const slack_config = store.slackTeamConfig(team_id);
         const slack_team = new SlackTeam(slack_config);
+        const args = text.trim().split(/\s+/);
+        const request_type = args[0];
 
         if (request_type === 'bug' || request_type === 'data') {
             slack_team.showSupportRequestForm(request_type, trigger_id);
@@ -76,12 +76,12 @@ export const postInteraction = (req: Request, res: Response): void => {
 
     try {
         const slack_config = store.slackTeamConfig(team.id);
-        const jira_config = store.jiraConfig(team.id);
-
         const slack_team = new SlackTeam(slack_config);
+        const jira_config = store.jiraConfig(team.id);
+        const jira = new Jira(jira_config);
+
         slack_team.postSupportRequest(submission, state, user)
             .then((support_request: SupportRequest) => {
-                const jira = new Jira(jira_config);
                 jira.createIssue(support_request)
                     .then((issue: IssueWithUrl) => {
                         slack_team.postIssueLinkOnThread(
