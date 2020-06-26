@@ -24,4 +24,15 @@ if (process.env.NODE_ENV !== 'production' || !!process.env.CONSOLE_LOG) {
     );
 }
 
-export default logger;
+// todo convert to custom winston formatter
+function sanitise_for_log(data: Record<string, unknown>): Record<string, unknown> {
+    const copy = Object.assign({}, data);
+
+    copy.token = 'sanitised';
+    return copy;
+}
+
+export {
+    logger as default,
+    sanitise_for_log
+};

@@ -1,7 +1,7 @@
 'use strict';
 
 import { Response, Request } from 'express';
-import logger from '../../util/logger';
+import logger, { sanitise_for_log } from '../../util/logger';
 import { store } from '../../util/secrets';
 import {
     SupportRequest,
@@ -18,13 +18,6 @@ const commandHelpResponse = {
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
-
-function sanitise_for_log(data: Record<string, unknown>): Record<string, unknown> {
-    const copy = Object.assign({}, data);
-
-    copy.token = 'sanitised';
-    return copy;
-}
 
 /**
  * POST /api/slack/command
