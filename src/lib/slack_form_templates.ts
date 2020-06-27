@@ -1,10 +1,13 @@
 import { Dialog } from '@slack/web-api';
+import {
+    SubmissionType,
+} from './slack_team';
 
 const bug: Dialog = {
     callback_id: '',
     title: 'Report Bug',
     submit_label: 'Submit',
-    state: 'bug',
+    state: `${SubmissionType.BUG}`,
     elements: [
         {
             type: 'text',
@@ -42,7 +45,7 @@ const data: Dialog = {
     callback_id: '',
     title: 'New Data Request',
     submit_label: 'Submit',
-    state: 'data',
+    state: `${SubmissionType.DATA}`,
     elements: [
         {
             type: 'text',

@@ -3,6 +3,7 @@ import { merge, build_service, build_response, fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import { Issue } from '../../src/lib/jira';
 import app from '../../src/app';
+import { SubmissionType } from '../../src/lib/slack_team';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
 const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue(null);
@@ -199,7 +200,7 @@ describe('POST /api/slack/interaction', () => {
         'submission': submission,
         'callback_id': 'syft1591734883700',
         'response_url': 'https://hooks.slack.com/app/response_url',
-        'state': 'bug'
+        'state': SubmissionType.BUG
     };
     const params = { payload: JSON.stringify(default_payload) };
 

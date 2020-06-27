@@ -1,4 +1,8 @@
-import { SupportRequest, BugSubmission } from './slack_team';
+import {
+    BugSubmission,
+    SubmissionType,
+    SupportRequest
+} from './slack_team';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -11,16 +15,13 @@ interface IssueParams {
     }
 }
 
-const create_issue_params: {
-    [index: string]: (request: SupportRequest) => IssueParams
-} = {
-    bug: (request: SupportRequest): IssueParams => {
-        const submission = request.submission as BugSubmission;
-        const slack_user = request.user;
-        const issue_type = 'Bug';
-        const title = submission.title;
-        const board = 'SUP';
-        const desc = `${submission.description}
+function bugToIssueParams(request: SupportRequest): IssueParams {
+    const submission = request.submission as BugSubmission;
+    const slack_user = request.user;
+    const issue_type = 'Bug';
+    const title = submission.title;
+    const board = 'SUP';
+    const desc = `${submission.description}
 
 Currently:
 ${submission.currently}
@@ -30,35 +31,47 @@ ${submission.expected}
 
 Submitted by: ${slack_user.name}`;
 
-        return {
-            fields: {
-                project: { key: board },
-                summary: title,
-                issuetype: { name: issue_type },
-                description: desc,
-            }
-        };
-    },
-    data: (request: SupportRequest): IssueParams => {
-        const submission = request.submission;
-        const slack_user = request.user;
-        const issue_type = 'Task';
-        const title = submission.title;
-        const board = 'SUP';
-        const desc = `${submission.description}
+    return {
+        fields: {
+            project: { key: board },
+            summary: title,
+            issuetype: { name: issue_type },
+            description: desc,
+        }
+    };
+}
+
+function dataToIssueParams(request: SupportRequest): IssueParams {
+    const submission = request.submission;
+    const slack_user = request.user;
+    const issue_type = 'Task';
+    const title = submission.title;
+    const board = 'SUP';
+    const desc = `${submission.description}
 
 Submitted by: ${slack_user.name}`;
 
-        return {
-            fields: {
-                project: { key: board },
-                summary: title,
-                issuetype: { name: issue_type },
-                description: desc,
-            }
-        };
+    return {
+        fields: {
+            project: { key: board },
+            summary: title,
+            issuetype: { name: issue_type },
+            description: desc,
+        }
+    };
+}
+
+function create_issue_params(t: SubmissionType): ((request: SupportRequest) => IssueParams) {
+    switch (t) {
+        case SubmissionType.BUG:
+            return bugToIssueParams;
+        case SubmissionType.DATA:
+            return dataToIssueParams;
     }
+}
 
-};
+function requestToIssueParams(request: SupportRequest): IssueParams {
+    return create_issue_params(request.type)(request);
+}
 
-export default create_issue_params;
+export default requestToIssueParams;

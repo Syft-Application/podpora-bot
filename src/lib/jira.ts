@@ -1,7 +1,7 @@
 import { Client } from 'jira.js';
-import { SupportRequest, SubmissionType } from './slack_team';
+import { SupportRequest } from './slack_team';
 import logger from '../util/logger';
-import create_issue_params from './jira_create_issue_params';
+import requestToIssueParams from './jira_create_issue_params';
 
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
@@ -18,16 +18,6 @@ interface Issue {
 
 interface IssueWithUrl extends Issue {
     url: string
-}
-
-function requestToIssueParams(request: SupportRequest): Record<string, unknown> {
-    switch (request.type) {
-        case SubmissionType.DATA:
-            return create_issue_params['data'](request);
-
-        case SubmissionType.BUG:
-            return create_issue_params['bug'](request);
-    }
 }
 
 class Jira {
