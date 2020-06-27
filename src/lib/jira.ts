@@ -20,6 +20,16 @@ interface IssueWithUrl extends Issue {
     url: string
 }
 
+function requestToIssueParams(request: SupportRequest): Record<string, unknown> {
+    switch (request.type) {
+        case SubmissionType.DATA:
+            return create_issue_params['data'](request);
+
+        case SubmissionType.BUG:
+            return create_issue_params['bug'](request);
+    }
+}
+
 class Jira {
     constructor(config: { username: string, api_token: string, host: string }) {
         const client_cfg = {
@@ -58,15 +68,7 @@ class Jira {
     }
 
     createIssue(request: SupportRequest): Promise<IssueWithUrl> {
-        let issue_params;
-        switch (request.type) {
-            case SubmissionType.DATA:
-                issue_params = create_issue_params['data'](request);
-                break;
-
-            case SubmissionType.BUG:
-                issue_params = create_issue_params['bug'](request);
-        }
+        const issue_params = requestToIssueParams(request);
 
         return this.client.issues.createIssue(issue_params)
             .then((issue: Issue) => {
