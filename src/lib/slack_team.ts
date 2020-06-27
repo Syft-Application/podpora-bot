@@ -23,7 +23,7 @@ interface SupportRequest {
     team_id: string,
     user: SlackUser,
     submission: Submission,
-    type: SubmissionType.BUG | SubmissionType.DATA,
+    type: SubmissionType,
     url: string,
     channel: string
 }

@@ -5,6 +5,7 @@ import logger, { sanitise_for_log } from '../../util/logger';
 import { store } from '../../util/secrets';
 import {
     SupportRequest,
+    SubmissionType,
     SlackTeam
 } from '../../lib/slack_team';
 
@@ -19,6 +20,17 @@ const commandHelpResponse = {
         + '> Submit a bug report:\n>`/support bug`'
 };
 
+function strToSubmissionType(str: string): SubmissionType | null {
+    switch (str) {
+        case 'bug':
+            return SubmissionType.BUG;
+        case 'data':
+            return SubmissionType.DATA;
+        default:
+            return null;
+    }
+}
+
 /**
  * POST /api/slack/command
  *
@@ -31,9 +43,9 @@ export const postCommand = (req: Request, res: Response): void => {
         const slack_config = store.slackTeamConfig(team_id);
         const slack_team = new SlackTeam(slack_config);
         const args = text.trim().split(/\s+/);
-        const request_type = args[0];
+        const request_type = strToSubmissionType(args[0]);
 
-        if (request_type === 'bug' || request_type === 'data') {
+        if (request_type !== null) {
             slack_team.showSupportRequestForm(request_type, trigger_id);
         } else {
             response_body = commandHelpResponse;
