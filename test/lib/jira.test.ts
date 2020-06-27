@@ -5,6 +5,7 @@ import {
     IssueWithUrl,
     Jira
 } from '../../src/lib/jira';
+import { SubmissionType } from '../../src/lib/slack_team';
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 
@@ -15,13 +16,13 @@ const bug_report = {
         id: 'UHAV00MD0',
         name: 'sherlock_holmes'
     },
-    type: 'bug',
+    type: SubmissionType.BUG,
     submission: {
         title: 'bug report title',
         description: 'bug report description',
         expected: 'we like this to happen',
         currently: 'this is what happens now',
-        type: 'bug'
+        type: SubmissionType.BUG
     },
     url: 'http://example.com/bug',
     channel: 'CHS7JQ7PY'
@@ -33,11 +34,11 @@ const data_request = {
         id: 'UHAV00MD1',
         name: 'john_watson'
     },
-    type: 'data',
+    type: SubmissionType.DATA,
     submission: {
         title: 'data request title',
         description: 'data request description',
-        type: 'data'
+        type: SubmissionType.DATA
     },
     url: 'http://example.com/data',
     channel: 'CHS7JQ7PY'

@@ -3,6 +3,7 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     ChatPostMessageResult,
+    SubmissionType,
     SlackTeam
 } from '../../src/lib/slack_team';
 
@@ -35,7 +36,7 @@ describe('SlackTeam', () => {
             'description': 'pokojny vecer na vrsky padal',
             'expected': 'foo',
             'currently': 'baz',
-            'type': 'bug'
+            'type': SubmissionType.BUG
         };
         const user = {
             'id': 'UHAV00MD0',
@@ -86,7 +87,7 @@ describe('SlackTeam', () => {
     });
 
     describe('#showSupportRequestForm()', () => {
-        const request_type = 'bug';
+        const request_type = SubmissionType.BUG;
         const trigger_id = 'tr123';
 
         it('returns a Promise that resolves to slack WebAPICallResult', (done) => {

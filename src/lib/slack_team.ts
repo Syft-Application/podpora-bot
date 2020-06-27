@@ -23,7 +23,7 @@ interface SupportRequest {
     team_id: string,
     user: SlackUser,
     submission: Submission,
-    type: string,
+    type: SubmissionType.BUG | SubmissionType.DATA,
     url: string,
     channel: string
 }
@@ -32,16 +32,28 @@ interface ErrorResponse {
     ok: false
 }
 
+const enum SubmissionType {
+    BUG,
+    DATA
+}
+
 interface Submission {
-    title: string
-    description: string,
-    type: string
+    type: SubmissionType.BUG | SubmissionType.DATA,
+    title: string,
+    description: string
 }
 
 interface BugSubmission extends Submission {
+    type: SubmissionType.BUG,
     currently: string,
     expected: string
 }
+
+interface DataSubmission extends Submission {
+    type: SubmissionType.DATA,
+}
+
+type SubmissionUnion = BugSubmission | DataSubmission;
 
 interface ApiErrorHandler {
     (error: Record<string, string>): Promise<ErrorResponse>
@@ -55,25 +67,22 @@ function slackError(source: string): ApiErrorHandler {
     };
 }
 
-const SlackMessages: { [index: string]: (submission: Submission, user_id: string) => string } = {
-    bug: (submission: BugSubmission, user_id: string): string => {
-        return `<@${user_id}> has submitted a bug report:\n\n` +
-            `*${submission.title}*\n\n` +
-            `*Steps to Reproduce*\n\n${submission.description}\n\n` +
-            `*Currently*\n\n${submission.currently}\n\n` +
-            `*Expected*\n\n${submission.expected}`;
-    },
-    data: (submission: Submission, user_id: string): string => {
-        return `<@${user_id}> has submitted a data request:\n\n` +
-            `*${submission.title}*\n\n${submission.description}`;
-    }
-};
-
 function slackRequestMessageText(
-    submission: Submission,
+    submission: SubmissionUnion,
     user_id: string
 ): string {
-    return SlackMessages[submission.type](submission, user_id);
+    switch (submission.type) {
+        case SubmissionType.DATA:
+            return `<@${user_id}> has submitted a data request:\n\n` +
+                `*${submission.title}*\n\n${submission.description}`;
+
+        case SubmissionType.BUG:
+            return `<@${user_id}> has submitted a bug report:\n\n` +
+                `*${submission.title}*\n\n` +
+                `*Steps to Reproduce*\n\n${submission.description}\n\n` +
+                `*Currently*\n\n${submission.currently}\n\n` +
+                `*Expected*\n\n${submission.expected}`;
+    }
 }
 
 class SlackTeam {
@@ -94,7 +103,7 @@ class SlackTeam {
     }
 
     postSupportRequest(
-        submission: Submission,
+        submission: SubmissionUnion,
         user: { id: string, name: string }
     ): Promise<SupportRequest | ErrorResponse> {
         const channel_id = this.config.support_channel_id;
@@ -117,10 +126,18 @@ class SlackTeam {
     }
 
     showSupportRequestForm(
-        request_type: string,
+        request_type: SubmissionType,
         trigger_id: string
     ): Promise<WebAPICallResult | ErrorResponse> {
-        const dialog: Dialog = slack_form_templates[request_type];
+        let dialog: Dialog;
+        switch (request_type) {
+            case SubmissionType.DATA:
+                dialog = slack_form_templates['data'];
+                break;
+            case SubmissionType.BUG:
+                dialog = slack_form_templates['bug'];
+                break;
+        }
         dialog.callback_id = this.callbackId();
 
         return this.client.dialog.open({
@@ -152,5 +169,6 @@ export {
     ChatPostMessageResult,
     SupportRequest,
     BugSubmission,
+    SubmissionType,
     SlackTeam
 };

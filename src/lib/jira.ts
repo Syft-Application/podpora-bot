@@ -1,5 +1,5 @@
 import { Client } from 'jira.js';
-import { SupportRequest } from './slack_team';
+import { SupportRequest, SubmissionType } from './slack_team';
 import logger from '../util/logger';
 import create_issue_params from './jira_create_issue_params';
 
@@ -58,7 +58,15 @@ class Jira {
     }
 
     createIssue(request: SupportRequest): Promise<IssueWithUrl> {
-        const issue_params = create_issue_params[request.type](request);
+        let issue_params;
+        switch (request.type) {
+            case SubmissionType.DATA:
+                issue_params = create_issue_params['data'](request);
+                break;
+
+            case SubmissionType.BUG:
+                issue_params = create_issue_params['bug'](request);
+        }
 
         return this.client.issues.createIssue(issue_params)
             .then((issue: Issue) => {
