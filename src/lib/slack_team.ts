@@ -163,7 +163,19 @@ class SlackTeam {
     }
 }
 
+function strToSubmissionType(str: string): SubmissionType | null {
+    switch (str) {
+        case 'bug':
+            return SubmissionType.BUG;
+        case 'data':
+            return SubmissionType.DATA;
+        default:
+            return null;
+    }
+}
+
 export {
+    strToSubmissionType,
     ChatPostMessageResult,
     SupportRequest,
     BugSubmission,

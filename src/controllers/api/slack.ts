@@ -4,8 +4,8 @@ import { Response, Request } from 'express';
 import logger, { sanitise_for_log } from '../../util/logger';
 import { store } from '../../util/secrets';
 import {
+    strToSubmissionType,
     SupportRequest,
-    SubmissionType,
     SlackTeam
 } from '../../lib/slack_team';
 
@@ -19,17 +19,6 @@ const commandHelpResponse = {
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
-
-function strToSubmissionType(str: string): SubmissionType | null {
-    switch (str) {
-        case 'bug':
-            return SubmissionType.BUG;
-        case 'data':
-            return SubmissionType.DATA;
-        default:
-            return null;
-    }
-}
 
 /**
  * POST /api/slack/command
