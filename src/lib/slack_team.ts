@@ -35,6 +35,7 @@ interface ErrorResponse {
 interface Submission {
     title: string
     description: string,
+    type: string
 }
 
 interface BugSubmission extends Submission {
@@ -70,10 +71,9 @@ const SlackMessages: { [index: string]: (submission: Submission, user_id: string
 
 function slackRequestMessageText(
     submission: Submission,
-    state: string,
     user_id: string
 ): string {
-    return SlackMessages[state](submission, user_id);
+    return SlackMessages[submission.type](submission, user_id);
 }
 
 class SlackTeam {
@@ -95,11 +95,10 @@ class SlackTeam {
 
     postSupportRequest(
         submission: Submission,
-        submission_type: string,
         user: { id: string, name: string }
     ): Promise<SupportRequest | ErrorResponse> {
         const channel_id = this.config.support_channel_id;
-        const msg_text = slackRequestMessageText(submission, submission_type, user.id);
+        const msg_text = slackRequestMessageText(submission, user.id);
         return this.client.chat.postMessage({
             text: msg_text,
             channel: channel_id
@@ -109,7 +108,7 @@ class SlackTeam {
                 team_id: this.id,
                 user: user,
                 submission: submission,
-                type: submission_type,
+                type: submission.type,
                 url: `https://${this.domain}.slack.com/archives/${channel_id}/p${value.ts}`,
                 channel: channel_id
             };

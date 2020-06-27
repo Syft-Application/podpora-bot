@@ -29,14 +29,14 @@ describe('SlackTeam', () => {
     };
     const team = new SlackTeam(team_config);
 
-    describe('#postSupportRequest(submission, state, user)', () => {
+    describe('#postSupportRequest(submission, user)', () => {
         const submission = {
             'title': 'Android app is crashing',
             'description': 'pokojny vecer na vrsky padal',
             'expected': 'foo',
-            'currently': 'baz'
+            'currently': 'baz',
+            'type': 'bug'
         };
-        const state = 'bug';
         const user = {
             'id': 'UHAV00MD0',
             'name': 'joe_wick'
@@ -46,7 +46,7 @@ describe('SlackTeam', () => {
             team_id: team.id,
             user: user,
             submission: submission,
-            type: state,
+            type: submission.type,
             url: 'https://qwerty.slack.com/archives/channel-1234/p1592066203.000100',
             channel: team_config.support_channel_id
         };
@@ -57,7 +57,7 @@ describe('SlackTeam', () => {
                 .post('/api/chat.postMessage', new RegExp('crashing'))
                 .reply(200, postMsgResponse);
 
-            team.postSupportRequest(submission, state, user)
+            team.postSupportRequest(submission, user)
                 .then((res) => {
                     expect(res).toEqual(support_request);
                     done();
@@ -71,7 +71,7 @@ describe('SlackTeam', () => {
                     .post('/api/chat.postMessage', new RegExp('crashing'))
                     .reply(200, { ok: false });
 
-                team.postSupportRequest(submission, state, user)
+                team.postSupportRequest(submission, user)
                     .catch((res) => {
                         expect(res).toEqual({ ok: false });
                         expect(loggerSpy).toHaveBeenCalled();

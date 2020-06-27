@@ -79,8 +79,8 @@ export const postInteraction = (req: Request, res: Response): void => {
         const slack_team = new SlackTeam(slack_config);
         const jira_config = store.jiraConfig(team.id);
         const jira = new Jira(jira_config);
-
-        slack_team.postSupportRequest(submission, state, user)
+        submission.type = state;
+        slack_team.postSupportRequest(submission, user)
             .then((support_request: SupportRequest) => {
                 jira.createIssue(support_request)
                     .then((issue: IssueWithUrl) => {

@@ -20,7 +20,8 @@ const bug_report = {
         title: 'bug report title',
         description: 'bug report description',
         expected: 'we like this to happen',
-        currently: 'this is what happens now'
+        currently: 'this is what happens now',
+        type: 'bug'
     },
     url: 'http://example.com/bug',
     channel: 'CHS7JQ7PY'
@@ -35,7 +36,8 @@ const data_request = {
     type: 'data',
     submission: {
         title: 'data request title',
-        description: 'data request description'
+        description: 'data request description',
+        type: 'data'
     },
     url: 'http://example.com/data',
     channel: 'CHS7JQ7PY'
