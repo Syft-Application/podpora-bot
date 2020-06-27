@@ -37,23 +37,21 @@ const enum SubmissionType {
     DATA
 }
 
-interface Submission {
-    type: SubmissionType.BUG | SubmissionType.DATA,
+interface BugSubmission {
+    type: SubmissionType.BUG,
     title: string,
     description: string
-}
-
-interface BugSubmission extends Submission {
-    type: SubmissionType.BUG,
     currently: string,
     expected: string
 }
 
-interface DataSubmission extends Submission {
+interface DataSubmission {
     type: SubmissionType.DATA,
+    title: string,
+    description: string
 }
 
-type SubmissionUnion = BugSubmission | DataSubmission;
+type Submission = BugSubmission | DataSubmission;
 
 interface ApiErrorHandler {
     (error: Record<string, string>): Promise<ErrorResponse>
@@ -68,7 +66,7 @@ function slackError(source: string): ApiErrorHandler {
 }
 
 function slackRequestMessageText(
-    submission: SubmissionUnion,
+    submission: Submission,
     user_id: string
 ): string {
     switch (submission.type) {
@@ -103,7 +101,7 @@ class SlackTeam {
     }
 
     postSupportRequest(
-        submission: SubmissionUnion,
+        submission: Submission,
         user: { id: string, name: string }
     ): Promise<SupportRequest | ErrorResponse> {
         const channel_id = this.config.support_channel_id;
@@ -170,5 +168,6 @@ export {
     SupportRequest,
     BugSubmission,
     SubmissionType,
+    Submission,
     SlackTeam
 };
