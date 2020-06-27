@@ -200,7 +200,7 @@ describe('POST /api/slack/interaction', () => {
         'submission': submission,
         'callback_id': 'syft1591734883700',
         'response_url': 'https://hooks.slack.com/app/response_url',
-        'state': SubmissionType.BUG
+        'state': SubmissionType.BUG.toString()
     };
     const params = { payload: JSON.stringify(default_payload) };
 

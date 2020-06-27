@@ -7,7 +7,7 @@ const bug: Dialog = {
     callback_id: '',
     title: 'Report Bug',
     submit_label: 'Submit',
-    state: `${SubmissionType.BUG}`,
+    state: SubmissionType.BUG.toString(),
     elements: [
         {
             type: 'text',
@@ -45,7 +45,7 @@ const data: Dialog = {
     callback_id: '',
     title: 'New Data Request',
     submit_label: 'Submit',
-    state: `${SubmissionType.DATA}`,
+    state: SubmissionType.DATA.toString(),
     elements: [
         {
             type: 'text',

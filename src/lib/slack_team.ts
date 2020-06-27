@@ -174,7 +174,22 @@ function strToSubmissionType(str: string): SubmissionType | null {
     }
 }
 
+function paramsToSubmission(
+    state: string,
+    params: Submission
+): Submission {
+    switch (state) {
+        case SubmissionType.BUG.toString():
+            params.type = SubmissionType.BUG;
+            return params as BugSubmission;
+        case SubmissionType.DATA.toString():
+            params.type = SubmissionType.BUG;
+            return params as DataSubmission;
+    }
+}
+
 export {
+    paramsToSubmission,
     strToSubmissionType,
     ChatPostMessageResult,
     SupportRequest,

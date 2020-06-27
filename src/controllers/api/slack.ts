@@ -4,6 +4,7 @@ import { Response, Request } from 'express';
 import logger, { sanitise_for_log } from '../../util/logger';
 import { store } from '../../util/secrets';
 import {
+    paramsToSubmission,
     strToSubmissionType,
     SupportRequest,
     SlackTeam
@@ -71,16 +72,17 @@ export const postInteraction = (req: Request, res: Response): void => {
     const {
         state,
         user,
-        team,
-        submission,
+        team
     } = body;
+    const submission_params = body.submission;
 
     try {
         const slack_config = store.slackTeamConfig(team.id);
         const slack_team = new SlackTeam(slack_config);
         const jira_config = store.jiraConfig(team.id);
         const jira = new Jira(jira_config);
-        submission.type = state;
+        const submission = paramsToSubmission(state, submission_params);
+
         slack_team.postSupportRequest(submission, user)
             .then((support_request: SupportRequest) => {
                 jira.createIssue(support_request)
