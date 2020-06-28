@@ -68,9 +68,9 @@ export const postInteraction = (req: Request, res: Response): void => {
     const {
         state,
         user,
-        team
+        team,
+        submission: submission_params
     } = body;
-    const submission_params = body.submission;
 
     try {
         const slack_config = store.slackTeamConfig(team.id);
