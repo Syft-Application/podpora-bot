@@ -1,12 +1,15 @@
 import nock from 'nock';
+import { Logger } from 'winston';
 import { merge, build_service, build_response, fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import { Issue } from '../../src/lib/jira';
 import app from '../../src/app';
 import { SubmissionType } from '../../src/lib/slack_team';
 
-const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
-const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue(null);
+const logErrorSpy = jest.spyOn(logger, 'error')
+    .mockReturnValue({} as Logger);
+const logInfoSpy = jest.spyOn(logger, 'info')
+    .mockReturnValue({} as Logger);
 const createIssueResponse = fixture('jira/issues.createIssue.response') as Issue;
 
 beforeAll(() => {

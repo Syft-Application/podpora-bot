@@ -103,13 +103,13 @@ class SlackTeam {
     postSupportRequest(
         submission: Submission,
         user: { id: string, name: string }
-    ): Promise<SupportRequest | ErrorResponse> {
+    ): Promise<SupportRequest> {
         const channel_id = this.config.support_channel_id;
         const msg_text = slackRequestMessageText(submission, user.id);
         return this.client.chat.postMessage({
             text: msg_text,
             channel: channel_id
-        }).then((value: ChatPostMessageResult) => {
+        }).then((value: WebAPICallResult) => {
             const support_request = {
                 id: value.ts,
                 team_id: this.id,
@@ -118,9 +118,14 @@ class SlackTeam {
                 type: submission.type,
                 url: `https://${this.domain}.slack.com/archives/${channel_id}/p${value.ts}`,
                 channel: channel_id
-            };
+            } as SupportRequest;
             return Promise.resolve(support_request);
-        }).catch(slackError('postSupportRequest'));
+        }).catch((error) => {
+            logger.error('postSupportRequest', error.message);
+            throw new Error('Unexpected error in postSupportRequest');
+        });
+        // });
+        // }).catch(slackError('postSupportRequest'));
     }
 
     showSupportRequestForm(
@@ -185,6 +190,8 @@ function paramsToSubmission(
         case SubmissionType.DATA.toString():
             params.type = SubmissionType.BUG;
             return params as DataSubmission;
+        default:
+            throw new Error('Unexpected object: ' + state);
     }
 }
 
@@ -192,8 +199,10 @@ export {
     paramsToSubmission,
     strToSubmissionType,
     ChatPostMessageResult,
+    ErrorResponse,
     SupportRequest,
     BugSubmission,
+    DataSubmission,
     SubmissionType,
     Submission,
     SlackTeam

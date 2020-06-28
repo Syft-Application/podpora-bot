@@ -1,4 +1,5 @@
 import nock from 'nock';
+import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
@@ -8,7 +9,8 @@ import {
 } from '../../src/lib/slack_team';
 
 const postMsgResponse = fixture('slack/chat.postMessage.response') as ChatPostMessageResult;
-const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
+const loggerSpy = jest.spyOn(logger, 'error')
+    .mockReturnValue({} as Logger);
 beforeAll(() => {
     return nock.disableNetConnect();
 });
@@ -74,7 +76,8 @@ describe('SlackTeam', () => {
 
                 team.postSupportRequest(submission, user)
                     .catch((res) => {
-                        expect(res).toEqual({ ok: false });
+                        // expect(res).toEqual({ ok: false });
+                        expect(res instanceof Error).toEqual(true);
                         expect(loggerSpy).toHaveBeenCalled();
                         const logger_call = loggerSpy.mock.calls[0].toString();
                         expect(logger_call).toEqual(

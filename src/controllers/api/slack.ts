@@ -7,7 +7,7 @@ import {
     paramsToSubmission,
     strToSubmissionType,
     SupportRequest,
-    SlackTeam
+    SlackTeam,
 } from '../../lib/slack_team';
 
 import {

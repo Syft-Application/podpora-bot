@@ -1,11 +1,16 @@
 import nock from 'nock';
+import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     IssueWithUrl,
     Jira
 } from '../../src/lib/jira';
-import { SubmissionType } from '../../src/lib/slack_team';
+import {
+    SubmissionType,
+    SupportRequest,
+    BugSubmission
+} from '../../src/lib/slack_team';
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 
@@ -23,10 +28,10 @@ const bug_report = {
         expected: 'we like this to happen',
         currently: 'this is what happens now',
         type: SubmissionType.BUG
-    },
+    } as BugSubmission,
     url: 'http://example.com/bug',
     channel: 'CHS7JQ7PY'
-};
+} as SupportRequest;
 const data_request = {
     id: '1592066203.000200',
     team_id: 'THS7JQ2RL',
@@ -42,7 +47,7 @@ const data_request = {
     },
     url: 'http://example.com/data',
     channel: 'CHS7JQ7PY'
-};
+} as SupportRequest;
 
 beforeAll(() => {
     return nock.disableNetConnect();
@@ -85,7 +90,7 @@ describe('Jira', () => {
 
             jira.createIssue(bug_report)
                 .then((res) => {
-                    const submission = bug_report.submission;
+                    const submission = bug_report.submission as BugSubmission;
                     expect(res).toEqual(issueWithUrl);
                     expect(api_call_body).toContain(submission.title);
                     expect(api_call_body).toContain(submission.description);
@@ -99,7 +104,8 @@ describe('Jira', () => {
 
         describe('API failure', () => {
             it('it catch and log the failure', (done) => {
-                const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
+                const loggerSpy = jest.spyOn(logger, 'error')
+                    .mockReturnValue({} as Logger);
                 expect.assertions(3);
 
                 nock(mock_config.host)
@@ -121,8 +127,8 @@ describe('Jira', () => {
 
         describe('link slack message to an issue fails', () => {
             it('it catch and log the failure but resolves successfuly', (done) => {
-                const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue(null);
-
+                const loggerSpy = jest.spyOn(logger, 'error')
+                    .mockReturnValue({} as Logger);
                 expect.assertions(3);
                 nock(mock_config.host)
                     .post('/rest/api/2/issue')
