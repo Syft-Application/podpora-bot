@@ -144,7 +144,6 @@ class SlackTeam {
     }
 
     postIssueLinkOnThread(
-        support_request: SupportRequest,
         issue: IssueWithUrl
     ): Promise<WebAPICallResult | ErrorResponse> {
         const msg_text =
@@ -152,10 +151,11 @@ class SlackTeam {
             'Please keep an eye on ticket status to see when it is done! \n' +
             `${issue.url}`;
 
+        // TODO: do not leak 3th party promise
         return this.client.chat.postMessage({
             text: msg_text,
-            channel: support_request.channel,
-            thread_ts: support_request.id
+            channel: issue.slack_channel_id,
+            thread_ts: issue.slack_thread_id
         }).catch(slackError('postIssueLinkOnThread'));
     }
 }

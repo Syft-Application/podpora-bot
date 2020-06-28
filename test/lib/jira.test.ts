@@ -67,14 +67,17 @@ describe('Jira', () => {
         api_token: 'abc-123',
         host: 'http://example.com'
     };
-    const issueWithUrl = {
-        ...createIssueResponse,
-        url: `${mock_config.host}/browse/${createIssueResponse.key}`
-    } as IssueWithUrl;
 
     const jira = new Jira(mock_config);
 
     describe('#createIssue()', () => {
+        const issueWithUrl = {
+            ...createIssueResponse,
+            url: `${mock_config.host}/browse/${createIssueResponse.key}`,
+            slack_channel_id: bug_report.channel,
+            slack_thread_id: bug_report.id
+        } as IssueWithUrl;
+
         it('returns a Promise to create issue and link it to the slack thread', (done) => {
             let api_call_body: string;
             expect.assertions(7);
@@ -153,6 +156,13 @@ describe('Jira', () => {
         });
 
         describe('data request', () => {
+            const issueWithUrl = {
+                ...createIssueResponse,
+                url: `${mock_config.host}/browse/${createIssueResponse.key}`,
+                slack_channel_id: data_request.channel,
+                slack_thread_id: data_request.id
+            } as IssueWithUrl;
+
             it('changes issuetype to data', (done) => {
                 let api_call_body: string;
                 expect.assertions(5);

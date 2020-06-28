@@ -17,7 +17,9 @@ interface Issue {
 }
 
 interface IssueWithUrl extends Issue {
-    url: string
+    url: string,
+    slack_channel_id: string,
+    slack_thread_id: string
 }
 
 class Jira {
@@ -64,7 +66,9 @@ class Jira {
             .then((issue: Issue) => {
                 const issue_with_url = {
                     ...issue,
-                    url: `${this.host}/browse/${issue.key}`
+                    url: `${this.host}/browse/${issue.key}`,
+                    slack_channel_id: request.channel,
+                    slack_thread_id: request.id
                 } as IssueWithUrl;
 
                 return this.linkRequestToIssue(request, issue_with_url)
