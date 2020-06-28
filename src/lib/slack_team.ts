@@ -8,14 +8,6 @@ import { templates as slack_form_templates } from './slack_form_templates';
 import { IssueWithUrl } from './jira';
 import { TeamConfig } from '../util/secrets';
 
-interface ChatPostMessageResult extends WebAPICallResult {
-    channel: string;
-    ts: string;
-    message: {
-        text: string;
-    }
-}
-
 interface SlackUser { id: string, name: string }
 
 interface SupportRequest {
@@ -198,7 +190,6 @@ function paramsToSubmission(
 export {
     paramsToSubmission,
     strToSubmissionType,
-    ChatPostMessageResult,
     ErrorResponse,
     SupportRequest,
     BugSubmission,

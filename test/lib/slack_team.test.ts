@@ -3,12 +3,11 @@ import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
-    ChatPostMessageResult,
     SubmissionType,
     SlackTeam
 } from '../../src/lib/slack_team';
 
-const postMsgResponse = fixture('slack/chat.postMessage.response') as ChatPostMessageResult;
+const postMsgResponse = fixture('slack/chat.postMessage.response');
 const loggerSpy = jest.spyOn(logger, 'error')
     .mockReturnValue({} as Logger);
 beforeAll(() => {
