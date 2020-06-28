@@ -1,7 +1,8 @@
 import {
     BugSubmission,
     SubmissionType,
-    SupportRequest
+    SupportRequest,
+    DataSubmission
 } from './slack_team';
 
 interface IssueParams {
@@ -42,7 +43,7 @@ Submitted by: ${slack_user.name}`;
 }
 
 function dataToIssueParams(request: SupportRequest): IssueParams {
-    const submission = request.submission;
+    const submission: DataSubmission = request.submission as DataSubmission;
     const slack_user = request.user;
     const issue_type = 'Task';
     const title = submission.title;

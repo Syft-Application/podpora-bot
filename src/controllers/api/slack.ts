@@ -6,14 +6,10 @@ import { store } from '../../util/secrets';
 import {
     paramsToSubmission,
     strToSubmissionType,
-    SupportRequest,
     SlackTeam,
 } from '../../lib/slack_team';
 
-import {
-    IssueWithUrl,
-    Jira
-} from '../../lib/jira';
+import { Jira } from '../../lib/jira';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
@@ -84,9 +80,9 @@ export const postInteraction = (req: Request, res: Response): void => {
         const submission = paramsToSubmission(state, submission_params);
 
         slack_team.postSupportRequest(submission, user)
-            .then((support_request: SupportRequest) => {
+            .then((support_request) => {
                 jira.createIssue(support_request)
-                    .then((issue: IssueWithUrl) => {
+                    .then((issue) => {
                         slack_team.postIssueLinkOnThread(
                             support_request,
                             issue

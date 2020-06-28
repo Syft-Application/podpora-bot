@@ -94,7 +94,7 @@ class SlackTeam {
 
     postSupportRequest(
         submission: Submission,
-        user: { id: string, name: string }
+        user: SlackUser
     ): Promise<SupportRequest> {
         const channel_id = this.config.support_channel_id;
         const msg_text = slackRequestMessageText(submission, user.id);
