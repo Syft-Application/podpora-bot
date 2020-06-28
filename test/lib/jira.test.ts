@@ -109,7 +109,7 @@ describe('Jira', () => {
                 expect.assertions(3);
 
                 nock(mock_config.host)
-                    .post('/rest/api/2/issue', new RegExp('title'))
+                    .post('/rest/api/2/issue')
                     .reply(500, createIssueResponse);
 
                 jira.createIssue(bug_report)

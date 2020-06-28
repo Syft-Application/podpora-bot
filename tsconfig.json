@@ -10,6 +10,15 @@
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": ".",
+        "newLine": "lf",
+        "alwaysStrict": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "strictNullChecks": true,
+        "strictBindCallApply": true,
         "paths": {
             "*": [
                 "node_modules/*",
