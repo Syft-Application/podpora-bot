@@ -180,7 +180,7 @@ function paramsToSubmission(
             params.type = SubmissionType.BUG;
             return params as BugSubmission;
         case SubmissionType.DATA.toString():
-            params.type = SubmissionType.BUG;
+            params.type = SubmissionType.DATA;
             return params as DataSubmission;
         default:
             throw new Error('Unexpected object: ' + state);

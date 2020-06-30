@@ -4,7 +4,8 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     SubmissionType,
-    SlackTeam
+    SlackTeam,
+    DataSubmission
 } from '../../src/lib/slack_team';
 
 const postMsgResponse = fixture('slack/chat.postMessage.response');
@@ -33,11 +34,11 @@ describe('SlackTeam', () => {
 
     describe('#postSupportRequest(submission, user)', () => {
         const submission = {
-            'title': 'Android app is crashing',
-            'description': 'pokojny vecer na vrsky padal',
-            'expected': 'foo',
-            'currently': 'baz',
-            'type': SubmissionType.BUG
+            title: 'Android app is crashing',
+            description: 'pokojny vecer na vrsky padal',
+            expected: 'foo',
+            currently: 'baz',
+            type: SubmissionType.BUG
         };
         const user = {
             'id': 'UHAV00MD0',
@@ -82,6 +83,35 @@ describe('SlackTeam', () => {
                         expect(logger_call).toEqual(
                             expect.stringContaining('postSupportRequest')
                         );
+                        done();
+                    });
+            });
+        });
+
+        describe('data request', () => {
+            const submission = {
+                title: 'Very important title',
+                description: 'Please provide some data',
+                type: SubmissionType.DATA
+            } as DataSubmission;
+            const support_request = {
+                id: postMsgResponse.ts,
+                team_id: team.id,
+                user: user,
+                submission: submission,
+                type: submission.type,
+                url: 'https://qwerty.slack.com/archives/channel-1234/p1592066203.000100',
+                channel: team_config.support_channel_id
+            };
+            it('returns a Promise that resolves to SupportRequest', (done) => {
+                expect.assertions(1);
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage', new RegExp('data'))
+                    .reply(200, postMsgResponse);
+
+                team.postSupportRequest(submission, user)
+                    .then((res) => {
+                        expect(res).toEqual(support_request);
                         done();
                     });
             });

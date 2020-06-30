@@ -3,8 +3,8 @@ import { Logger } from 'winston';
 import { merge, build_service, build_response, fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import { Issue } from '../../src/lib/jira';
-import app from '../../src/app';
 import { SubmissionType } from '../../src/lib/slack_team';
+import app from '../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error')
     .mockReturnValue({} as Logger);
@@ -240,6 +240,84 @@ describe('POST /api/slack/interaction', () => {
                     .toContain('postInteraction');
                 done();
             });
+        });
+    });
+
+    describe('data request', () => {
+        const submission = {
+            'title': 'Active clients on platform',
+            'description': 'please provide csv of all active employers'
+        };
+        const payload = {
+            'type': 'dialog_submission',
+            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
+            'action_ts': '1591735130.109259',
+            'team': {
+                'id': 'T0001',
+                'domain': 'supportdemo'
+            },
+            'user': {
+                'id': 'UHAV00MD0',
+                'name': 'joe_wick'
+            },
+            'channel': {
+                'id': 'CHNBT34FJ',
+                'name': 'support'
+            },
+            'submission': submission,
+            'callback_id': 'abc1591734883700',
+            'response_url': 'https://hooks.slack.com/app/response_url',
+            'state': SubmissionType.DATA.toString()
+        };
+        const params = { payload: JSON.stringify(payload) };
+
+        it('returns 200 OK', (done) => {
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', new RegExp('active'))
+                .reply(200, { ok: true });
+
+            nock('https://example.com')
+                .post('/rest/api/2/issue')
+                .reply(200, createIssueResponse);
+
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', new RegExp(createIssueResponse.key))
+                .reply(200, { ok: true });
+
+            return service(params).expect(200, done);
+        });
+    });
+
+    describe('unknown state', () => {
+        const submission = {
+            'title': 'Active clients on platform',
+            'description': 'please provide csv of all active employers'
+        };
+        const payload = {
+            'type': 'dialog_submission',
+            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
+            'action_ts': '1591735130.109259',
+            'team': {
+                'id': 'T0001',
+                'domain': 'supportdemo'
+            },
+            'user': {
+                'id': 'UHAV00MD0',
+                'name': 'joe_wick'
+            },
+            'channel': {
+                'id': 'CHNBT34FJ',
+                'name': 'support'
+            },
+            'submission': submission,
+            'callback_id': 'abc1591734883700',
+            'response_url': 'https://hooks.slack.com/app/response_url',
+            'state': 'UFO Enemy Unknown'
+        };
+        const params = { payload: JSON.stringify(payload) };
+
+        it('returns 200 OK', (done) => {
+            return service(params).expect(200, done);
         });
     });
 });
