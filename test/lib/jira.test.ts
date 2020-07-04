@@ -6,11 +6,8 @@ import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import {
-    SubmissionType,
-    SupportRequest,
-    BugSubmission
-} from '../../src/lib/slack_team';
+import issueParams from '../../src/lib/jira_create_issue_params';
+const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 
@@ -21,41 +18,16 @@ const bug_report = {
         id: 'UHAV00MD0',
         name: 'sherlock_holmes'
     },
-    type: SubmissionType.BUG,
     submission: {
         title: 'bug report title',
         description: 'bug report description',
         expected: 'we like this to happen',
         currently: 'this is what happens now',
-        type: SubmissionType.BUG
-    } as BugSubmission,
+    },
     url: 'http://example.com/bug',
-    channel: 'CHS7JQ7PY'
-} as SupportRequest;
-const data_request = {
-    id: '1592066203.000200',
-    team_id: 'THS7JQ2RL',
-    user: {
-        id: 'UHAV00MD1',
-        name: 'john_watson'
-    },
-    type: SubmissionType.DATA,
-    submission: {
-        title: 'data request title',
-        description: 'data request description',
-        type: SubmissionType.DATA
-    },
-    url: 'http://example.com/data',
-    channel: 'CHS7JQ7PY'
-} as SupportRequest;
-
-beforeAll(() => {
-    return nock.disableNetConnect();
-});
-
-afterAll(() => {
-    return nock.enableNetConnect();
-});
+    channel: 'CHS7JQ7PY',
+    state: 'bug'
+};
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -70,10 +42,13 @@ describe('Jira', () => {
 
     const jira = new Jira(mock_config);
 
-    describe('#createIssue()', () => {
-        const issue = createIssueResponse as Issue;
-
-        it('returns a Promise to create issue and link it to the slack thread', (done) => {
+    const issue = createIssueResponse as Issue;
+    describe('#createIssue(params)', () => {
+        const submission = bug_report.submission;
+        const user = bug_report.user;
+        const request_type = 'bug';
+        const params = issueParams(submission, user, request_type);
+        it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;
             expect.assertions(7);
             nock(mock_config.host)
@@ -82,15 +57,15 @@ describe('Jira', () => {
                     return body;
                 }).reply(200, createIssueResponse);
 
-            jira.createIssue(bug_report)
+            jira.createIssue(params)
                 .then((res) => {
-                    const submission = bug_report.submission as BugSubmission;
+                    const submission = bug_report.submission;
                     expect(res).toEqual(issue);
                     expect(api_call_body).toContain(submission.title);
                     expect(api_call_body).toContain(submission.description);
                     expect(api_call_body).toContain(submission.expected);
                     expect(api_call_body).toContain(submission.currently);
-                    expect(api_call_body).toContain(bug_report.user.name);
+                    expect(api_call_body).toContain(user.name);
                     expect(api_call_body).toContain('Bug');
                     done();
                 }).catch(done);
@@ -104,9 +79,9 @@ describe('Jira', () => {
 
                 nock(mock_config.host)
                     .post('/rest/api/2/issue')
-                    .reply(500, createIssueResponse);
+                    .reply(403, { ok: false });
 
-                jira.createIssue(bug_report)
+                jira.createIssue(params)
                     .catch((res) => {
                         expect(loggerSpy).toHaveBeenCalled();
                         const logger_call = loggerSpy.mock.calls[0].toString();
@@ -118,29 +93,37 @@ describe('Jira', () => {
                     });
             });
         });
+    });
 
-        describe('data request', () => {
-            const issue = createIssueResponse as Issue;
+    describe('#addSlackThreadUrlToIssue(url, issue)', () => {
+        const url = 'some random url';
 
-            it('changes issuetype to data', (done) => {
-                let api_call_body: string;
-                expect.assertions(5);
+        it('returns promise', (done) => {
+            nock(mock_config.host)
+                .post(
+                    `/rest/api/2/issue/${issue.key}/remotelink`
+                ).reply(200, { foo: 123 });
+
+            jira.addSlackThreadUrlToIssue(url, issue)
+                .then((res) => {
+                    expect(res).toEqual({ foo: 123 });
+                    done();
+                });
+        });
+
+        describe('api failure', () => {
+            it('returns promise that rejects', (done) => {
                 nock(mock_config.host)
-                    .post('/rest/api/2/issue', (body) => {
-                        api_call_body = JSON.stringify(body);
-                        return body;
-                    }).reply(200, createIssueResponse);
+                    .post(
+                        `/rest/api/2/issue/${issue.key}/remotelink`
+                    ).reply(403, { ok: false });
 
-                jira.createIssue(data_request)
-                    .then((res) => {
-                        const submission = data_request.submission;
-                        expect(res).toEqual(issue);
-                        expect(api_call_body).toContain(submission.title);
-                        expect(api_call_body).toContain(submission.description);
-                        expect(api_call_body).toContain(data_request.user.name);
-                        expect(api_call_body).toContain('Task');
+                jira.addSlackThreadUrlToIssue(url, issue)
+                    .catch((res) => {
+                        expect(res).toEqual({ ok: false });
+                        expect(logErrorSpy).toHaveBeenCalled();
                         done();
-                    }).catch(done);
+                    });
             });
         });
     });
@@ -151,23 +134,6 @@ describe('Jira', () => {
             const url = jira.issueUrl(issue);
 
             expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);
-        });
-    });
-
-
-    describe('#linkRequestToIssue', () => {
-        it('returns a promise', (done) => {
-            const issue = createIssueResponse as Issue;
-
-            nock(mock_config.host)
-                .post(
-                    `/rest/api/2/issue/${issue.key}/remotelink`
-                ).reply(200, { ok: true });
-
-            jira.linkRequestToIssue(bug_report, issue).then((res) => {
-                expect(res).toEqual({ ok: true });
-                done();
-            });
         });
     });
 });

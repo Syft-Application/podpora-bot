@@ -1,9 +1,12 @@
 import {
-    BugSubmission,
-    SubmissionType,
-    SupportRequest,
-    DataSubmission
+    SlackUser
 } from './slack_team';
+
+import {
+    BugSubmission,
+    DataSubmission,
+    Submission,
+} from './support';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -16,9 +19,7 @@ interface IssueParams {
     }
 }
 
-function bugToIssueParams(request: SupportRequest): IssueParams {
-    const submission = request.submission as BugSubmission;
-    const slack_user = request.user;
+function bugToIssueParams(submission: BugSubmission, slack_user: SlackUser): IssueParams {
     const issue_type = 'Bug';
     const title = submission.title;
     const board = 'SUP';
@@ -42,9 +43,7 @@ Submitted by: ${slack_user.name}`;
     };
 }
 
-function dataToIssueParams(request: SupportRequest): IssueParams {
-    const submission: DataSubmission = request.submission as DataSubmission;
-    const slack_user = request.user;
+function dataToIssueParams(submission: DataSubmission, slack_user: SlackUser): IssueParams {
     const issue_type = 'Task';
     const title = submission.title;
     const board = 'SUP';
@@ -62,17 +61,16 @@ Submitted by: ${slack_user.name}`;
     };
 }
 
-function create_issue_params(t: SubmissionType): ((request: SupportRequest) => IssueParams) {
-    switch (t) {
-        case SubmissionType.BUG:
-            return bugToIssueParams;
-        case SubmissionType.DATA:
-            return dataToIssueParams;
+function issueParams(
+    submission: Submission,
+    slack_user: SlackUser,
+    request_type: string,
+): IssueParams {
+    if (request_type === 'bug') {
+        return bugToIssueParams(submission as BugSubmission, slack_user);
+    } else {
+        return dataToIssueParams(submission as DataSubmission, slack_user);
     }
 }
 
-function requestToIssueParams(request: SupportRequest): IssueParams {
-    return create_issue_params(request.type)(request);
-}
-
-export default requestToIssueParams;
+export default issueParams;

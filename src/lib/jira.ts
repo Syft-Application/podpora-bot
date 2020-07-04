@@ -1,7 +1,5 @@
 import { Client } from 'jira.js';
-import { SupportRequest } from './slack_team';
 import logger from '../util/logger';
-import requestToIssueParams from './jira_create_issue_params';
 
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
@@ -14,6 +12,17 @@ interface Issue {
     id: string
     key: string,
     self: string
+}
+
+interface IssueParams {
+    [index: string]: Record<string, unknown>;
+
+    fields: {
+        project: { key: string },
+        summary: string,
+        issuetype: { name: string },
+        description: string,
+    }
 }
 
 class Jira {
@@ -34,13 +43,14 @@ class Jira {
     host: string;
     client: Client;
 
-    linkRequestToIssue(
-        request: SupportRequest,
+    addSlackThreadUrlToIssue(
+        url: string,
         issue: Issue
     ): Promise<Record<string, unknown>> {
-        const url = request.url;
-        const title = request.url;
+        // TODO: extract out
+        const title = url;
         const icon = slack_icon;
+
         const link_params = {
             issueIdOrKey: issue.key,
             object: {
@@ -50,12 +60,14 @@ class Jira {
             }
         };
 
-        return this.client.issueRemoteLinks.createOrUpdateRemoteIssueLink(link_params);
+        return this.client.issueRemoteLinks.createOrUpdateRemoteIssueLink(link_params)
+            .catch((err) => {
+                logger.error('addSlackThreadUrlToIssue', err);
+                return Promise.reject({ ok: false });
+            });
     }
 
-    createIssue(request: SupportRequest): Promise<Issue> {
-        const issue_params = requestToIssueParams(request);
-
+    createIssue(issue_params: IssueParams): Promise<Issue> {
         return this.client.issues.createIssue(issue_params)
             .catch((err) => {
                 logger.error('createIssue', err);
@@ -70,5 +82,6 @@ class Jira {
 
 export {
     Issue,
+    IssueParams,
     Jira
 };
