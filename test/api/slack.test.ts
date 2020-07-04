@@ -2,15 +2,10 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { merge, build_service, build_response, fixture } from '../helpers';
 import logger from '../../src/util/logger';
-import { Issue } from '../../src/lib/jira';
-import { SubmissionType } from '../../src/lib/slack_team';
 import app from '../../src/app';
 
-const logErrorSpy = jest.spyOn(logger, 'error')
-    .mockReturnValue({} as Logger);
-const logInfoSpy = jest.spyOn(logger, 'info')
-    .mockReturnValue({} as Logger);
-const createIssueResponse = fixture('jira/issues.createIssue.response') as Issue;
+const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
+const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
 
 beforeAll(() => {
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
@@ -31,7 +26,7 @@ describe('POST /api/slack/command', () => {
         channel_name: 'test',
         user_id: 'U2147483697',
         user_name: 'Joe',
-        command: '/some-command',
+        command: '/support',
         text: '',
         response_url: 'https://hooks.slack.com/commands/1234/5678',
         trigger_id: '13345224609.738474920.8088930838d88f008e0'
@@ -73,6 +68,7 @@ describe('POST /api/slack/command', () => {
             it('logs the error', (done) => {
                 expect.assertions(2);
                 const bad_params = merge(params, { team_id: 'wrong team id' });
+
                 service(bad_params).expect(200).end((err) => {
                     if (err) {
                         done(err);
@@ -133,15 +129,15 @@ describe('POST /api/slack/event', () => {
 
     describe('challenge', () => {
         const params = {
-            'type': 'url_verification',
-            'token': 'foo',
-            'challenge': 'baz'
+            type: 'url_verification',
+            token: 'dummy token',
+            challenge: 'dummy challenge'
         };
         const response = build_response(service(params));
 
         it('responds back with the challenge', (done) => {
             response((body: Record<string, unknown>) => {
-                expect(body.challenge).toEqual('baz');
+                expect(body.challenge).toEqual('dummy challenge');
                 done();
             }, done);
         });
@@ -178,59 +174,37 @@ describe('POST /api/slack/event', () => {
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
     const service = build_service(app, api_path);
-    const submission = {
-        'title': 'Android app is crashing',
-        'description': 'pokojny vecer na vrsky padal',
-        'expected': 'foo',
-        'currently': 'baz'
+    const payload = {
+        type: 'some_interaction',
+        token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+        action_ts: '1591735130.109259',
+        team: {
+            id: 'T0001',
+            domain: 'supportdemo'
+        },
+        user: {
+            id: 'UHAV00MD0',
+            name: 'joe_wick'
+        },
+        channel: {
+            id: 'CHNBT34FJ',
+            name: 'support'
+        },
+        callback_id: '12345',
+        response_url: 'https://hooks.slack.com/app/response_url',
     };
-    const default_payload = {
-        'type': 'dialog_submission',
-        'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-        'action_ts': '1591735130.109259',
-        'team': {
-            'id': 'T0001',
-            'domain': 'supportdemo'
-        },
-        'user': {
-            'id': 'UHAV00MD0',
-            'name': 'joe_wick'
-        },
-        'channel': {
-            'id': 'CHNBT34FJ',
-            'name': 'support'
-        },
-        'submission': submission,
-        'callback_id': 'syft1591734883700',
-        'response_url': 'https://hooks.slack.com/app/response_url',
-        'state': SubmissionType.BUG.toString()
-    };
-    const params = { payload: JSON.stringify(default_payload) };
+    const params = { payload: JSON.stringify(payload) };
 
     it('returns 200 OK', (done) => {
-        nock('https://slack.com')
-            .post('/api/chat.postMessage')
-            .reply(200, { ok: true });
-
-        nock('https://example.com')
-            .post('/rest/api/2/issue')
-            .reply(200, createIssueResponse);
-
-        nock('https://slack.com')
-            .post('/api/chat.postMessage', new RegExp(createIssueResponse.key))
-            .reply(200, { ok: true });
-
         return service(params).expect(200, done);
     });
 
-    describe('when creating jira ticket fails', () => {
-        it('logs the error', (done) => {
+    describe('when parsing payload fails', () => {
+        const bad_json_payload = 'this is not a json';
+        const params = { payload: bad_json_payload };
+
+        it('returns successfuly but logs the error', (done) => {
             expect.assertions(2);
-            const bad_payload = merge(
-                default_payload,
-                { team: { id: 'wrong team id', domain: 'foo' } }
-            );
-            const params = { payload: JSON.stringify(bad_payload) };
             service(params).expect(200).end((err) => {
                 if (err) {
                     done(err);
@@ -243,81 +217,199 @@ describe('POST /api/slack/interaction', () => {
         });
     });
 
-    describe('data request', () => {
+    describe('unknown interaction type', () => {
+        it('returns successfuly but logs the error', (done) => {
+            expect.assertions(3);
+
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    done(err);
+                }
+
+                expect(logErrorSpy).toHaveBeenCalled();
+                const mock = logErrorSpy.mock;
+                const calls = mock.calls[0].toString();
+                expect(calls).toContain('postInteraction');
+                expect(calls).toContain(payload.type);
+                done();
+            });
+        });
+    });
+
+    describe('dialog_submission', () => {
         const submission = {
-            'title': 'Active clients on platform',
-            'description': 'please provide csv of all active employers'
+            title: 'Android app is crashing',
+            description: 'pokojny vecer na vrsky padal',
+            expected: 'expected-foo',
+            currently: 'currently-baz'
         };
         const payload = {
-            'type': 'dialog_submission',
-            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-            'action_ts': '1591735130.109259',
-            'team': {
-                'id': 'T0001',
-                'domain': 'supportdemo'
+            type: 'dialog_submission',
+            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'supportdemo'
             },
-            'user': {
-                'id': 'UHAV00MD0',
-                'name': 'joe_wick'
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
             },
-            'channel': {
-                'id': 'CHNBT34FJ',
-                'name': 'support'
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'support'
             },
-            'submission': submission,
-            'callback_id': 'abc1591734883700',
-            'response_url': 'https://hooks.slack.com/app/response_url',
-            'state': SubmissionType.DATA.toString()
+            submission: submission,
+            callback_id: '12345',
+            response_url: 'https://hooks.slack.com/app/response_url',
+            state: 'bug'
         };
         const params = { payload: JSON.stringify(payload) };
+        const createIssueResponse = fixture('jira/issues.createIssue.response');
+        const issue_key = createIssueResponse.key as string;
 
         it('returns 200 OK', (done) => {
             nock('https://slack.com')
-                .post('/api/chat.postMessage', new RegExp('active'))
-                .reply(200, { ok: true });
+                .post('/api/chat.postMessage')
+                .reply(200, { ok: true, ts: 'ts12345' });
 
             nock('https://example.com')
                 .post('/rest/api/2/issue')
                 .reply(200, createIssueResponse);
 
+            nock('https://example.com')
+                .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                .reply(200);
+
             nock('https://slack.com')
-                .post('/api/chat.postMessage', new RegExp(createIssueResponse.key))
+                .post('/api/chat.postMessage', new RegExp(issue_key))
                 .reply(200, { ok: true });
 
             return service(params).expect(200, done);
         });
-    });
 
-    describe('unknown state', () => {
-        const submission = {
-            'title': 'Active clients on platform',
-            'description': 'please provide csv of all active employers'
-        };
-        const payload = {
-            'type': 'dialog_submission',
-            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-            'action_ts': '1591735130.109259',
-            'team': {
-                'id': 'T0001',
-                'domain': 'supportdemo'
-            },
-            'user': {
-                'id': 'UHAV00MD0',
-                'name': 'joe_wick'
-            },
-            'channel': {
-                'id': 'CHNBT34FJ',
-                'name': 'support'
-            },
-            'submission': submission,
-            'callback_id': 'abc1591734883700',
-            'response_url': 'https://hooks.slack.com/app/response_url',
-            'state': 'UFO Enemy Unknown'
-        };
-        const params = { payload: JSON.stringify(payload) };
+        describe('data request', () => {
+            const submission = {
+                title: 'Active clients on platform',
+                description: 'please provide csv of all active employers'
+            };
+            const payload = {
+                type: 'dialog_submission',
+                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                action_ts: '1591735130.109259',
+                team: {
+                    id: 'T0001',
+                    domain: 'supportdemo'
+                },
+                user: {
+                    id: 'UHAV00MD0',
+                    name: 'joe_wick'
+                },
+                channel: {
+                    id: 'CHNBT34FJ',
+                    name: 'support'
+                },
+                submission: submission,
+                callback_id: 'abc1591734883700',
+                response_url: 'https://hooks.slack.com/app/response_url',
+                state: 'data'
+            };
+            const params = { payload: JSON.stringify(payload) };
 
-        it('returns 200 OK', (done) => {
-            return service(params).expect(200, done);
+            it('returns 200 OK', () => {
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage')
+                    .reply(200, { ok: true, ts: 'ts12345' });
+
+                nock('https://example.com')
+                    .post('/rest/api/2/issue')
+                    .reply(200, createIssueResponse);
+
+                nock('https://example.com')
+                    .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                    .reply(200);
+
+
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage', new RegExp(issue_key))
+                    .reply(200, { ok: true });
+
+
+                return service(params).expect(200);
+            });
+        });
+
+        describe('unknown state', () => {
+            const payload = {
+                type: 'dialog_submission',
+                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                action_ts: '1591735130.109259',
+                team: {
+                    id: 'T0001',
+                    domain: 'supportdemo'
+                },
+                user: {
+                    id: 'UHAV00MD0',
+                    name: 'joe_wick'
+                },
+                channel: {
+                    id: 'CHNBT34FJ',
+                    name: 'support'
+                },
+                submission: {},
+                callback_id: 'abc1591734883700',
+                response_url: 'https://hooks.slack.com/app/response_url',
+                state: 'UFO Enemy Unknown'
+            };
+            const params = { payload: JSON.stringify(payload) };
+
+            it('returns 200 OK', (done) => {
+                return service(params).expect(200, done);
+            });
+
+            it('returns successfuly but logs the error', (done) => {
+                expect.assertions(3);
+
+                service(params).expect(200).end((err) => {
+                    if (err) {
+                        done(err);
+                    }
+
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const mock = logErrorSpy.mock;
+                    const calls = mock.calls[0].toString();
+                    expect(calls).toContain('postInteraction');
+                    expect(calls).toContain(payload.state);
+                    done();
+                });
+            });
+        });
+
+        describe('response.body', () => {
+            const response = build_response(service(params));
+
+            it('returns empty', (done) => {
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage')
+                    .reply(200, { ok: true, ts: 'ts12345' });
+
+                nock('https://example.com')
+                    .post('/rest/api/2/issue')
+                    .reply(200, createIssueResponse);
+
+                nock('https://example.com')
+                    .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                    .reply(200);
+
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage', new RegExp(issue_key))
+                    .reply(200, { ok: true });
+
+                response((body: Record<string, unknown>) => {
+                    expect(body).toEqual({});
+                    done();
+                }, done);
+            });
         });
     });
 });

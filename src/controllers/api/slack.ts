@@ -4,18 +4,90 @@ import { Response, Request } from 'express';
 import logger, { sanitise_for_log } from '../../util/logger';
 import { store } from '../../util/secrets';
 import {
-    paramsToSubmission,
-    strToSubmissionType,
-    SlackTeam,
+    SlackTeam
 } from '../../lib/slack_team';
 
 import { Jira } from '../../lib/jira';
+import {
+    support
+} from '../../lib/support';
 
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
+
+const enum InteractionTypes {
+    dialog_submission = 'dialog_submission'
+}
+
+interface InteractionPayload {
+    type: InteractionTypes,
+    token: string,
+    action_ts: string,
+    team: {
+        id: string,
+        domain: string
+    },
+    user: {
+        id: string,
+        name: string
+    },
+    channel: {
+        id: string,
+        name: string
+    },
+    submission: {
+        title: string,
+        description: string
+        currently: string,
+        expected: string
+    },
+    callback_id: string,
+    response_url: string,
+    state: string
+}
+
+function supportRequestSubmissionHandler(
+    params: InteractionPayload,
+    request_type: string,
+    res: Response
+): Response {
+    const {
+        user,
+        team,
+        submission
+    } = params;
+
+    const slack_config = store.slackTeamConfig(team.id);
+    const slack_team = new SlackTeam(slack_config);
+    const jira_config = store.jiraConfig(team.id);
+    const jira = new Jira(jira_config);
+
+    support.createSupportRequest(submission, user, request_type, slack_team, jira);
+
+    return res;
+}
+
+function dialogSubmissionHandler(params: InteractionPayload, res: Response): Response {
+    // here will be dispatch on type of dialog submision
+    // for now we have only support requests
+    const state = params.state;
+    if (!support.requestTypes().includes(state)) {
+        throw new Error('Unexpected state param: ' + state);
+    }
+
+    return supportRequestSubmissionHandler(params, state, res);
+}
+
+function interactionHandler(params: InteractionPayload, res: Response): Response {
+    if (params.type !== InteractionTypes.dialog_submission) {
+        throw new Error('Unexpected interaction: ' + params.type);
+    }
+
+    return dialogSubmissionHandler(params, res);
+}
 
 /**
  * POST /api/slack/command
@@ -29,10 +101,9 @@ export const postCommand = (req: Request, res: Response): void => {
         const slack_config = store.slackTeamConfig(team_id);
         const slack_team = new SlackTeam(slack_config);
         const args = text.trim().split(/\s+/);
-        const request_type = strToSubmissionType(args[0]);
 
-        if (request_type !== null) {
-            slack_team.showSupportRequestForm(request_type, trigger_id);
+        if (support.requestTypes().includes(args[0])) {
+            support.showForm(slack_team, args[0], trigger_id);
         } else {
             response_body = commandHelpResponse;
         }
@@ -64,34 +135,13 @@ export const postEvent = (req: Request, res: Response): void => {
  *
  */
 export const postInteraction = (req: Request, res: Response): void => {
-    const body = JSON.parse(req.body.payload);
-    const {
-        state,
-        user,
-        team,
-        submission: submission_params
-    } = body;
-
     try {
-        const slack_config = store.slackTeamConfig(team.id);
-        const slack_team = new SlackTeam(slack_config);
-        const jira_config = store.jiraConfig(team.id);
-        const jira = new Jira(jira_config);
-        const submission = paramsToSubmission(state, submission_params);
-
-        slack_team.postSupportRequest(submission, user)
-            .then((support_request) => {
-                jira.createIssue(support_request)
-                    .then((issue) => {
-                        slack_team.postIssueLinkOnThread(
-                            issue
-                        );
-                    });
-            });
+        interactionHandler(
+            JSON.parse(req.body.payload),
+            res
+        );
     } catch (error) {
-        // TODO: log params for debuging
-        logger.error('postInteraction', error);
+        logger.error('postInteraction', error, req.body);
     }
-
-    res.status(200).send();
+    res.status(200).send({});
 };
