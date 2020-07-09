@@ -74,7 +74,6 @@ describe('Jira', () => {
     describe('#createIssue()', () => {
         const issueWithUrl = {
             ...createIssueResponse,
-            url: `${mock_config.host}/browse/${createIssueResponse.key}`,
             slack_channel_id: bug_report.channel,
             slack_thread_id: bug_report.id
         } as IssueWithUrl;
@@ -159,7 +158,6 @@ describe('Jira', () => {
         describe('data request', () => {
             const issueWithUrl = {
                 ...createIssueResponse,
-                url: `${mock_config.host}/browse/${createIssueResponse.key}`,
                 slack_channel_id: data_request.channel,
                 slack_thread_id: data_request.id
             } as IssueWithUrl;
