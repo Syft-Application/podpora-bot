@@ -4,7 +4,8 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     IssueWithUrl,
-    Jira
+    Jira,
+    Issue
 } from '../../src/lib/jira';
 import {
     SubmissionType,
@@ -187,6 +188,15 @@ describe('Jira', () => {
                         done();
                     }).catch(done);
             });
+        });
+    });
+
+    describe('#issueUrl', () => {
+        it('returns url to jira issue on host domain', () => {
+            const issue = createIssueResponse as Issue;
+            const url = jira.issueUrl(issue);
+
+            expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);
         });
     });
 });

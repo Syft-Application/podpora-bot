@@ -85,6 +85,10 @@ class Jira {
                 return Promise.reject({ ok: false });
             });
     }
+
+    issueUrl(issue: Issue): string {
+        return `${this.host}/browse/${issue.key}`;
+    }
 }
 
 export {

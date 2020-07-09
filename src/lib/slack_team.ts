@@ -5,7 +5,7 @@ import {
 } from '@slack/web-api';
 import logger from '../util/logger';
 import { templates as slack_form_templates } from './slack_form_templates';
-import { IssueWithUrl } from './jira';
+import { IssueWithUrl, Jira } from './jira';
 import { TeamConfig } from '../util/secrets';
 
 interface SlackUser { id: string, name: string }
@@ -144,12 +144,14 @@ class SlackTeam {
     }
 
     postIssueLinkOnThread(
-        issue: IssueWithUrl
+        issue: IssueWithUrl,
+        jira: Jira
     ): Promise<WebAPICallResult | ErrorResponse> {
+        const url = jira.issueUrl(issue);
         const msg_text =
             'Jira ticket created! \n' +
             'Please keep an eye on ticket status to see when it is done! \n' +
-            `${issue.url}`;
+            `${url}`;
 
         // TODO: do not leak 3th party promise
         return this.client.chat.postMessage({

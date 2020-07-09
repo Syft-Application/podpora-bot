@@ -84,7 +84,8 @@ export const postInteraction = (req: Request, res: Response): void => {
                 jira.createIssue(support_request)
                     .then((issue) => {
                         slack_team.postIssueLinkOnThread(
-                            issue
+                            issue,
+                            jira
                         );
                     });
             });
