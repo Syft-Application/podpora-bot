@@ -133,9 +133,9 @@ describe('POST /api/slack/event', () => {
 
     describe('challenge', () => {
         const params = {
-            'type': 'url_verification',
-            'token': 'foo',
-            'challenge': 'baz'
+            type: 'url_verification',
+            token: 'foo',
+            challenge: 'baz'
         };
         const response = build_response(service(params));
 
@@ -179,31 +179,31 @@ describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
     const service = build_service(app, api_path);
     const submission = {
-        'title': 'Android app is crashing',
-        'description': 'pokojny vecer na vrsky padal',
-        'expected': 'foo',
-        'currently': 'baz'
+        title: 'Android app is crashing',
+        description: 'pokojny vecer na vrsky padal',
+        expected: 'foo',
+        currently: 'baz'
     };
     const default_payload = {
-        'type': 'dialog_submission',
-        'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-        'action_ts': '1591735130.109259',
-        'team': {
-            'id': 'T0001',
-            'domain': 'supportdemo'
+        type: 'dialog_submission',
+        token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+        action_ts: '1591735130.109259',
+        team: {
+            id: 'T0001',
+            domain: 'supportdemo'
         },
-        'user': {
-            'id': 'UHAV00MD0',
-            'name': 'joe_wick'
+        user: {
+            id: 'UHAV00MD0',
+            name: 'joe_wick'
         },
-        'channel': {
-            'id': 'CHNBT34FJ',
-            'name': 'support'
+        channel: {
+            id: 'CHNBT34FJ',
+            name: 'support'
         },
-        'submission': submission,
-        'callback_id': 'syft1591734883700',
-        'response_url': 'https://hooks.slack.com/app/response_url',
-        'state': SubmissionType.BUG.toString()
+        submission: submission,
+        callback_id: 'syft1591734883700',
+        response_url: 'https://hooks.slack.com/app/response_url',
+        state: SubmissionType.BUG.toString()
     };
     const params = { payload: JSON.stringify(default_payload) };
 
@@ -245,29 +245,29 @@ describe('POST /api/slack/interaction', () => {
 
     describe('data request', () => {
         const submission = {
-            'title': 'Active clients on platform',
-            'description': 'please provide csv of all active employers'
+            title: 'Active clients on platform',
+            description: 'please provide csv of all active employers'
         };
         const payload = {
-            'type': 'dialog_submission',
-            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-            'action_ts': '1591735130.109259',
-            'team': {
-                'id': 'T0001',
-                'domain': 'supportdemo'
+            type: 'dialog_submission',
+            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'supportdemo'
             },
-            'user': {
-                'id': 'UHAV00MD0',
-                'name': 'joe_wick'
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
             },
-            'channel': {
-                'id': 'CHNBT34FJ',
-                'name': 'support'
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'support'
             },
-            'submission': submission,
-            'callback_id': 'abc1591734883700',
-            'response_url': 'https://hooks.slack.com/app/response_url',
-            'state': SubmissionType.DATA.toString()
+            submission: submission,
+            callback_id: 'abc1591734883700',
+            response_url: 'https://hooks.slack.com/app/response_url',
+            state: SubmissionType.DATA.toString()
         };
         const params = { payload: JSON.stringify(payload) };
 
@@ -290,29 +290,29 @@ describe('POST /api/slack/interaction', () => {
 
     describe('unknown state', () => {
         const submission = {
-            'title': 'Active clients on platform',
-            'description': 'please provide csv of all active employers'
+            title: 'Active clients on platform',
+            description: 'please provide csv of all active employers'
         };
         const payload = {
-            'type': 'dialog_submission',
-            'token': '6ato2RrVWQZwZ5Hwc91KnuTB',
-            'action_ts': '1591735130.109259',
-            'team': {
-                'id': 'T0001',
-                'domain': 'supportdemo'
+            type: 'dialog_submission',
+            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'supportdemo'
             },
-            'user': {
-                'id': 'UHAV00MD0',
-                'name': 'joe_wick'
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
             },
-            'channel': {
-                'id': 'CHNBT34FJ',
-                'name': 'support'
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'support'
             },
-            'submission': submission,
-            'callback_id': 'abc1591734883700',
-            'response_url': 'https://hooks.slack.com/app/response_url',
-            'state': 'UFO Enemy Unknown'
+            submission: submission,
+            callback_id: 'abc1591734883700',
+            response_url: 'https://hooks.slack.com/app/response_url',
+            state: 'UFO Enemy Unknown'
         };
         const params = { payload: JSON.stringify(payload) };
 

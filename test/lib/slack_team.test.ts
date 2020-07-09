@@ -41,8 +41,8 @@ describe('SlackTeam', () => {
             type: SubmissionType.BUG
         };
         const user = {
-            'id': 'UHAV00MD0',
-            'name': 'joe_wick'
+            id: 'UHAV00MD0',
+            name: 'joe_wick'
         };
         const support_request = {
             id: postMsgResponse.ts,
