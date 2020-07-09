@@ -85,6 +85,8 @@ export const postInteraction = (req: Request, res: Response): void => {
                     .then((issue) => {
                         slack_team.postIssueLinkOnThread(
                             issue,
+                            support_request.channel,
+                            support_request.id,
                             jira
                         );
                     });

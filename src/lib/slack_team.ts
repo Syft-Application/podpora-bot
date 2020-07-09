@@ -5,7 +5,7 @@ import {
 } from '@slack/web-api';
 import logger from '../util/logger';
 import { templates as slack_form_templates } from './slack_form_templates';
-import { IssueWithUrl, Jira } from './jira';
+import { Issue, Jira } from './jira';
 import { TeamConfig } from '../util/secrets';
 
 interface SlackUser { id: string, name: string }
@@ -144,7 +144,9 @@ class SlackTeam {
     }
 
     postIssueLinkOnThread(
-        issue: IssueWithUrl,
+        issue: Issue,
+        channel_id: string,
+        thread_id: string,
         jira: Jira
     ): Promise<WebAPICallResult | ErrorResponse> {
         const url = jira.issueUrl(issue);
@@ -156,8 +158,8 @@ class SlackTeam {
         // TODO: do not leak 3th party promise
         return this.client.chat.postMessage({
             text: msg_text,
-            channel: issue.slack_channel_id,
-            thread_ts: issue.slack_thread_id
+            channel: channel_id,
+            thread_ts: thread_id
         }).catch(slackError('postIssueLinkOnThread'));
     }
 }

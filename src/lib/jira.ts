@@ -16,11 +16,6 @@ interface Issue {
     self: string
 }
 
-interface IssueWithUrl extends Issue {
-    slack_channel_id: string,
-    slack_thread_id: string
-}
-
 class Jira {
     constructor(config: { username: string, api_token: string, host: string }) {
         const client_cfg = {
@@ -58,24 +53,18 @@ class Jira {
         return this.client.issueRemoteLinks.createOrUpdateRemoteIssueLink(link_params);
     }
 
-    createIssue(request: SupportRequest): Promise<IssueWithUrl> {
+    createIssue(request: SupportRequest): Promise<Issue> {
         const issue_params = requestToIssueParams(request);
 
         return this.client.issues.createIssue(issue_params)
             .then((issue: Issue) => {
-                const issue_with_url = {
-                    ...issue,
-                    slack_channel_id: request.channel,
-                    slack_thread_id: request.id
-                } as IssueWithUrl;
-
-                return this.linkRequestToIssue(request, issue_with_url)
+                return this.linkRequestToIssue(request, issue)
                     .then(() => {
-                        return Promise.resolve(issue_with_url);
+                        return Promise.resolve(issue);
                     })
                     .catch((err) => {
                         logger.error('linkRequestToIssue', err);
-                        return Promise.resolve(issue_with_url);
+                        return Promise.resolve(issue);
                     });
             })
             .catch((err) => {
@@ -90,7 +79,6 @@ class Jira {
 }
 
 export {
-    IssueWithUrl,
     Issue,
     Jira
 };

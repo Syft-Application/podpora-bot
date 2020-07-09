@@ -3,7 +3,6 @@ import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
-    IssueWithUrl,
     Jira,
     Issue
 } from '../../src/lib/jira';
@@ -72,11 +71,7 @@ describe('Jira', () => {
     const jira = new Jira(mock_config);
 
     describe('#createIssue()', () => {
-        const issueWithUrl = {
-            ...createIssueResponse,
-            slack_channel_id: bug_report.channel,
-            slack_thread_id: bug_report.id
-        } as IssueWithUrl;
+        const issue = createIssueResponse as Issue;
 
         it('returns a Promise to create issue and link it to the slack thread', (done) => {
             let api_call_body: string;
@@ -94,7 +89,7 @@ describe('Jira', () => {
             jira.createIssue(bug_report)
                 .then((res) => {
                     const submission = bug_report.submission as BugSubmission;
-                    expect(res).toEqual(issueWithUrl);
+                    expect(res).toEqual(issue);
                     expect(api_call_body).toContain(submission.title);
                     expect(api_call_body).toContain(submission.description);
                     expect(api_call_body).toContain(submission.expected);
@@ -149,18 +144,14 @@ describe('Jira', () => {
                         expect(logger_call).toEqual(
                             expect.stringContaining('linkRequestToIssue')
                         );
-                        expect(res).toEqual(issueWithUrl);
+                        expect(res).toEqual(issue);
                         done();
                     });
             });
         });
 
         describe('data request', () => {
-            const issueWithUrl = {
-                ...createIssueResponse,
-                slack_channel_id: data_request.channel,
-                slack_thread_id: data_request.id
-            } as IssueWithUrl;
+            const issue = createIssueResponse as Issue;
 
             it('changes issuetype to data', (done) => {
                 let api_call_body: string;
@@ -178,7 +169,7 @@ describe('Jira', () => {
                 jira.createIssue(data_request)
                     .then((res) => {
                         const submission = data_request.submission;
-                        expect(res).toEqual(issueWithUrl);
+                        expect(res).toEqual(issue);
                         expect(api_call_body).toContain(submission.title);
                         expect(api_call_body).toContain(submission.description);
                         expect(api_call_body).toContain(data_request.user.name);
