@@ -82,10 +82,6 @@ describe('Jira', () => {
                     return body;
                 }).reply(200, createIssueResponse);
 
-            nock(mock_config.host)
-                .post(`/rest/api/2/issue/${createIssueResponse.key}/remotelink`)
-                .reply(200);
-
             jira.createIssue(bug_report)
                 .then((res) => {
                     const submission = bug_report.submission as BugSubmission;
@@ -123,33 +119,6 @@ describe('Jira', () => {
             });
         });
 
-        describe('link slack message to an issue fails', () => {
-            it('it catch and log the failure but resolves successfuly', (done) => {
-                const loggerSpy = jest.spyOn(logger, 'error')
-                    .mockReturnValue({} as Logger);
-                expect.assertions(3);
-                nock(mock_config.host)
-                    .post('/rest/api/2/issue')
-                    .reply(200, createIssueResponse);
-
-                nock(mock_config.host)
-                    .post(
-                        `/rest/api/2/issue/${createIssueResponse.key}/remotelink`
-                    ).reply(503, {});
-
-                jira.createIssue(bug_report)
-                    .then((res) => {
-                        expect(loggerSpy).toHaveBeenCalled();
-                        const logger_call = loggerSpy.mock.calls[0].toString();
-                        expect(logger_call).toEqual(
-                            expect.stringContaining('linkRequestToIssue')
-                        );
-                        expect(res).toEqual(issue);
-                        done();
-                    });
-            });
-        });
-
         describe('data request', () => {
             const issue = createIssueResponse as Issue;
 
@@ -161,10 +130,6 @@ describe('Jira', () => {
                         api_call_body = JSON.stringify(body);
                         return body;
                     }).reply(200, createIssueResponse);
-
-                nock(mock_config.host)
-                    .post(`/rest/api/2/issue/${createIssueResponse.key}/remotelink`)
-                    .reply(200);
 
                 jira.createIssue(data_request)
                     .then((res) => {
@@ -186,6 +151,23 @@ describe('Jira', () => {
             const url = jira.issueUrl(issue);
 
             expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);
+        });
+    });
+
+
+    describe('#linkRequestToIssue', () => {
+        it('returns a promise', (done) => {
+            const issue = createIssueResponse as Issue;
+
+            nock(mock_config.host)
+                .post(
+                    `/rest/api/2/issue/${issue.key}/remotelink`
+                ).reply(200, { ok: true });
+
+            jira.linkRequestToIssue(bug_report, issue).then((res) => {
+                expect(res).toEqual({ ok: true });
+                done();
+            });
         });
     });
 });

@@ -57,16 +57,6 @@ class Jira {
         const issue_params = requestToIssueParams(request);
 
         return this.client.issues.createIssue(issue_params)
-            .then((issue: Issue) => {
-                return this.linkRequestToIssue(request, issue)
-                    .then(() => {
-                        return Promise.resolve(issue);
-                    })
-                    .catch((err) => {
-                        logger.error('linkRequestToIssue', err);
-                        return Promise.resolve(issue);
-                    });
-            })
             .catch((err) => {
                 logger.error('createIssue', err);
                 return Promise.reject({ ok: false });
