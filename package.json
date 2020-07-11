@@ -37,6 +37,7 @@
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "jira.js": "^1.5.0",
+    "redis": "^3.0.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {

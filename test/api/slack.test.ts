@@ -15,6 +15,9 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
+const createIssueResponse = fixture('jira/issues.createIssue.response');
+const issue_key = createIssueResponse.key as string;
+
 describe('POST /api/slack/command', () => {
     const default_params = {
         token: 'token value',
@@ -164,6 +167,22 @@ describe('POST /api/slack/event', () => {
             });
         });
     });
+
+    describe('messages with files', () => {
+        const params = fixture('slack/events.message_with_file');
+
+        it('returns 200 OK', (done) => {
+            return service(params).expect(200, done);
+        });
+
+        it('adds link to the file to jira issue', (done) => {
+            nock('https://example.com')
+                .post(`/rest/api/2/issue/${issue_key}/comment`)
+                .reply(200);
+
+            return service(params).expect(200, done);
+        });
+    });
 });
 
 /*
@@ -265,8 +284,6 @@ describe('POST /api/slack/interaction', () => {
             state: 'bug'
         };
         const params = { payload: JSON.stringify(payload) };
-        const createIssueResponse = fixture('jira/issues.createIssue.response');
-        const issue_key = createIssueResponse.key as string;
 
         it('returns 200 OK', (done) => {
             nock('https://slack.com')

@@ -114,20 +114,33 @@ export const postCommand = (req: Request, res: Response): void => {
     res.status(200).send(response_body);
 };
 
+function eventHandler(body: Record<string, unknown>, res: Response): Response {
+    logger.info('postEvent', sanitise_for_log(body));
+
+    if (body.challenge) {
+        res.json({ challenge: body.challenge });
+    } else {
+        res.status(200).send({});
+    }
+
+    return res;
+}
+
 /**
  * POST /api/slack/event
  *
  */
 export const postEvent = (req: Request, res: Response): void => {
     const { body } = req;
-
-    if (body.challenge) {
-        res.json({ challenge: body.challenge });
-        return;
+    try {
+        eventHandler(
+            body,
+            res
+        );
+    } catch (error) {
+        // handle errors
+        // logger.error('postEvent', error, sanitise_for_log(body));
     }
-
-    logger.info('postEvent', sanitise_for_log(body));
-    res.status(200).send(null);
 };
 
 /**
