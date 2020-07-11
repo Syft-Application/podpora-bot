@@ -50,4 +50,6 @@ if (!SESSION_SECRET) {
     process.exit(1);
 }
 
-export { store };
+const REDIS_URI = process.env.REDIS_URI as string;
+
+export { store, REDIS_URI };
