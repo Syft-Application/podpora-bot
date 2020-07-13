@@ -11,7 +11,8 @@ import {
 } from './slack_team';
 import supportMessageText from './slack/support_message_text';
 import issueParams from './jira_create_issue_params';
-import { Jira } from './jira';
+import { Jira, Issue } from './jira';
+import redis_client from '../util/redis_client';
 
 const support_requests = ['bug', 'data'] as const;
 type SupportRequests = typeof support_requests[number];
@@ -90,10 +91,41 @@ const support = {
                     jira.issueUrl(issue),
                     message
                 );
+
+                support.persist(message, issue);
             });
         });
-    }
+    },
 
+    persist(message: SlackMessage, issue: Issue): void {
+        const {
+            channel,
+            ts: message_id,
+            message: { team }
+        } = message;
+
+        const issue_key = [team, issue.key].join(',');
+        const slack_key = [team, channel, message_id].join(',');
+
+        redis_client().mset(slack_key, issue_key, issue_key, slack_key);
+    },
+
+    fetch(key: string): Promise<string> {
+        // logger.debug('ss 2', typeof redis_client());
+        return new Promise((resolve, reject) => {
+            redis_client().get(key, (error, response) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                return resolve(response);
+            });
+        });
+    },
+
+    issueKey(team_id: string, channel_id: string, message_id: string): Promise<string> {
+        return support.fetch([team_id, channel_id, message_id].join(','));
+    }
 };
 
 export {

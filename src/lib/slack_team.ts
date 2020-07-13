@@ -7,7 +7,13 @@ import logger from '../util/logger';
 import { TeamConfig } from '../util/secrets';
 
 interface SlackUser { id: string, name: string }
-interface SlackMessage extends WebAPICallResult { ts: string, channel: string }
+interface SlackMessage extends WebAPICallResult {
+    ts: string,
+    channel: string,
+    message: {
+        team: string
+    }
+}
 
 class SlackTeam {
     constructor(config: TeamConfig) {

@@ -8,6 +8,7 @@ function redis_client(): RedisClient {
     if (typeof client === 'undefined') {
         // TODO: move to secrets.ts ?
         client = redis.createClient(REDIS_URI);
+
         client.on('error', function(error: Error) {
             logger.error(error);
         });

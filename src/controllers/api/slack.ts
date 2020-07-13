@@ -12,6 +12,7 @@ import {
     support
 } from '../../lib/support';
 
+
 const commandHelpResponse = {
     text: '👋 Need help with support bot?\n\n'
         + '> Submit a request for data:\n>`/support data`\n\n'
@@ -47,6 +48,18 @@ interface InteractionPayload {
     callback_id: string,
     response_url: string,
     state: string
+}
+
+interface MessageEventPayload {
+    token: string,
+    type: string,
+    team_id: string,
+    event: {
+        thread_ts: string,
+        ts: string,
+        type: string,
+        channel: string
+    }
 }
 
 function supportRequestSubmissionHandler(
@@ -114,16 +127,32 @@ export const postCommand = (req: Request, res: Response): void => {
     res.status(200).send(response_body);
 };
 
+function eventCallbackHandler(payload: MessageEventPayload, res: Response): Response {
+    const { event, team_id } = payload;
+    support.issueKey(team_id, event.channel, event.thread_ts)
+        .then((issue_key: string) => {
+            const jira_config = store.jiraConfig(team_id);
+            const jira = new Jira(jira_config);
+
+            jira.addComment(issue_key, event);
+        }).catch((error) => {
+            logger.error('eventCallbackHandler', 'eventToJiraIssueKey', error);
+        });
+
+    return res.json({});
+}
+
 function eventHandler(body: Record<string, unknown>, res: Response): Response {
     logger.info('postEvent', sanitise_for_log(body));
-
-    if (body.challenge) {
-        res.json({ challenge: body.challenge });
+    if (body.type === 'url_verification') {
+        return res.json({ challenge: body.challenge });
     } else {
-        res.status(200).send({});
+        // 'event_callback':
+        return eventCallbackHandler(
+            body as unknown as MessageEventPayload,
+            res
+        );
     }
-
-    return res;
 }
 
 /**
@@ -132,15 +161,14 @@ function eventHandler(body: Record<string, unknown>, res: Response): Response {
  */
 export const postEvent = (req: Request, res: Response): void => {
     const { body } = req;
-    try {
-        eventHandler(
-            body,
-            res
-        );
-    } catch (error) {
-        // handle errors
-        // logger.error('postEvent', error, sanitise_for_log(body));
-    }
+    // try {
+    eventHandler(
+        body,
+        res
+    );
+    // } catch (error) {
+    //     logger.error('postEvent', error, sanitise_for_log(body));
+    // }
 };
 
 /**

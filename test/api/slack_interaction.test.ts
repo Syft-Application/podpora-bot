@@ -1,188 +1,33 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { merge, build_service, build_response, fixture } from '../helpers';
+import { build_service, build_response, fixture } from '../helpers';
 import logger from '../../src/util/logger';
+import redis_client from '../../src/util/redis_client';
+
 import app from '../../src/app';
 
+const redis_client_double = {
+    mset: jest.fn(),
+    get: jest.fn()
+};
+
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
-const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
+const postMessageResponse = fixture('slack/chat.postMessage.response');
+const createIssueResponse = fixture('jira/issues.createIssue.response');
+const issue_key = createIssueResponse.key as string;
+
+jest.mock('../../src/util/redis_client');
 
 beforeAll(() => {
+    (redis_client as jest.Mock).mockImplementation(() => {
+        return redis_client_double;
+    });
+
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
 });
 
 afterEach(() => {
     jest.clearAllMocks();
-});
-
-const createIssueResponse = fixture('jira/issues.createIssue.response');
-const issue_key = createIssueResponse.key as string;
-
-describe('POST /api/slack/command', () => {
-    const default_params = {
-        token: 'token value',
-        team_id: 'T0001',
-        team_domain: 'example',
-        enterprise_id: 'E0001',
-        enterprise_name: 'Globular%20Construct%20Inc',
-        channel_id: 'C2147483705',
-        channel_name: 'test',
-        user_id: 'U2147483697',
-        user_name: 'Joe',
-        command: '/support',
-        text: '',
-        response_url: 'https://hooks.slack.com/commands/1234/5678',
-        trigger_id: '13345224609.738474920.8088930838d88f008e0'
-    };
-    const api_path = '/api/slack/command';
-    const service = build_service(app, api_path);
-
-    function test_support_command_with_dialog(params: Record<string, unknown>): void {
-        it('sends dialog to Slack', (done) => {
-            nock('https://slack.com')
-                .post('/api/dialog.open')
-                .reply(200, { ok: true });
-
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    done(err);
-                }
-
-                done();
-            });
-        });
-
-        describe('response.body', () => {
-            const response = build_response(service(params));
-
-            it('returns empty', (done) => {
-                nock('https://slack.com')
-                    .post('/api/dialog.open')
-                    .reply(200, { ok: true });
-
-                response((body: Record<string, unknown>) => {
-                    expect(body).toEqual({});
-                    done();
-                }, done);
-            });
-        });
-
-        describe('when something goes wrong (wrong team id)', () => {
-            it('logs the error', (done) => {
-                expect.assertions(2);
-                const bad_params = merge(params, { team_id: 'wrong team id' });
-
-                service(bad_params).expect(200).end((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                    expect(logErrorSpy).toHaveBeenCalled();
-                    expect(logErrorSpy.mock.calls[0].toString())
-                        .toContain('postCommand');
-                    done();
-                });
-            });
-        });
-    }
-
-    it('returns 200 OK', () => {
-        return service(default_params).expect(200);
-    });
-
-    describe('command: /support', () => {
-        const support_params = merge(default_params, { command: '/support' });
-
-        describe('response.body', () => {
-            const commandHelpResponse = {
-                text: '👋 Need help with support bot?\n\n'
-                    + '> Submit a request for data:\n>`/support data`\n\n'
-                    + '> Submit a bug report:\n>`/support bug`'
-            };
-            const response = build_response(service(support_params));
-
-            it('contains command help message', (done) => {
-                response((body: Record<string, unknown>) => {
-                    expect(body).toEqual(commandHelpResponse);
-                    done();
-                }, done);
-            });
-        });
-
-        describe('text: bug', () => {
-            const bug_params = merge(support_params, { text: 'bug' });
-
-            test_support_command_with_dialog(bug_params);
-        });
-
-        describe('text: data', () => {
-            const data_params = merge(support_params, { text: 'data' });
-
-            test_support_command_with_dialog(data_params);
-        });
-    });
-});
-
-describe('POST /api/slack/event', () => {
-    const api_path = '/api/slack/event';
-    const service = build_service(app, api_path);
-
-    it('returns 200 OK', (done) => {
-        return service({}).expect(200, done);
-    });
-
-    describe('challenge', () => {
-        const params = {
-            type: 'url_verification',
-            token: 'dummy token',
-            challenge: 'dummy challenge'
-        };
-        const response = build_response(service(params));
-
-        it('responds back with the challenge', (done) => {
-            response((body: Record<string, unknown>) => {
-                expect(body.challenge).toEqual('dummy challenge');
-                done();
-            }, done);
-        });
-    });
-
-    describe('file_created', () => {
-        const params = fixture('slack/events.file_created');
-
-        it('returns 200 OK', (done) => {
-            return service(params).expect(200, done);
-        });
-
-        it('logs the event without token', (done) => {
-            expect.assertions(3);
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    return done(err);
-                }
-                expect(logInfoSpy).toHaveBeenCalled();
-                const log_args = JSON.stringify(logInfoSpy.mock.calls[0]);
-                expect(log_args).toContain('postEvent');
-                expect(log_args).not.toContain(params.token);
-                done();
-            });
-        });
-    });
-
-    describe('messages with files', () => {
-        const params = fixture('slack/events.message_with_file');
-
-        it('returns 200 OK', (done) => {
-            return service(params).expect(200, done);
-        });
-
-        it('adds link to the file to jira issue', (done) => {
-            nock('https://example.com')
-                .post(`/rest/api/2/issue/${issue_key}/comment`)
-                .reply(200);
-
-            return service(params).expect(200, done);
-        });
-    });
 });
 
 /*
@@ -193,30 +38,6 @@ describe('POST /api/slack/event', () => {
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
     const service = build_service(app, api_path);
-    const payload = {
-        type: 'some_interaction',
-        token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-        action_ts: '1591735130.109259',
-        team: {
-            id: 'T0001',
-            domain: 'supportdemo'
-        },
-        user: {
-            id: 'UHAV00MD0',
-            name: 'joe_wick'
-        },
-        channel: {
-            id: 'CHNBT34FJ',
-            name: 'support'
-        },
-        callback_id: '12345',
-        response_url: 'https://hooks.slack.com/app/response_url',
-    };
-    const params = { payload: JSON.stringify(payload) };
-
-    it('returns 200 OK', (done) => {
-        return service(params).expect(200, done);
-    });
 
     describe('when parsing payload fails', () => {
         const bad_json_payload = 'this is not a json';
@@ -237,6 +58,27 @@ describe('POST /api/slack/interaction', () => {
     });
 
     describe('unknown interaction type', () => {
+        const payload = {
+            type: 'some_interaction',
+            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'supportdemo'
+            },
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
+            },
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'support'
+            },
+            callback_id: '12345',
+            response_url: 'https://hooks.slack.com/app/response_url',
+        };
+        const params = { payload: JSON.stringify(payload) };
+
         it('returns successfuly but logs the error', (done) => {
             expect.assertions(3);
 
@@ -288,7 +130,7 @@ describe('POST /api/slack/interaction', () => {
         it('returns 200 OK', (done) => {
             nock('https://slack.com')
                 .post('/api/chat.postMessage')
-                .reply(200, { ok: true, ts: 'ts12345' });
+                .reply(200, postMessageResponse);
 
             nock('https://example.com')
                 .post('/rest/api/2/issue')
@@ -336,7 +178,7 @@ describe('POST /api/slack/interaction', () => {
             it('returns 200 OK', () => {
                 nock('https://slack.com')
                     .post('/api/chat.postMessage')
-                    .reply(200, { ok: true, ts: 'ts12345' });
+                    .reply(200, postMessageResponse);
 
                 nock('https://example.com')
                     .post('/rest/api/2/issue')
@@ -408,7 +250,7 @@ describe('POST /api/slack/interaction', () => {
             it('returns empty', (done) => {
                 nock('https://slack.com')
                     .post('/api/chat.postMessage')
-                    .reply(200, { ok: true, ts: 'ts12345' });
+                    .reply(200, postMessageResponse);
 
                 nock('https://example.com')
                     .post('/rest/api/2/issue')
@@ -424,8 +266,11 @@ describe('POST /api/slack/interaction', () => {
 
                 response((body: Record<string, unknown>) => {
                     expect(body).toEqual({});
-                    done();
                 }, done);
+
+                redis_client_double.mset.mockImplementationOnce(() => {
+                    done();
+                });
             });
         });
     });
