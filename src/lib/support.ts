@@ -137,13 +137,21 @@ const support = {
     addFileToJiraIssue(jira: Jira, event: ChannelThreadFileShareEvent): void {
         support.issueKey(event.team, event.channel, event.thread_ts)
             .then((issue_key: string) => {
-                const comment = JSON.stringify(event);
+                const comment = fileShareEventToIssueComment(event);
                 jira.addComment(issue_key, comment);
             }).catch((error) => {
                 logger.error('addFileToJiraIssue', error);
             });
     }
 };
+
+function fileShareEventToIssueComment(event: ChannelThreadFileShareEvent): string {
+    const files = event.files.map((file) => {
+        return `${file.name} - ${file.filetype}\n\n${file.permalink}`;
+    });
+
+    return `${event.text}\n\n${files}\n`;
+}
 
 interface ChannelEvent {
     ts: string,
