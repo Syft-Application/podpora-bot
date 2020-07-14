@@ -110,7 +110,7 @@ const support = {
         redis_client().mset(slack_key, issue_key, issue_key, slack_key);
     },
 
-    fetch(key: string): Promise<string> {
+    fetch(key: string): Promise<string|null> {
         // logger.debug('ss 2', typeof redis_client());
         return new Promise((resolve, reject) => {
             redis_client().get(key, (error, response) => {
@@ -124,8 +124,12 @@ const support = {
     },
 
     issueKey(team_id: string, channel_id: string, message_id: string): Promise<string> {
-        return support.fetch([team_id, channel_id, message_id].join(','))
+        const key = [team_id, channel_id, message_id].join(',');
+        return support.fetch(key)
             .then((val) => {
+                if (val === null) {
+                    return Promise.reject(new Error(`Issue key not found: ${key}`));
+                }
                 return Promise.resolve(val.split(',').pop() as string);
             });
     }

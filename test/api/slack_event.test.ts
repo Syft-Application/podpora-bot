@@ -78,9 +78,9 @@ describe('POST /api/slack/event', () => {
             return service(params).expect(200, done);
         });
 
-        describe('when issue key does not exist', () => {
+        describe('when redis throws an error', () => {
             it('logs the error', (done) => {
-                const key_error: Error = new Error('Key not found');
+                const key_error: Error = new Error('Some redis error');
                 redis_client_double.get.mockImplementationOnce((key, callback) => {
                     return callback(key_error);
                 });
@@ -93,6 +93,25 @@ describe('POST /api/slack/event', () => {
                     expect(logErrorSpy).toHaveBeenCalled();
                     expect(logErrorSpy.mock.calls[0].toString())
                         .toContain(key_error.message);
+                    done();
+                });
+            });
+        });
+
+        describe('when key is not in db', () => {
+            it('logs the error', (done) => {
+                redis_client_double.get.mockImplementationOnce((key, callback) => {
+                    return callback(null, null);
+                });
+
+                service(params).expect(200).end((err) => {
+                    if (err) {
+                        return done(err);
+                    }
+
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    expect(logErrorSpy.mock.calls[0].toString())
+                        .toContain('Issue key not found');
                     done();
                 });
             });
