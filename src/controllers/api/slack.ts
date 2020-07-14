@@ -50,16 +50,41 @@ interface InteractionPayload {
     state: string
 }
 
-interface MessageEventPayload {
+interface ChannelEvent {
+    ts: string,
+    type: string,
+    team: string,
+    channel: string,
+}
+
+interface ChannelThreadEvent extends ChannelEvent {
+    thread_ts: string,
+    text: string,
+}
+
+interface SlackFile {
+    id: string
+    name: string
+    mimetype: string
+    filetype: string
+    url_private: string
+    url_private_download: string
+    thumb_360?: string
+    permalink: string
+}
+
+interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
+    subtype: string
+    files: Array<SlackFile>
+}
+
+type ChannelEvents = ChannelThreadFileShareEvent | ChannelThreadEvent | ChannelEvent;
+
+interface EventCallbackPayload {
     token: string,
     type: string,
     team_id: string,
-    event: {
-        thread_ts: string,
-        ts: string,
-        type: string,
-        channel: string
-    }
+    event: ChannelEvents
 }
 
 function supportRequestSubmissionHandler(
@@ -127,18 +152,24 @@ export const postCommand = (req: Request, res: Response): void => {
     res.status(200).send(response_body);
 };
 
-function eventCallbackHandler(payload: MessageEventPayload, res: Response): Response {
-    const { event, team_id } = payload;
-    support.issueKey(team_id, event.channel, event.thread_ts)
-        .then((issue_key: string) => {
-            const jira_config = store.jiraConfig(team_id);
-            const jira = new Jira(jira_config);
-            const comment = JSON.stringify(event);
+// function isChannelThreadEvent(event: ChannelEvents): event is ChannelThreadEvent {
+//     return (<ChannelThreadEvent>event).thread_ts !== undefined;
+// }
 
-            jira.addComment(issue_key, comment);
-        }).catch((error) => {
-            logger.error('eventCallbackHandler', 'eventToJiraIssueKey', error);
-        });
+function isChannelThreadFileShareEvent(
+    event: ChannelEvents
+): event is ChannelThreadFileShareEvent {
+    return (<ChannelThreadFileShareEvent>event).subtype === 'file_share';
+}
+
+function eventCallbackHandler(payload: EventCallbackPayload, res: Response): Response {
+    const { event, team_id } = payload;
+
+    if (isChannelThreadFileShareEvent(event)) {
+        const jira_config = store.jiraConfig(team_id);
+        const jira = new Jira(jira_config);
+        support.addFileToJiraIssue(jira, event);
+    }
 
     return res.json({});
 }
@@ -150,7 +181,7 @@ function eventHandler(body: Record<string, unknown>, res: Response): Response {
     } else {
         // 'event_callback':
         return eventCallbackHandler(
-            body as unknown as MessageEventPayload,
+            body as unknown as EventCallbackPayload,
             res
         );
     }

@@ -1,0 +1,39 @@
+ {
+  "token": "sanitised",
+  "team_id": "T0001",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "client_msg_id": "b3787902-17b0-45cb-9dd4-495aceb7a20d",
+    "type": "message",
+    "text": "hello world",
+    "user": "UHAV00MD0",
+    "ts": "1594757283.000300",
+    "team": "T0001",
+    "blocks": [
+      {
+        "type": "rich_text",
+        "block_id": "FiRw",
+        "elements": [
+          {
+            "type": "rich_text_section",
+            "elements": [
+              {
+                "type": "text",
+                "text": "hello world"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "channel": "CHS7JQ7PY",
+    "event_ts": "1594757283.000300",
+    "channel_type": "channel"
+  },
+  "type": "event_callback",
+  "event_id": "Ev017T234U80",
+  "event_time": 1594757283,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}

@@ -63,56 +63,76 @@ describe('POST /api/slack/event', () => {
         });
     });
 
-    describe('messages with files', () => {
-        const params = fixture('slack/events.message_with_file') as Record<string, unknown>;
+    describe('type: event_callback', () => {
+        describe('messages not on support thread', () => {
+            const params = fixture('slack/events.channel_message') as Record<string, unknown>;
 
-        it('adds link to the file to jira issue', (done) => {
-            nock('https://example.com')
-                .post(`/rest/api/2/issue/${issue_key}/comment`)
-                .reply(200);
-
-            redis_client_double.get.mockImplementationOnce((key, callback) => {
-                return callback(null, issue_key);
-            });
-
-            return service(params).expect(200, done);
-        });
-
-        describe('when redis throws an error', () => {
-            it('logs the error', (done) => {
-                const key_error: Error = new Error('Some redis error');
-                redis_client_double.get.mockImplementationOnce((key, callback) => {
-                    return callback(key_error);
-                });
-
-                service(params).expect(200).end((err) => {
-                    if (err) {
-                        return done(err);
-                    }
-
-                    expect(logErrorSpy).toHaveBeenCalled();
-                    expect(logErrorSpy.mock.calls[0].toString())
-                        .toContain(key_error.message);
-                    done();
-                });
+            it('will be ignored', () => {
+                return service(params).expect(200);
             });
         });
 
-        describe('when key is not in db', () => {
-            it('logs the error', (done) => {
-                redis_client_double.get.mockImplementationOnce((key, callback) => {
-                    return callback(null, null);
+        describe('messages on support thread', () => {
+            // describe('without files', () => {
+            //     const params = fixture('slack/events.message')
+
+            //     it('will be ignored', () => {
+            //         return service(params).expect(200);
+            //     });
+            // });
+
+            describe('subtype: file_share', () => {
+                const params = fixture('slack/events.message_with_file') as Record<string, unknown>;
+
+                describe('when redis throws an error', () => {
+                    it('logs the error', (done) => {
+                        const key_error: Error = new Error('Some redis error');
+                        redis_client_double.get.mockImplementationOnce((key, callback) => {
+                            return callback(key_error);
+                        });
+
+                        service(params).expect(200).end((err) => {
+                            if (err) {
+                                return done(err);
+                            }
+
+                            expect(logErrorSpy).toHaveBeenCalled();
+                            expect(logErrorSpy.mock.calls[0].toString())
+                                .toContain(key_error.message);
+                            done();
+                        });
+                    });
                 });
 
-                service(params).expect(200).end((err) => {
-                    if (err) {
-                        return done(err);
-                    }
+                describe('when key is not in db', () => {
+                    it('logs the error', (done) => {
+                        redis_client_double.get.mockImplementationOnce((key, callback) => {
+                            return callback(null, null);
+                        });
 
-                    expect(logErrorSpy).toHaveBeenCalled();
-                    expect(logErrorSpy.mock.calls[0].toString())
-                        .toContain('Issue key not found');
-                    done();
+                        service(params).expect(200).end((err) => {
+                            if (err) {
+                                return done(err);
+                            }
+
+                            expect(logErrorSpy).toHaveBeenCalled();
+                            expect(logErrorSpy.mock.calls[0].toString())
+                                .toContain('Issue key not found');
+                            done();
+                        });
+                    });
+                });
+
+                it('add message as comment to Jira Issue', (done) => {
+                    nock('https://example.com')
+                        .post(`/rest/api/2/issue/${issue_key}/comment`)
+                        .reply(200);
+
+                    redis_client_double.get.mockImplementationOnce((key, callback) => {
+                        return callback(null, issue_key);
+                    });
+
+                    return service(params).expect(200, done);
                 });
             });
         });

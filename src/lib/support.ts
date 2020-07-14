@@ -110,7 +110,7 @@ const support = {
         redis_client().mset(slack_key, issue_key, issue_key, slack_key);
     },
 
-    fetch(key: string): Promise<string|null> {
+    fetch(key: string): Promise<string | null> {
         // logger.debug('ss 2', typeof redis_client());
         return new Promise((resolve, reject) => {
             redis_client().get(key, (error, response) => {
@@ -132,8 +132,46 @@ const support = {
                 }
                 return Promise.resolve(val.split(',').pop() as string);
             });
+    },
+
+    addFileToJiraIssue(jira: Jira, event: ChannelThreadFileShareEvent): void {
+        support.issueKey(event.team, event.channel, event.thread_ts)
+            .then((issue_key: string) => {
+                const comment = JSON.stringify(event);
+                jira.addComment(issue_key, comment);
+            }).catch((error) => {
+                logger.error('addFileToJiraIssue', error);
+            });
     }
 };
+
+interface ChannelEvent {
+    ts: string,
+    type: string,
+    team: string,
+    channel: string,
+}
+
+interface ChannelThreadEvent extends ChannelEvent {
+    thread_ts: string
+    text: string
+}
+
+interface SlackFile {
+    id: string
+    name: string
+    mimetype: string
+    filetype: string
+    url_private: string
+    url_private_download: string
+    thumb_360?: string
+    permalink: string
+}
+
+interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
+    subtype: string
+    files: Array<SlackFile>
+}
 
 export {
     BugSubmission,

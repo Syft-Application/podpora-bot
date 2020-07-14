@@ -1,0 +1,41 @@
+ {
+  "token": "sanitised",
+  "team_id": "THS7JQ2RL",
+  "api_app_id": "A014LS9K1U7",
+  "event": {
+    "client_msg_id": "7b66d2f5-eb0d-4712-96d8-88afb9b9b7ee",
+    "type": "message",
+    "text": "fsddsrewewqrew",
+    "user": "UHAV00MD0",
+    "ts": "1594762181.000400",
+    "team": "THS7JQ2RL",
+    "blocks": [
+      {
+        "type": "rich_text",
+        "block_id": "LK3",
+        "elements": [
+          {
+            "type": "rich_text_section",
+            "elements": [
+              {
+                "type": "text",
+                "text": "fsddsrewewqrew"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "thread_ts": "1594676086.000600",
+    "parent_user_id": "U01548S52NN",
+    "channel": "CHS7JQ7PY",
+    "event_ts": "1594762181.000400",
+    "channel_type": "channel"
+  },
+  "type": "event_callback",
+  "event_id": "Ev016WKV3ZRC",
+  "event_time": 1594762181,
+  "authed_users": [
+    "UHAV00MD0"
+  ]
+}
