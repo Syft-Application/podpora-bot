@@ -1,10 +1,10 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { build_service, build_response, fixture } from '../helpers';
-import logger from '../../src/util/logger';
-import redis_client from '../../src/util/redis_client';
+import { build_service, build_response, fixture } from '../../helpers';
+import logger from '../../../src/util/logger';
+import redis_client from '../../../src/util/redis_client';
 
-import app from '../../src/app';
+import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
@@ -13,7 +13,7 @@ const redis_client_double = {
     get: jest.fn()
 };
 
-jest.mock('../../src/util/redis_client');
+jest.mock('../../../src/util/redis_client');
 
 (redis_client as jest.Mock).mockImplementation(() => {
     return redis_client_double;

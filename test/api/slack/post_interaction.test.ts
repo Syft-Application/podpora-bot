@@ -1,10 +1,10 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { build_service, build_response, fixture } from '../helpers';
-import logger from '../../src/util/logger';
-import redis_client from '../../src/util/redis_client';
+import { build_service, build_response, fixture } from '../../helpers';
+import logger from '../../../src/util/logger';
+import redis_client from '../../../src/util/redis_client';
 
-import app from '../../src/app';
+import app from '../../../src/app';
 
 const redis_client_double = {
     mset: jest.fn(),
@@ -16,7 +16,7 @@ const postMessageResponse = fixture('slack/chat.postMessage.response');
 const createIssueResponse = fixture('jira/issues.createIssue.response');
 const issue_key = createIssueResponse.key as string;
 
-jest.mock('../../src/util/redis_client');
+jest.mock('../../../src/util/redis_client');
 
 beforeAll(() => {
     (redis_client as jest.Mock).mockImplementation(() => {
