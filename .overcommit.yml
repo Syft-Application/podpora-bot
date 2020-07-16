@@ -32,10 +32,10 @@ PreCommit:
     include:
       - '**/*.{js,ts,json}'
 
-CommitMsg:
-  SpellCheck:
-    enabled: true
-    # on_warn: fail
+# CommitMsg:
+#   SpellCheck:
+#     enabled: true
+#     # on_warn: fail
 
 # PostCheckout:
 #   ALL: # Special hook name that customizes all hooks of this type

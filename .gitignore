@@ -45,3 +45,5 @@ scratch.org
 
 # redis
 dump.rdb
+
+.local-git-hooks
