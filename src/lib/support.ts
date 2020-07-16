@@ -150,11 +150,33 @@ const support = {
 };
 
 function fileShareEventToIssueComment(event: ChannelThreadFileShareEvent): string {
-    const files = event.files.map((file) => {
-        return `${file.name} - ${file.filetype}\n\n${file.permalink}`;
-    });
+    const files_str = event.files.map(slackFileToText).join('\n');
 
-    return `${event.text}\n\n${files}\n`;
+    return `${event.text}\n\n${files_str}\n`;
+}
+
+
+// function isSlackImageFile(
+//     file: SlackFiles
+// ): file is SlackImageFile {
+//     return (<SlackImageFile>file).thumb_360 !== undefined;
+// }
+
+// Unfortunaly preview slack images does not work as explained here:
+// https://community.atlassian.com/t5/Jira-Questions/ \
+// How-to-embed-images-by-URL-in-new-Markdown-Jira-editor/qaq-p/1126329
+// > in the New editor and the editing view used in Next-gen Projects,
+// > is moving away from using wiki style markup to a WYSIWYG editing approach,
+// if (isSlackImageFile(file)) {
+//     f = `!${file.url_private}!\n` +
+//         `[Download](${file.url_private_download}) or ` +
+//         `[See on Slack](${file.permalink})`;
+// } else {
+// }
+function slackFileToText(file: SlackFiles): string {
+    return `${file.name} - ` +
+        `[download](${file.url_private_download}) or ` +
+        `[see on Slack](${file.permalink})`;
 }
 
 interface ChannelEvent {
@@ -176,9 +198,14 @@ interface SlackFile {
     filetype: string
     url_private: string
     url_private_download: string
-    thumb_360?: string
     permalink: string
 }
+
+interface SlackImageFile extends SlackFile {
+    thumb_360: string
+}
+
+type SlackFiles = SlackImageFile | SlackFile;
 
 interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
     subtype: string
