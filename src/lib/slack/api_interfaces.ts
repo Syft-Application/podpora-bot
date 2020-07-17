@@ -14,6 +14,39 @@ interface PostCommandPayload {
     trigger_id: string
 }
 
-export {
-    PostCommandPayload
+const enum InteractionTypes {
+    dialog_submission = 'dialog_submission'
 }
+
+interface PostInteractionPayload {
+    type: InteractionTypes,
+    token: string,
+    action_ts: string,
+    team: {
+        id: string,
+        domain: string
+    },
+    user: {
+        id: string,
+        name: string
+    },
+    channel: {
+        id: string,
+        name: string
+    },
+    submission: {
+        title: string,
+        description: string
+        currently: string,
+        expected: string
+    },
+    callback_id: string,
+    response_url: string,
+    state: string
+}
+
+export {
+    PostCommandPayload,
+    InteractionTypes,
+    PostInteractionPayload
+};

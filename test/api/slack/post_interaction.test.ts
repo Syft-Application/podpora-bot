@@ -123,7 +123,7 @@ describe('POST /api/slack/interaction', () => {
             submission: submission,
             callback_id: '12345',
             response_url: 'https://hooks.slack.com/app/response_url',
-            state: 'bug'
+            state: 'support_bug'
         };
         const params = { payload: JSON.stringify(payload) };
 
@@ -171,7 +171,7 @@ describe('POST /api/slack/interaction', () => {
                 submission: submission,
                 callback_id: 'abc1591734883700',
                 response_url: 'https://hooks.slack.com/app/response_url',
-                state: 'data'
+                state: 'support_data'
             };
             const params = { payload: JSON.stringify(payload) };
 

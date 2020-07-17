@@ -14,7 +14,10 @@ import supportMessageText from './slack/support_message_text';
 import issueParams from './jira_create_issue_params';
 import { Jira, Issue } from './jira';
 import redis_client from '../util/redis_client';
-import { PostCommandPayload } from './slack/api_interfaces';
+import {
+    PostCommandPayload,
+    PostInteractionPayload
+} from './slack/api_interfaces';
 
 const support_requests = ['bug', 'data'] as const;
 type SupportRequests = typeof support_requests[number];
@@ -165,6 +168,22 @@ const support = {
         }
 
         return res.json(commandHelpResponse);
+    },
+
+    handleDialogSubmission(
+        slack_team: SlackTeam,
+        jira: Jira,
+        payload: PostInteractionPayload,
+        request_type: string,
+        res: Response
+    ): Response {
+        const { user, submission } = payload;
+
+        support.createSupportRequest(
+            submission, user, request_type as SupportRequests, slack_team, jira
+        );
+
+        return res;
     }
 };
 

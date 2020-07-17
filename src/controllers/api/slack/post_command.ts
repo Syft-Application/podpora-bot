@@ -5,7 +5,9 @@ import logger from '../../../util/logger';
 import { store } from '../../../util/secrets';
 import { SlackTeam } from '../../../lib/slack_team';
 import { support } from '../../../lib/support';
-import { PostCommandPayload } from '../../../lib/slack/api_interfaces';
+import {
+    PostCommandPayload
+} from '../../../lib/slack/api_interfaces';
 
 function postCommandHandler(payload: PostCommandPayload, res: Response): Response {
     const { team_id, command } = payload;
