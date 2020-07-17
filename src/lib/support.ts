@@ -45,13 +45,13 @@ const commandHelpResponse = {
 const support = {
     requestTypes(): ReadonlyArray<string> { return support_requests; },
     showForm(
-        slack: SlackTeam,
+        slack_team: SlackTeam,
         request_type: SupportRequests,
         trigger_id: string
     ): Promise<WebAPICallResult> {
         const dialog: Dialog = form_templates[request_type];
 
-        return slack.showDialog(dialog, trigger_id)
+        return slack_team.showDialog(dialog, trigger_id)
             .catch((error) => {
                 logger.error('showForm', error.message);
 
@@ -60,7 +60,7 @@ const support = {
     },
 
     postIssueUrlOnThread(
-        slack: SlackTeam,
+        slack_team: SlackTeam,
         url: string,
         thread: SlackMessage
     ): Promise<SlackMessage> {
@@ -69,7 +69,7 @@ const support = {
             'Please keep an eye on ticket status to see when it is done! \n' +
             `${url}`;
 
-        return slack.postOnThread(msg_text, thread)
+        return slack_team.postOnThread(msg_text, thread)
             .then((response) => {
                 return Promise.resolve(response as SlackMessage);
             }).catch((error) => {
@@ -79,26 +79,26 @@ const support = {
     },
 
     createSupportRequest(
+        slack_team: SlackTeam,
+        jira: Jira,
         submission: Submission,
         user: SlackUser,
-        request_type: string,
-        slack: SlackTeam,
-        jira: Jira
+        request_type: string
     ): void {
         const message_text = supportMessageText(submission, user, request_type);
-        const p1 = slack.postMessage(message_text, slack.support_channel_id);
+        const p1 = slack_team.postMessage(message_text, slack_team.support_channel_id);
         const issue_params = issueParams(submission, user, request_type);
         const p2 = jira.createIssue(issue_params);
 
         p1.then((message) => {
             p2.then((issue) => {
                 jira.addSlackThreadUrlToIssue(
-                    slack.messageUrl(message),
+                    slack_team.messageUrl(message),
                     issue
                 );
 
                 support.postIssueUrlOnThread(
-                    slack,
+                    slack_team,
                     jira.issueUrl(issue),
                     message
                 );
@@ -146,11 +146,11 @@ const support = {
     },
 
     addFileToJiraIssue(
-        slack: SlackTeam,
+        slack_team: SlackTeam,
         jira: Jira,
         event: ChannelThreadFileShareEvent
     ): void {
-        support.issueKey(slack.id, event.channel, event.thread_ts)
+        support.issueKey(slack_team.id, event.channel, event.thread_ts)
             .then((issue_key: string) => {
                 const comment = fileShareEventToIssueComment(event);
                 jira.addComment(issue_key, comment);
@@ -180,7 +180,7 @@ const support = {
         const { user, submission } = payload;
 
         support.createSupportRequest(
-            submission, user, request_type as SupportRequests, slack_team, jira
+            slack_team, jira, submission, user, request_type as SupportRequests
         );
 
         return res;
