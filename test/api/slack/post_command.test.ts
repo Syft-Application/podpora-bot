@@ -89,6 +89,17 @@ describe('POST /api/slack/command', () => {
                     done();
                 });
             });
+
+            it('notify user about issue', (done) => {
+                const bad_params = merge(params, { team_id: 'wrong team id' });
+                const response = build_response(service(bad_params));
+
+                response((body: Record<string, unknown>) => {
+                    const body_str = JSON.stringify(body);
+                    expect(body_str).toContain('Something went wrong');
+                    done();
+                }, done);
+            });
         });
     }
 
@@ -125,6 +136,19 @@ describe('POST /api/slack/command', () => {
             const data_params = merge(support_params, { text: 'data' });
 
             test_support_command_with_dialog(data_params);
+        });
+    });
+
+    describe('command: /unknown', () => {
+        const params = merge(default_params, { command: '/unknown' });
+        const response = build_response(service(params));
+
+        it('notify user that the command is not implemented yet', (done) => {
+            response((body: Record<string, unknown>) => {
+                const body_str = JSON.stringify(body);
+                expect(body_str).toContain('Unknown or not implemented command');
+                done();
+            }, done);
         });
     });
 });

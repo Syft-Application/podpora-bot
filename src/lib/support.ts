@@ -216,5 +216,6 @@ export {
     BugSubmission,
     DataSubmission,
     Submission,
+    SupportRequests,
     support
 };
