@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import {
     Dialog,
     WebAPICallResult
@@ -13,6 +14,7 @@ import supportMessageText from './slack/support_message_text';
 import issueParams from './jira_create_issue_params';
 import { Jira, Issue } from './jira';
 import redis_client from '../util/redis_client';
+import { PostCommandPayload } from './slack/api_interfaces';
 
 const support_requests = ['bug', 'data'] as const;
 type SupportRequests = typeof support_requests[number];
@@ -30,6 +32,12 @@ interface DataSubmission {
 }
 
 type Submission = BugSubmission | DataSubmission;
+
+const commandHelpResponse = {
+    text: '👋 Need help with support bot?\n\n'
+        + '> Submit a request for data:\n>`/support data`\n\n'
+        + '> Submit a bug report:\n>`/support bug`'
+};
 
 const support = {
     requestTypes(): ReadonlyArray<string> { return support_requests; },
@@ -146,6 +154,17 @@ const support = {
             }).catch((error) => {
                 logger.error('addFileToJiraIssue', error);
             });
+    },
+
+    handleCommand(slack_team: SlackTeam, payload: PostCommandPayload, res: Response): Response {
+        const { text, trigger_id } = payload;
+        const args = text.trim().split(/\s+/);
+        if (support.requestTypes().includes(args[0])) {
+            support.showForm(slack_team, args[0] as SupportRequests, trigger_id);
+            return res.json({});
+        }
+
+        return res.json(commandHelpResponse);
     }
 };
 
@@ -154,7 +173,6 @@ function fileShareEventToIssueComment(event: ChannelThreadFileShareEvent): strin
 
     return `${event.text}\n\n${files_str}\n`;
 }
-
 
 // function isSlackImageFile(
 //     file: SlackFiles
