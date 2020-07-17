@@ -11,7 +11,7 @@ import {
     PostInteractionPayload
 } from '../../../lib/slack/api_interfaces';
 
-function dialogSubmissionHandler(params: PostInteractionPayload, res: Response): Response {
+function handleDialogSubmission(params: PostInteractionPayload, res: Response): Response {
     const { team, state } = params;
     const [type, subtype] = state.split('_');
     const slack_config = store.slackTeamConfig(team.id);
@@ -33,7 +33,7 @@ function interactionHandler(params: PostInteractionPayload, res: Response): Resp
         throw new Error('Unexpected interaction: ' + params.type);
     }
 
-    return dialogSubmissionHandler(params, res);
+    return handleDialogSubmission(params, res);
 }
 
 /**

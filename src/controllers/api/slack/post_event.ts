@@ -11,7 +11,7 @@ import {
     isChannelThreadFileShareEvent
 } from '../../../lib/slack/api_interfaces';
 
-function eventCallbackHandler(payload: EventCallbackPayload, res: Response): Response {
+function handleCallbackEvent(payload: EventCallbackPayload, res: Response): Response {
     const { event, team_id } = payload;
     // TODO: maybe some more specific dispatch based on rules
     if (isChannelThreadFileShareEvent(event)) {
@@ -32,7 +32,7 @@ function eventHandler(body: Record<string, unknown>, res: Response): Response {
         return res.json({ challenge: body.challenge });
     } else {
         // 'event_callback':
-        return eventCallbackHandler(
+        return handleCallbackEvent(
             body as unknown as EventCallbackPayload,
             res
         );
