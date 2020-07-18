@@ -45,18 +45,57 @@ interface PostInteractionPayload {
     state: string
 }
 
+interface PostEventUrlVerificationPayload {
+    [index: string]: string
+    token: string
+    challenge: string
+    type: string
+}
 
+function isUrlVerification(
+    payload: PostEventPayloads
+): payload is PostEventUrlVerificationPayload {
+    return (<PostEventUrlVerificationPayload>payload).type === 'url_verification';
+}
+
+type PostEventPayloads = PostEventUrlVerificationPayload | EventCallbackPayload;
+
+interface EventCallbackPayload {
+    [index: string]: string | ChannelEvents
+    token: string,
+    type: string,
+    team_id: string,
+    event: ChannelEvents
+}
 
 interface ChannelEvent {
     ts: string,
     type: string,
-    team: string,
+    team?: string,
     channel: string,
 }
 
 interface ChannelThreadEvent extends ChannelEvent {
     thread_ts: string,
     text: string,
+}
+
+interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
+    subtype: string
+    files: Array<SlackFile>
+}
+
+type ChannelEvents = ChannelThreadFileShareEvent | ChannelThreadEvent | ChannelEvent;
+
+function isChannelThreadEvent(event: ChannelEvents): event is ChannelThreadEvent {
+    return (<ChannelThreadEvent>event).thread_ts !== undefined;
+}
+
+function isChannelThreadFileShareEvent(
+    event: ChannelEvents
+): event is ChannelThreadFileShareEvent {
+    return isChannelThreadEvent(event) &&
+        (<ChannelThreadFileShareEvent>event).subtype === 'file_share';
 }
 
 interface SlackFile {
@@ -70,34 +109,29 @@ interface SlackFile {
     permalink: string
 }
 
-interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
-    subtype: string
-    files: Array<SlackFile>
+interface SlackImageFile extends SlackFile {
+    thumb_360: string
 }
 
-type ChannelEvents = ChannelThreadFileShareEvent | ChannelThreadEvent | ChannelEvent;
+type SlackFiles = SlackImageFile | SlackFile;
 
-interface EventCallbackPayload {
-    token: string,
-    type: string,
-    team_id: string,
-    event: ChannelEvents
-}
-
-// function isChannelThreadEvent(event: ChannelEvents): event is ChannelThreadEvent {
-//     return (<ChannelThreadEvent>event).thread_ts !== undefined;
-// }
-
-function isChannelThreadFileShareEvent(
-    event: ChannelEvents
-): event is ChannelThreadFileShareEvent {
-    return (<ChannelThreadFileShareEvent>event).subtype === 'file_share';
+function isSlackImageFile(
+    file: SlackFiles
+): file is SlackImageFile {
+    return (<SlackImageFile>file).thumb_360 !== undefined;
 }
 
 export {
     PostCommandPayload,
     InteractionTypes,
     PostInteractionPayload,
+    PostEventPayloads,
+    isUrlVerification,
     EventCallbackPayload,
-    isChannelThreadFileShareEvent
+    ChannelThreadEvent,
+    ChannelThreadFileShareEvent,
+    isChannelThreadEvent,
+    isChannelThreadFileShareEvent,
+    isSlackImageFile,
+    SlackFiles
 };

@@ -8,6 +8,7 @@ import {
 } from '../../src/lib/slack_team';
 
 import {
+    fileShareEventToIssueComment,
     support
 } from '../../src/lib/support';
 
@@ -83,6 +84,72 @@ describe('#showForm()', () => {
                     );
                     done();
                 });
+        });
+    });
+});
+
+describe('#fileShareEventToIssueComment(event, url)', () => {
+    const bin_file = {
+        id: 'F015XSUL1K4',
+        name: 'puzzle.org',
+        title: 'puzzle.org',
+        mimetype: 'text/plain',
+        filetype: 'text',
+        pretty_type: 'Plain Text',
+        url_private: 'https://files.slack.com/files-pri/THS7JQ2RL-F015XSUL1K4/puzzle.org',
+        url_private_download: 'https://files.slack.com/fi/download/puzzle.org',
+        permalink: 'https://test.slack.com/files/UHAV00MD0/F015XSUL1K4/puzzle.org',
+        permalink_public: 'https://slack-files.com/THS7JQ2RL-F015XSUL1K4-b0d770cfec'
+    };
+
+    const img_file = {
+        id: 'F015N0DGC87',
+        name: 'Cover.jpg',
+        title: 'Cover.jpg',
+        mimetype: 'image/jpeg',
+        filetype: 'jpg',
+        pretty_type: 'JPEG',
+        user: 'UHAV00MD0',
+        url_private: 'https://files.slack.com/files-pri/T0001-F015N0DGC87/cover.jpg',
+        url_private_download: 'https://files.slack.com/fi15N0DGC87/download/cover.jpg',
+        thumb_360: 'https://files.slack.com/files-tmb/T00C87-428249289d/cover_360.jpg',
+        thumb_160: 'https://files.slack.com/files-tmb/T00GC87-428249289d/cover_160.jpg',
+        original_w: 250,
+        original_h: 250,
+        permalink: 'https://test.slack.com/files/UHAF015N0DGC87/cover.jpg',
+        permalink_public: 'https://slack-files.com/T0001-F015N0DGC87-bcd4f0fe25',
+    };
+
+    const event = {
+        type: 'message',
+        text: 'some message',
+        files: [bin_file, img_file],
+        user: 'UHAV00MD0',
+        ts: '1593117566.000400',
+        thread_ts: '1593117373.000100',
+        channel: 'CHS7JQ7PY',
+        subtype: 'file_share'
+    };
+
+    const result = fileShareEventToIssueComment(event, 'some url');
+
+    it('contains the text message and link to slack', () => {
+        expect(result).toContain('some message');
+        expect(result).toContain('some url');
+    });
+
+    describe('files: [bin_file]', () => {
+        it('contains file download link and show', () => {
+            expect(result).toContain(bin_file.url_private);
+            expect(result).toContain(bin_file.url_private_download);
+        });
+    });
+
+    describe('files: [image]', () => {
+        it('contains also image thumb (preview) url', () => {
+            expect(result).toContain(img_file.thumb_360);
+            expect(result).toContain(img_file.url_private);
+            expect(result).toContain(img_file.url_private_download);
         });
     });
 });

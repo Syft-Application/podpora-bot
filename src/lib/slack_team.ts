@@ -15,6 +15,13 @@ interface SlackMessage extends WebAPICallResult {
     }
 }
 
+interface SlackThreadMessage {
+    ts: string,
+    channel: string,
+    text: string,
+    thread_ts: string
+}
+
 class SlackTeam {
     constructor(config: TeamConfig) {
         this.id = config.id;
@@ -75,6 +82,15 @@ class SlackTeam {
         const channel_id = message.channel;
         const message_id = message.ts;
         return `https://${domain}.slack.com/archives/${channel_id}/p${message_id}`;
+    }
+
+    threadMessageUrl(message: SlackThreadMessage): string {
+        const domain = this.domain;
+        const channel_id = message.channel;
+        const message_id = message.ts;
+        const thread_ts = message.thread_ts;
+        return `https://${domain}.slack.com/archives/` +
+            `${channel_id}/p${message_id}??thread_ts=${thread_ts}&cid=${channel_id}`;
     }
 }
 

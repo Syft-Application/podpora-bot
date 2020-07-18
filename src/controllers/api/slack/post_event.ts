@@ -8,7 +8,9 @@ import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
 import {
     EventCallbackPayload,
-    isChannelThreadFileShareEvent
+    isChannelThreadFileShareEvent,
+    isUrlVerification,
+    PostEventPayloads
 } from '../../../lib/slack/api_interfaces';
 
 function handleCallbackEvent(payload: EventCallbackPayload, res: Response): Response {
@@ -26,14 +28,14 @@ function handleCallbackEvent(payload: EventCallbackPayload, res: Response): Resp
     return res.json({});
 }
 
-function eventHandler(body: Record<string, unknown>, res: Response): Response {
-    logger.info('postEvent', sanitise_for_log(body));
-    if (body.type === 'url_verification') {
-        return res.json({ challenge: body.challenge });
+function eventHandler(payload: PostEventPayloads, res: Response): Response {
+    logger.info('postEvent', sanitise_for_log(payload));
+    if (isUrlVerification(payload)) {
+        return res.json({ challenge: payload.challenge });
     } else {
         // 'event_callback':
         return handleCallbackEvent(
-            body as unknown as EventCallbackPayload,
+            payload as EventCallbackPayload,
             res
         );
     }

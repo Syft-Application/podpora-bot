@@ -16,7 +16,10 @@ import { Jira, Issue } from './jira';
 import redis_client from '../util/redis_client';
 import {
     PostCommandPayload,
-    PostInteractionPayload
+    PostInteractionPayload,
+    ChannelThreadFileShareEvent,
+    SlackFiles,
+    isSlackImageFile
 } from './slack/api_interfaces';
 
 const support_requests = ['bug', 'data'] as const;
@@ -41,6 +44,39 @@ const commandHelpResponse = {
         + '> Submit a request for data:\n>`/support data`\n\n'
         + '> Submit a bug report:\n>`/support bug`'
 };
+
+function fileShareEventToIssueComment(
+    event: ChannelThreadFileShareEvent,
+    url: string
+): string {
+    const files_str = event.files.map(slackFileToText).join('\n\n');
+
+    return `${event.text}\n\n${files_str}\n \n${url}\n`;
+}
+
+// Unfortunaly preview slack images does not work as explained here:
+// https://community.atlassian.com/t5/Jira-Questions/ \
+// How-to-embed-images-by-URL-in-new-Markdown-Jira-editor/qaq-p/1126329
+// > in the New editor and the editing view used in Next-gen Projects,
+// > is moving away from using wiki style markup to a WYSIWYG editing approach,
+// if (isSlackImageFile(file)) {
+//     f = `!${file.url_private}!\n` +
+//         `[Download](${file.url_private_download}) or ` +
+//         `[See on Slack](${file.permalink})`;
+// } else {
+// }
+function slackFileToText(file: SlackFiles): string {
+    if (isSlackImageFile(file)) {
+        return `${file.name}\n` +
+            `Preview: ${file.thumb_360}\n` +
+            `Download: ${file.url_private_download}\n` +
+            `Show: ${file.url_private}`;
+    } else {
+        return `${file.name}\n` +
+            `Download: ${file.url_private_download}\n` +
+            `Show: ${file.url_private}`;
+    }
+}
 
 const support = {
     requestTypes(): ReadonlyArray<string> { return support_requests; },
@@ -152,7 +188,10 @@ const support = {
     ): void {
         support.issueKey(slack_team.id, event.channel, event.thread_ts)
             .then((issue_key: string) => {
-                const comment = fileShareEventToIssueComment(event);
+                const comment = fileShareEventToIssueComment(
+                    event,
+                    slack_team.threadMessageUrl(event)
+                );
                 jira.addComment(issue_key, comment);
             }).catch((error) => {
                 logger.error('addFileToJiraIssue', error);
@@ -187,69 +226,8 @@ const support = {
     }
 };
 
-function fileShareEventToIssueComment(event: ChannelThreadFileShareEvent): string {
-    const files_str = event.files.map(slackFileToText).join('\n');
-
-    return `${event.text}\n\n${files_str}\n`;
-}
-
-// function isSlackImageFile(
-//     file: SlackFiles
-// ): file is SlackImageFile {
-//     return (<SlackImageFile>file).thumb_360 !== undefined;
-// }
-
-// Unfortunaly preview slack images does not work as explained here:
-// https://community.atlassian.com/t5/Jira-Questions/ \
-// How-to-embed-images-by-URL-in-new-Markdown-Jira-editor/qaq-p/1126329
-// > in the New editor and the editing view used in Next-gen Projects,
-// > is moving away from using wiki style markup to a WYSIWYG editing approach,
-// if (isSlackImageFile(file)) {
-//     f = `!${file.url_private}!\n` +
-//         `[Download](${file.url_private_download}) or ` +
-//         `[See on Slack](${file.permalink})`;
-// } else {
-// }
-function slackFileToText(file: SlackFiles): string {
-    return `${file.name} - ` +
-        `[download](${file.url_private_download}) or ` +
-        `[see on Slack](${file.permalink})`;
-}
-
-interface ChannelEvent {
-    ts: string,
-    type: string,
-    team: string,
-    channel: string,
-}
-
-interface ChannelThreadEvent extends ChannelEvent {
-    thread_ts: string
-    text: string
-}
-
-interface SlackFile {
-    id: string
-    name: string
-    mimetype: string
-    filetype: string
-    url_private: string
-    url_private_download: string
-    permalink: string
-}
-
-interface SlackImageFile extends SlackFile {
-    thumb_360: string
-}
-
-type SlackFiles = SlackImageFile | SlackFile;
-
-interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
-    subtype: string
-    files: Array<SlackFile>
-}
-
 export {
+    fileShareEventToIssueComment,
     BugSubmission,
     DataSubmission,
     Submission,
