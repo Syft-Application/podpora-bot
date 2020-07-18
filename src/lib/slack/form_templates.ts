@@ -22,19 +22,18 @@ const bug: Dialog = {
         },
         {
             type: 'text',
-            label: 'Expected Outcome',
-            placeholder: 'What *should* happen when the above steps are taken?',
-            name: 'expected',
-            value: '',
-        },
-        {
-            type: 'text',
             label: 'Current Outcome',
             placeholder: 'What *currently* happens when the above steps are taken?',
             name: 'currently',
             value: '',
         },
-
+        {
+            type: 'text',
+            label: 'Expected Outcome',
+            placeholder: 'What *should* happen when the above steps are taken?',
+            name: 'expected',
+            value: '',
+        },
     ]
 };
 
