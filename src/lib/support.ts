@@ -4,7 +4,7 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
-import { config } from './support_requests';
+import { config } from './config';
 import {
     SlackUser,
     SlackMessage,

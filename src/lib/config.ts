@@ -116,8 +116,8 @@ interface SupportRequestConfig {
     ) => string
 }
 
-const support_requests: { [index: string]: SupportRequestConfig } = {};
-support_requests.default = {
+const configs: { [index: string]: SupportRequestConfig } = {};
+configs.default = {
     commands: [
         {
             name: 'data',
@@ -155,7 +155,7 @@ support_requests.default = {
     }
 };
 
-support_requests.default.templates.bug = {
+configs.default.templates.bug = {
     callback_id: '',
     title: 'Report Bug',
     submit_label: 'Submit',
@@ -191,7 +191,7 @@ support_requests.default.templates.bug = {
         },
     ]
 };
-support_requests.default.templates.data = {
+configs.default.templates.data = {
     callback_id: '',
     title: 'New Data Request',
     submit_label: 'Submit',
@@ -215,11 +215,9 @@ support_requests.default.templates.data = {
 };
 
 function config(slack_team: SlackTeam): SupportRequestConfig {
-    return support_requests[slack_team.supportConfigName()];
+    return configs[slack_team.supportConfigName()];
 }
 
 export {
-    Submission,
-    IssueParams,
     config
 };

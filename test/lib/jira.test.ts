@@ -9,7 +9,7 @@ import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import { config } from '../../src/lib/support_requests';
+import { config } from '../../src/lib/config';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
