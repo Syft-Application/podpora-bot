@@ -201,6 +201,11 @@ const support = {
         if (support.requestTypes().includes(args[0])) {
             support.showForm(slack_team, args[0] as SupportRequests, trigger_id);
             return res.status(200).send();
+        } else if (args[0] === 'ping') {
+            res.json({
+                response_type: 'ephemeral',
+                text: 'Pong!'
+            });
         }
 
         return res.json(commandHelpResponse);

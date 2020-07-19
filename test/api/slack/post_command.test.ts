@@ -137,6 +137,21 @@ describe('POST /api/slack/command', () => {
 
             test_support_command_with_dialog(data_params);
         });
+
+        describe('text: ping', () => {
+            const params = merge(support_params, { text: 'ping' });
+            const response = build_response(service(params));
+
+            it('respond with ephemeral message Pong!', (done) => {
+                response((body: Record<string, unknown>) => {
+                    expect(body).toEqual({
+                        response_type: 'ephemeral',
+                        text: 'Pong!'
+                    });
+                    done();
+                }, done);
+            })
+        });
     });
 
     describe('command: /unknown', () => {
