@@ -1,4 +1,5 @@
 import { Dialog } from '@slack/web-api';
+import { SlackTeam } from './slack_team';
 
 interface SlackUser { id: string, name: string }
 
@@ -213,8 +214,12 @@ support_requests.default.templates.data = {
     ]
 };
 
+function config(slack_team: SlackTeam): SupportRequestConfig {
+    return support_requests[slack_team.supportConfigName()];
+}
+
 export {
     Submission,
     IssueParams,
-    support_requests
+    config
 };

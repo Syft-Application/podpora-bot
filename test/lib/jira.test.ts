@@ -3,10 +3,13 @@ import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
+    SlackTeam
+} from '../../src/lib/slack_team';
+import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import { support_requests } from '../../src/lib/support_requests';
+import { config } from '../../src/lib/support_requests';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
@@ -28,6 +31,14 @@ const bug_report = {
     channel: 'CHS7JQ7PY',
     state: 'bug'
 };
+const team_config = {
+    id: 'abc',
+    support_channel_id: 'channel-1234',
+    api_token: 'dummy api token',
+    domain: 'qwerty',
+    support_config_name: 'default'
+};
+const slack_team = new SlackTeam(team_config);
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -47,7 +58,7 @@ describe('Jira', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
         const request_type = 'bug';
-        const params = support_requests.default.issueParams(submission, user, request_type);
+        const params = config(slack_team).issueParams(submission, user, request_type);
         it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;
             expect.assertions(7);

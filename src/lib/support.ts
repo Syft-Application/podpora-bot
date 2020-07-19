@@ -4,7 +4,7 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
-import { support_requests } from './support_requests';
+import { config } from './support_requests';
 import {
     SlackUser,
     SlackMessage,
@@ -80,8 +80,7 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const config_name = slack_team.supportConfigName();
-        const dialog: Dialog = support_requests[config_name].templates[request_type];
+        const dialog: Dialog = config(slack_team).templates[request_type];
 
         return slack_team.showDialog(dialog, trigger_id)
             .catch((error) => {
@@ -116,8 +115,7 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const config_name = slack_team.supportConfigName();
-        const support_config = support_requests[config_name];
+        const support_config = config(slack_team);
         const message_text = support_config.supportMessageText(
             submission, user, request_type
         );
@@ -200,8 +198,7 @@ const support = {
     handleCommand(slack_team: SlackTeam, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const config_name = slack_team.supportConfigName();
-        const commands = support_requests[config_name].commands;
+        const commands = config(slack_team).commands;
         const requests_types = supportCommandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack_team, args[0], trigger_id);
