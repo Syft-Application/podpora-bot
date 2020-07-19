@@ -22,28 +22,8 @@ import {
     isSlackImageFile
 } from './slack/api_interfaces';
 
-const support_requests = ['bug', 'data'] as const;
-
 interface Submission {
     [index: string]: string;
-}
-
-type CommandResponse = {
-    text: string,
-    response_type?: 'ephemeral' | 'in_channel'
-}
-
-function supportCommandsHelp(): CommandResponse {
-    const cmds = [
-        ['data', 'Submit a request for data', '/support data'],
-        ['bug', 'Submit a bug report', '/support bug'],
-    ].map((cmd) => {
-        return `> ${cmd[1]}:\n>\`${cmd[2]}\``;
-    }).join('\n\n');
-
-    return {
-        text: '👋 Need help with support bot?\n\n' + cmds
-    };
 }
 
 function fileShareEventToIssueComment(
@@ -80,7 +60,6 @@ function slackFileToText(file: SlackFiles): string {
 }
 
 const support = {
-    requestTypes(): ReadonlyArray<string> { return support_requests; },
     showForm(
         slack_team: SlackTeam,
         request_type: string,
@@ -199,7 +178,8 @@ const support = {
     handleCommand(slack_team: SlackTeam, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        if (support.requestTypes().includes(args[0])) {
+        const requests_types = slack_team.supportCommandsNames();
+        if (requests_types.includes(args[0])) {
             support.showForm(slack_team, args[0], trigger_id);
             return res.status(200).send();
         } else if (args[0] === 'ping') {
@@ -209,7 +189,9 @@ const support = {
             });
         }
 
-        return res.json(supportCommandsHelp());
+        return res.json({
+            text: slack_team.supportCommandsHelpText()
+        });
     },
 
     handleDialogSubmission(
