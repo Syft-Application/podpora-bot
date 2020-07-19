@@ -2,11 +2,19 @@ import {
     SlackUser
 } from '../slack_team';
 
-import {
-    BugSubmission,
-    DataSubmission,
-    Submission,
-} from '../support';
+import { Submission } from '../support';
+
+interface BugSubmission {
+    title: string,
+    description: string
+    currently: string,
+    expected: string
+}
+
+interface DataSubmission {
+    title: string,
+    description: string
+}
 
 function bugReportMessageText(
     submission: BugSubmission,
@@ -33,9 +41,9 @@ function supportMessageText(
     request_type: string
 ): string {
     if (request_type === 'bug') {
-        return bugReportMessageText(submission as BugSubmission, user);
+        return bugReportMessageText(submission as unknown as BugSubmission, user);
     } else {
-        return dataRequestMessageText(submission as DataSubmission, user);
+        return dataRequestMessageText(submission as unknown as DataSubmission, user);
     }
 }
 

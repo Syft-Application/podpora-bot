@@ -24,25 +24,22 @@ import {
 
 const support_requests = ['bug', 'data'] as const;
 
-interface BugSubmission {
-    title: string,
-    description: string
-    currently: string,
-    expected: string
+interface Submission {
+    [index: string]: string;
 }
 
-interface DataSubmission {
-    title: string,
-    description: string
+function supportCommandsHelp(): { text: string } {
+    const cmds = [
+        ['data', 'Submit a request for data', '/support data'],
+        ['bug', 'Submit a bug report', '/support bug'],
+    ].map((cmd) => {
+        return `> ${cmd[1]}:\n>\`${cmd[2]}\``;
+    }).join('\n\n');
+
+    return {
+        text: '👋 Need help with support bot?\n\n' + cmds
+    };
 }
-
-type Submission = BugSubmission | DataSubmission;
-
-const commandHelpResponse = {
-    text: '👋 Need help with support bot?\n\n'
-        + '> Submit a request for data:\n>`/support data`\n\n'
-        + '> Submit a bug report:\n>`/support bug`'
-};
 
 function fileShareEventToIssueComment(
     event: ChannelThreadFileShareEvent,
@@ -207,7 +204,7 @@ const support = {
             });
         }
 
-        return res.json(commandHelpResponse);
+        return res.json(supportCommandsHelp());
     },
 
     handleDialogSubmission(
@@ -229,8 +226,6 @@ const support = {
 
 export {
     fileShareEventToIssueComment,
-    BugSubmission,
-    DataSubmission,
     Submission,
     support
 };

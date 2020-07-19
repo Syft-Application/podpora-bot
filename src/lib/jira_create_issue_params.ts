@@ -2,11 +2,7 @@ import {
     SlackUser
 } from './slack_team';
 
-import {
-    BugSubmission,
-    DataSubmission,
-    Submission,
-} from './support';
+import { Submission } from './support';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -17,6 +13,18 @@ interface IssueParams {
         issuetype: { name: string },
         description: string,
     }
+}
+
+interface BugSubmission {
+    title: string,
+    description: string
+    currently: string,
+    expected: string
+}
+
+interface DataSubmission {
+    title: string,
+    description: string
 }
 
 function bugToIssueParams(submission: BugSubmission, slack_user: SlackUser): IssueParams {
@@ -67,9 +75,9 @@ function issueParams(
     request_type: string,
 ): IssueParams {
     if (request_type === 'bug') {
-        return bugToIssueParams(submission as BugSubmission, slack_user);
+        return bugToIssueParams(submission as unknown as BugSubmission, slack_user);
     } else {
-        return dataToIssueParams(submission as DataSubmission, slack_user);
+        return dataToIssueParams(submission as unknown as DataSubmission, slack_user);
     }
 }
 
