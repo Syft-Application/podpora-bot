@@ -28,7 +28,12 @@ interface Submission {
     [index: string]: string;
 }
 
-function supportCommandsHelp(): { text: string } {
+type CommandResponse = {
+    text: string,
+    response_type?: 'ephemeral' | 'in_channel'
+}
+
+function supportCommandsHelp(): CommandResponse {
     const cmds = [
         ['data', 'Submit a request for data', '/support data'],
         ['bug', 'Submit a bug report', '/support bug'],
