@@ -4,14 +4,12 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
-import { templates as form_templates } from './slack/form_templates';
+import * as default_support_requests from './support_requests/default_support_requests';
 import {
     SlackUser,
     SlackMessage,
     SlackTeam
 } from './slack_team';
-import supportMessageText from './slack/support_message_text';
-import issueParams from './jira_create_issue_params';
 import { Jira } from './jira';
 import redis_client from '../util/redis_client';
 import {
@@ -65,7 +63,7 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = form_templates[request_type];
+        const dialog: Dialog = default_support_requests.templates[request_type];
 
         return slack_team.showDialog(dialog, trigger_id)
             .catch((error) => {
@@ -100,9 +98,13 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const message_text = supportMessageText(submission, user, request_type);
+        const message_text = default_support_requests.supportMessageText(
+            submission, user, request_type
+        );
         const p1 = slack_team.postMessage(message_text, slack_team.support_channel_id);
-        const issue_params = issueParams(submission, user, request_type);
+        const issue_params = default_support_requests.issueParams(
+            submission, user, request_type
+        );
         const p2 = jira.createIssue(issue_params);
 
         p1.then((message) => {

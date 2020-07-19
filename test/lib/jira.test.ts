@@ -6,7 +6,7 @@ import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import issueParams from '../../src/lib/jira_create_issue_params';
+import { issueParams } from '../../src/lib/support_requests/default_support_requests';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');

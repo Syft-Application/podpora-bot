@@ -6,8 +6,7 @@ import {
     SlackMessage,
     SlackTeam
 } from '../../src/lib/slack_team';
-import supportMessageText from '../../src/lib/slack/support_message_text';
-
+import { supportMessageText } from '../../src/lib/support_requests/default_support_requests';
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 afterEach(() => {
