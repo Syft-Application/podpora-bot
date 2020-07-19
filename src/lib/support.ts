@@ -23,7 +23,6 @@ import {
 } from './slack/api_interfaces';
 
 const support_requests = ['bug', 'data'] as const;
-type SupportRequests = typeof support_requests[number];
 
 interface BugSubmission {
     title: string,
@@ -82,7 +81,7 @@ const support = {
     requestTypes(): ReadonlyArray<string> { return support_requests; },
     showForm(
         slack_team: SlackTeam,
-        request_type: SupportRequests,
+        request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
         const dialog: Dialog = form_templates[request_type];
@@ -199,7 +198,7 @@ const support = {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
         if (support.requestTypes().includes(args[0])) {
-            support.showForm(slack_team, args[0] as SupportRequests, trigger_id);
+            support.showForm(slack_team, args[0], trigger_id);
             return res.status(200).send();
         } else if (args[0] === 'ping') {
             res.json({
@@ -221,7 +220,7 @@ const support = {
         const { user, submission } = payload;
 
         support.createSupportRequest(
-            slack_team, jira, submission, user, request_type as SupportRequests
+            slack_team, jira, submission, user, request_type
         );
 
         return res;
@@ -233,6 +232,5 @@ export {
     BugSubmission,
     DataSubmission,
     Submission,
-    SupportRequests,
     support
 };
