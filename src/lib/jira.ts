@@ -91,7 +91,7 @@ class Jira {
     }
 
     toKey(issue: Issue): string {
-        return [this.host, issue.key].join(',');
+        return [this.host, issue.id].join(',');
     }
 }
 
