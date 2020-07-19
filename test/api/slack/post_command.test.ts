@@ -150,7 +150,7 @@ describe('POST /api/slack/command', () => {
                     });
                     done();
                 }, done);
-            })
+            });
         });
     });
 
