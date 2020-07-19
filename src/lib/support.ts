@@ -180,7 +180,7 @@ const support = {
     handleCommand(slack_team: SlackTeam, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const requests_types = slack_team.supportCommandsNames();
+        const requests_types = default_support_requests.supportCommandsNames();
         if (requests_types.includes(args[0])) {
             support.showForm(slack_team, args[0], trigger_id);
             return res.status(200).send();
@@ -192,7 +192,7 @@ const support = {
         }
 
         return res.json({
-            text: slack_team.supportCommandsHelpText()
+            text: default_support_requests.supportCommandsHelpText()
         });
     },
 

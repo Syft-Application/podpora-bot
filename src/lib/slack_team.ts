@@ -102,40 +102,9 @@ class SlackTeam {
 
         return [team, channel, ts].join(',');
     }
-
-    supportCommandsNames(): Array<string> {
-        return cmds.map((cmd) => { return cmd.name; });
-    }
-
-    supportCommandsHelpText(): string {
-        return '👋 Need help with support bot?\n\n' + cmds.map(
-            (cmd) => {
-                return `> ${cmd.desc}:\n>\`${cmd.example}\``;
-            }).join('\n\n');
-    }
 }
-
-interface SlackSupportCommand {
-    name: string,
-    desc: string,
-    example: string
-}
-
-const cmds: Array<SlackSupportCommand> = [
-    {
-        name: 'data',
-        desc: 'Submit a request for data',
-        example: '/support data'
-    },
-    {
-        name: 'bug',
-        desc: 'Submit a bug report',
-        example: '/support bug'
-    }
-];
 
 export {
-    SlackSupportCommand,
     SlackMessage,
     SlackUser,
     SlackTeam
