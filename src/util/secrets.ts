@@ -18,7 +18,8 @@ export interface TeamConfig {
     id: string,
     api_token: string,
     support_channel_id: string,
-    domain: string
+    domain: string,
+    support_config_name: string
 }
 
 export interface JiraConfig {

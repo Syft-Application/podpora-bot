@@ -71,18 +71,6 @@ Submitted by: ${slack_user.name}`;
     };
 }
 
-function issueParams(
-    submission: Submission,
-    slack_user: SlackUser,
-    request_type: string,
-): IssueParams {
-    if (request_type === 'bug') {
-        return bugToIssueParams(submission as unknown as BugSubmission, slack_user);
-    } else {
-        return dataToIssueParams(submission as unknown as DataSubmission, slack_user);
-    }
-}
-
 function bugReportMessageText(
     submission: BugSubmission,
     user: SlackUser
@@ -102,19 +90,71 @@ function dataRequestMessageText(
         `*${submission.title}*\n\n${submission.description}`;
 }
 
-function supportMessageText(
-    submission: Submission,
-    user: SlackUser,
-    request_type: string
-): string {
-    if (request_type === 'bug') {
-        return bugReportMessageText(submission as unknown as BugSubmission, user);
-    } else {
-        return dataRequestMessageText(submission as unknown as DataSubmission, user);
-    }
+interface Templates {
+    [index: string]: Dialog
 }
 
-const bug: Dialog = {
+interface SlackSupportCommand {
+    name: string,
+    desc: string,
+    example: string
+}
+
+interface SupportRequestConfig {
+    commands: Array<SlackSupportCommand>,
+    templates: Templates,
+    issueParams: (
+        submission: Submission,
+        slack_user: SlackUser,
+        request_type: string
+    ) => IssueParams,
+    supportMessageText: (
+        submission: Submission,
+        user: SlackUser,
+        request_type: string
+    ) => string
+}
+
+const support_requests: { [index: string]: SupportRequestConfig } = {};
+support_requests.default = {
+    commands: [
+        {
+            name: 'data',
+            desc: 'Submit a request for data',
+            example: '/support data'
+        },
+        {
+            name: 'bug',
+            desc: 'Submit a bug report',
+            example: '/support bug'
+        }
+    ],
+    templates: {},
+    issueParams: function(
+        submission: Submission,
+        slack_user: SlackUser,
+        request_type: string,
+    ): IssueParams {
+        if (request_type === 'bug') {
+            return bugToIssueParams(submission as unknown as BugSubmission, slack_user);
+        } else {
+            return dataToIssueParams(submission as unknown as DataSubmission, slack_user);
+        }
+    },
+    supportMessageText(
+        submission: Submission,
+        user: SlackUser,
+        request_type: string
+    ): string {
+        if (request_type === 'bug') {
+            return bugReportMessageText(submission as unknown as BugSubmission, user);
+        } else {
+            return dataRequestMessageText(submission as unknown as DataSubmission, user);
+        }
+    }
+};
+
+support_requests.default.templates.bug = {
     callback_id: '',
     title: 'Report Bug',
     submit_label: 'Submit',
@@ -150,8 +190,7 @@ const bug: Dialog = {
         },
     ]
 };
-
-const data: Dialog = {
+support_requests.default.templates.data = {
     callback_id: '',
     title: 'New Data Request',
     submit_label: 'Submit',
@@ -174,49 +213,8 @@ const data: Dialog = {
     ]
 };
 
-interface Templates {
-    [index: string]: Dialog
-}
-
-const templates: Templates = {
-    bug,
-    data
-};
-
-function supportCommandsNames(): Array<string> {
-    return cmds.map((cmd) => { return cmd.name; });
-}
-
-function supportCommandsHelpText(): string {
-    return '👋 Need help with support bot?\n\n' + cmds.map(
-        (cmd) => {
-            return `> ${cmd.desc}:\n>\`${cmd.example}\``;
-        }).join('\n\n');
-}
-
-interface SlackSupportCommand {
-    name: string,
-    desc: string,
-    example: string
-}
-
-const cmds: Array<SlackSupportCommand> = [
-    {
-        name: 'data',
-        desc: 'Submit a request for data',
-        example: '/support data'
-    },
-    {
-        name: 'bug',
-        desc: 'Submit a bug report',
-        example: '/support bug'
-    }
-];
-
 export {
-    supportCommandsNames,
-    supportCommandsHelpText,
-    supportMessageText,
-    issueParams,
-    templates
+    Submission,
+    IssueParams,
+    support_requests
 };

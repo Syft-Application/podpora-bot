@@ -6,7 +6,7 @@ import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import { issueParams } from '../../src/lib/support_requests/default_support_requests';
+import { support_requests } from '../../src/lib/support_requests';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
@@ -47,7 +47,7 @@ describe('Jira', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
         const request_type = 'bug';
-        const params = issueParams(submission, user, request_type);
+        const params = support_requests.default.issueParams(submission, user, request_type);
         it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;
             expect.assertions(7);

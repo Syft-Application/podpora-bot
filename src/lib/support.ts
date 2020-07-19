@@ -4,7 +4,7 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
-import * as default_support_requests from './support_requests/default_support_requests';
+import { support_requests } from './support_requests';
 import {
     SlackUser,
     SlackMessage,
@@ -31,6 +31,23 @@ function fileShareEventToIssueComment(
     const files_str = event.files.map(slackFileToText).join('\n\n');
 
     return `${event.text}\n\n${files_str}\n \n${url}\n`;
+}
+
+interface SlackSupportCommand {
+    name: string,
+    desc: string,
+    example: string
+}
+
+function supportCommandsNames(commands: Array<SlackSupportCommand>): Array<string> {
+    return commands.map((cmd) => { return cmd.name; });
+}
+
+function supportCommandsHelpText(commands: Array<SlackSupportCommand>): string {
+    return '👋 Need help with support bot?\n\n' + commands.map(
+        (cmd) => {
+            return `> ${cmd.desc}:\n>\`${cmd.example}\``;
+        }).join('\n\n');
 }
 
 // Unfortunaly preview slack images does not work as explained here:
@@ -63,7 +80,8 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = default_support_requests.templates[request_type];
+        const config_name = slack_team.supportConfigName();
+        const dialog: Dialog = support_requests[config_name].templates[request_type];
 
         return slack_team.showDialog(dialog, trigger_id)
             .catch((error) => {
@@ -98,11 +116,13 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const message_text = default_support_requests.supportMessageText(
+        const config_name = slack_team.supportConfigName();
+        const support_config = support_requests[config_name];
+        const message_text = support_config.supportMessageText(
             submission, user, request_type
         );
         const p1 = slack_team.postMessage(message_text, slack_team.support_channel_id);
-        const issue_params = default_support_requests.issueParams(
+        const issue_params = support_config.issueParams(
             submission, user, request_type
         );
         const p2 = jira.createIssue(issue_params);
@@ -180,7 +200,9 @@ const support = {
     handleCommand(slack_team: SlackTeam, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const requests_types = default_support_requests.supportCommandsNames();
+        const config_name = slack_team.supportConfigName();
+        const commands = support_requests[config_name].commands;
+        const requests_types = supportCommandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack_team, args[0], trigger_id);
             return res.status(200).send();
@@ -192,7 +214,7 @@ const support = {
         }
 
         return res.json({
-            text: default_support_requests.supportCommandsHelpText()
+            text: supportCommandsHelpText(commands)
         });
     },
 

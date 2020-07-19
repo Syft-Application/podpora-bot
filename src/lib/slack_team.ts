@@ -28,12 +28,14 @@ class SlackTeam {
         this.domain = config.domain;
         this.support_channel_id = config.support_channel_id;
         this.client = new WebClient(config.api_token);
+        this.support_config_name = config.support_config_name;
     }
 
     id: string;
     domain: string;
     support_channel_id: string;
     client: WebClient;
+    support_config_name: string;
 
     callbackId(): string {
         return `${this.id}${(new Date()).getTime()}`;
@@ -101,6 +103,10 @@ class SlackTeam {
         } = message;
 
         return [team, channel, ts].join(',');
+    }
+
+    supportConfigName(): string {
+        return this.support_config_name;
     }
 }
 

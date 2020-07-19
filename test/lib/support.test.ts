@@ -22,7 +22,8 @@ const team_config = {
     id: 'abc',
     support_channel_id: 'channel-1234',
     api_token: 'dummy api token',
-    domain: 'qwerty'
+    domain: 'qwerty',
+    support_config_name: 'default'
 };
 const team = new SlackTeam(team_config);
 const postMsgResponse = fixture('slack/chat.postMessage.response');
