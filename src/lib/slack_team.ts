@@ -92,6 +92,16 @@ class SlackTeam {
         return `https://${domain}.slack.com/archives/` +
             `${channel_id}/p${message_id}?thread_ts=${thread_ts}&cid=${channel_id}`;
     }
+
+    toKey(message: SlackMessage): string {
+        const {
+            channel,
+            ts,
+            message: { team }
+        } = message;
+
+        return [team, channel, ts].join(',');
+    }
 }
 
 export {

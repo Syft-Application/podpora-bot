@@ -12,7 +12,7 @@ import {
 } from './slack_team';
 import supportMessageText from './slack/support_message_text';
 import issueParams from './jira_create_issue_params';
-import { Jira, Issue } from './jira';
+import { Jira } from './jira';
 import redis_client from '../util/redis_client';
 import {
     PostCommandPayload,
@@ -138,22 +138,20 @@ const support = {
                     message
                 );
 
-                support.persist(message, issue);
+                support.persist(
+                    slack_team.toKey(message),
+                    jira.toKey(issue)
+                );
             });
         });
     },
 
-    persist(message: SlackMessage, issue: Issue): void {
-        const {
-            channel,
-            ts: message_id,
-            message: { team }
-        } = message;
-
-        const issue_key = [team, issue.key].join(',');
-        const slack_key = [team, channel, message_id].join(',');
-
-        redis_client().mset(slack_key, issue_key, issue_key, slack_key);
+    // slack_message, jira_issue
+    persist(message_key: string, issue_key: string): void {
+        redis_client().mset(
+            message_key, issue_key,
+            issue_key, message_key
+        );
     },
 
     fetch(key: string): Promise<string | null> {

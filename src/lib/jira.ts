@@ -89,6 +89,10 @@ class Jira {
             return Promise.resolve({ ok: false });
         });
     }
+
+    toKey(issue: Issue): string {
+        return [this.host, issue.key].join(',');
+    }
 }
 
 export {
