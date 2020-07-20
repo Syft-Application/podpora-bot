@@ -70,12 +70,13 @@ class SlackTeam {
 
     postOnThread(
         messageText: string,
-        thread: SlackMessage
+        channel_id: string,
+        thread_ts: string
     ): Promise<WebAPICallResult> {
         return this.client.chat.postMessage({
             text: messageText,
-            channel: thread.channel,
-            thread_ts: thread.ts
+            channel: channel_id,
+            thread_ts: thread_ts
         });
     }
 

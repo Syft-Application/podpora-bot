@@ -99,7 +99,7 @@ const support = {
             `${url}\n` +
             'We will post for you all updates on this thread.';
 
-        return slack_team.postOnThread(msg_text, thread)
+        return slack_team.postOnThread(msg_text, thread.channel, thread.ts)
             .then((response) => {
                 return Promise.resolve(response as SlackMessage);
             }).catch((error) => {
