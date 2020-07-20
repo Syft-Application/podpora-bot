@@ -1,10 +1,13 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response } from '../helpers';
+import { build_service, build_response, fixture } from '../helpers';
+import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 
-const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
+const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
+
+const storeGetSpy = jest.spyOn(store, 'get').mockReturnValue(true);
 
 beforeAll(() => {
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
@@ -14,8 +17,8 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-describe('POST /api/jira/event', () => {
-    const api_path = '/api/jira/event';
+describe('POST /api/jira/event/:team_id', () => {
+    const api_path = '/api/jira/event/T0001';
     const service = build_service(app, api_path);
     const default_params = {};
     const response = build_response(service(default_params));
@@ -31,21 +34,116 @@ describe('POST /api/jira/event', () => {
         }, done);
     });
 
+    describe('slack team not found', () => {
+        const api_path = '/api/jira/event/BAD-TEAM-ID';
+        const service = build_service(app, api_path);
+        const params = {
+            webhookEvent: 'jira:issue_updated'
+        };
+
+        it('logs the event', (done) => {
+            expect.assertions(2);
+
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    return done(err);
+                }
+                expect(logErrorSpy).toHaveBeenCalled();
+                const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
+                expect(log_args).toContain('postEvent');
+                done();
+            });
+        });
+    });
+
     describe('webhookEvent: jira:issue_updated', () => {
-        const params = { webhookEvent: 'jira:issue_updated' };
-        describe('status_change', () => {
-            // text: `Jira ticket status changed from *${changed_from}* to *${changed_to}*`,
-            it('logs the payload', (done) => {
-                expect.assertions(2);
+        describe('status change', () => {
+            const params = fixture('jira/webhook.issue_updated_status_change');
+
+            it('sends message to Slack thread about status change', (done) => {
+                let api_call_body: string;
+                expect.assertions(4);
+                storeGetSpy.mockImplementationOnce((key, callback) => {
+                    callback(null, 'team_id,some_channel_id,some_thread_ts');
+
+                    return true;
+                });
+
+                nock('https://slack.com')
+                    .post('/api/chat.postMessage', (body) => {
+                        api_call_body = JSON.stringify(body);
+                        return body;
+                    })
+                    .reply(200, { ok: true });
+
                 service(params).expect(200).end((err) => {
                     if (err) {
                         return done(err);
                     }
-                    expect(logInfoSpy).toHaveBeenCalled();
-                    const log_args = JSON.stringify(logInfoSpy.mock.calls[0]);
-                    expect(log_args).toContain('jiraPostEvent');
+
+                    expect(storeGetSpy).toHaveBeenCalled();
+                    expect(api_call_body).toContain('some_channel_id');
+                    expect(api_call_body).toContain('some_thread_ts');
+                    expect(api_call_body).toContain('status changed');
                     done();
                 });
+            });
+
+            describe('slack thread not found', () => {
+                it('logs the event', (done) => {
+                    expect.assertions(2);
+                    storeGetSpy.mockImplementationOnce((key, callback) => {
+                        callback(null, null);
+
+                        return true;
+                    });
+
+                    service(params).expect(200).end((err) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        expect(logErrorSpy).toHaveBeenCalled();
+                        const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
+                        expect(log_args).toContain('Slack thread not found for issue');
+                        done();
+                    });
+                });
+            });
+
+            describe('store returns an error', () => {
+                it('logs the event', (done) => {
+                    expect.assertions(2);
+                    const err = new Error('Some store error');
+                    storeGetSpy.mockImplementationOnce((key, callback) => {
+                        callback(err, null);
+
+                        return true;
+                    });
+
+                    service(params).expect(200).end((err) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        expect(logErrorSpy).toHaveBeenCalled();
+                        const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
+                        expect(log_args).toContain('Some store error');
+                        done();
+                    });
+                });
+            });
+        });
+
+        describe('something else', () => {
+            const params = fixture('jira/webhook.issue_file_attached');
+
+            it('returns 200 OK', () => {
+                storeGetSpy.mockImplementationOnce((key, callback) => {
+                    callback(null, 'foo,bar,baz');
+
+                    return true;
+                });
+
+                return service(params).expect(200);
             });
         });
     });

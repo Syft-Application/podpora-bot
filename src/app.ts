@@ -33,6 +33,6 @@ app.get('/api', apiController.getApi);
 app.post('/api/slack/command', apiSlackController.postCommand);
 app.post('/api/slack/interaction', apiSlackController.postInteraction);
 app.post('/api/slack/event', apiSlackController.postEvent);
-app.post('/api/jira/event', apiJiraController.postEvent);
+app.post('/api/jira/event/:team_id', apiJiraController.postEvent);
 
 export default app;

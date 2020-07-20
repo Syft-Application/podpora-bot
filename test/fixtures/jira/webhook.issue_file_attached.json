@@ -1,0 +1,222 @@
+{
+  "timestamp": 1595193190270,
+  "webhookEvent": "jira:issue_updated",
+  "issue_event_type_name": "issue_updated",
+  "user": {
+    "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+    "accountId": "5edfdc75f557470abafa39fa",
+    "avatarUrls": {
+      "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+      "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+      "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+      "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+    },
+    "displayName": "John Swift",
+    "active": true,
+    "timeZone": "Europe/London",
+    "accountType": "atlassian"
+  },
+  "issue": {
+    "id": "10057",
+    "self": "https://example.atlassian.net/rest/api/2/10057",
+    "key": "SUP-58",
+    "fields": {
+      "statuscategorychangedate": "2020-07-19T22:07:39.695+0100",
+      "issuetype": {
+        "self": "https://example.atlassian.net/rest/api/2/issuetype/10004",
+        "id": "10004",
+        "description": "A problem or error.",
+        "iconUrl": "https://example.atlassian.net/secure/viewavatar?size=medium&avatarId=10303&avatarType=issuetype",
+        "name": "Bug",
+        "subtask": false,
+        "avatarId": 10303
+      },
+      "timespent": null,
+      "project": {
+        "self": "https://example.atlassian.net/rest/api/2/project/10000",
+        "id": "10000",
+        "key": "SUP",
+        "name": "support",
+        "projectTypeKey": "software",
+        "simplified": false,
+        "avatarUrls": {
+          "48x48": "https://example.atlassian.net/secure/projectavatar?pid=10000&avatarId=10414",
+          "24x24": "https://example.atlassian.net/secure/projectavatar?size=small&s=small&pid=10000&avatarId=10414",
+          "16x16": "https://example.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10000&avatarId=10414",
+          "32x32": "https://example.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10000&avatarId=10414"
+        }
+      },
+      "fixVersions": [],
+      "aggregatetimespent": null,
+      "resolution": {
+        "self": "https://example.atlassian.net/rest/api/2/resolution/10000",
+        "id": "10000",
+        "description": "Work has been completed on this issue.",
+        "name": "Done"
+      },
+      "resolutiondate": "2020-07-19T22:07:39.690+0100",
+      "workratio": -1,
+      "watches": {
+        "self": "https://example.atlassian.net/rest/api/2/issue/SUP-58/watchers",
+        "watchCount": 1,
+        "isWatching": true
+      },
+      "lastViewed": "2020-07-19T22:05:23.277+0100",
+      "issuerestriction": {
+        "issuerestrictions": {
+        },
+        "shouldDisplay": false
+      },
+      "created": "2020-07-18T13:48:03.399+0100",
+      "customfield_10020": null,
+      "customfield_10021": null,
+      "customfield_10022": null,
+      "customfield_10023": null,
+      "priority": {
+        "self": "https://example.atlassian.net/rest/api/2/priority/3",
+        "iconUrl": "https://example.atlassian.net/images/icons/priorities/medium.svg",
+        "name": "Medium",
+        "id": "3"
+      },
+      "customfield_10024": null,
+      "customfield_10025": "10000_*:*_1_*:*_116242107_*|*_10002_*:*_1_*:*_0_*|*_10001_*:*_1_*:*_134201",
+      "labels": [],
+      "customfield_10016": null,
+      "customfield_10017": null,
+      "customfield_10018": {
+        "hasEpicLinkFieldDependency": false,
+        "showField": false,
+        "nonEditableReason": {
+          "reason": "PLUGIN_LICENSE_ERROR",
+          "message": "The Parent Link is only available to Jira Premium users."
+        }
+      },
+      "customfield_10019": "0|i00007:",
+      "aggregatetimeoriginalestimate": null,
+      "timeestimate": null,
+      "versions": [],
+      "issuelinks": [],
+      "assignee": null,
+      "updated": "2020-07-19T22:13:10.266+0100",
+      "status": {
+        "self": "https://example.atlassian.net/rest/api/2/status/10002",
+        "description": "",
+        "iconUrl": "https://example.atlassian.net/",
+        "name": "Done",
+        "id": "10002",
+        "statusCategory": {
+          "self": "https://example.atlassian.net/rest/api/2/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "green",
+          "name": "Complete"
+        }
+      },
+      "components": [],
+      "timeoriginalestimate": null,
+      "description": "bbb\n\nCurrently:\nddd\n\nExpected:\nccc\n\nSubmitted by: podnajom_se5",
+      "customfield_10010": null,
+      "customfield_10014": null,
+      "timetracking": {
+      },
+      "customfield_10015": null,
+      "customfield_10005": null,
+      "customfield_10006": null,
+      "security": null,
+      "customfield_10007": null,
+      "customfield_10008": null,
+      "attachment": [
+        {
+          "self": "https://example.atlassian.net/rest/api/2/attachment/10000",
+          "id": "10000",
+          "filename": "dummy.png",
+          "author": {
+            "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+            "accountId": "5edfdc75f557470abafa39fa",
+            "avatarUrls": {
+              "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+              "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+              "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+              "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+            },
+            "displayName": "John Swift",
+            "active": true,
+            "timeZone": "Europe/London",
+            "accountType": "atlassian"
+          },
+          "created": "2020-07-19T22:13:09.989+0100",
+          "size": 3166,
+          "mimeType": "image/png",
+          "content": "https://example.atlassian.net/secure/attachment/10000/dummy.png",
+          "thumbnail": "https://example.atlassian.net/secure/thumbnail/10000/dummy.png"
+        }
+      ],
+      "customfield_10009": null,
+      "aggregatetimeestimate": null,
+      "summary": "aaa",
+      "creator": {
+        "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+        "accountId": "5edfdc75f557470abafa39fa",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+        },
+        "displayName": "John Swift",
+        "active": true,
+        "timeZone": "Europe/London",
+        "accountType": "atlassian"
+      },
+      "subtasks": [],
+      "reporter": {
+        "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+        "accountId": "5edfdc75f557470abafa39fa",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+          "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+        },
+        "displayName": "John Swift",
+        "active": true,
+        "timeZone": "Europe/London",
+        "accountType": "atlassian"
+      },
+      "aggregateprogress": {
+        "progress": 0,
+        "total": 0
+      },
+      "customfield_10000": "{}",
+      "customfield_10001": null,
+      "customfield_10002": null,
+      "customfield_10003": null,
+      "customfield_10004": null,
+      "environment": null,
+      "duedate": null,
+      "progress": {
+        "progress": 0,
+        "total": 0
+      },
+      "votes": {
+        "self": "https://example.atlassian.net/rest/api/2/issue/SUP-58/votes",
+        "votes": 0,
+        "hasVoted": false
+      }
+    }
+  },
+  "changelog": {
+    "id": "10144",
+    "items": [
+      {
+        "field": "Attachment",
+        "fieldtype": "jira",
+        "fieldId": "attachment",
+        "from": null,
+        "fromString": null,
+        "to": "10000",
+        "toString": "dummy.png"
+      }
+    ]
+  }
+}
