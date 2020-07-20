@@ -1,6 +1,8 @@
 import logger from './logger';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import redis, { RedisClient } from 'redis';
+
 if (process.env.NODE_ENV === 'test') {
     dotenv.config({ path: '.env.example' });
 } else if (fs.existsSync('.env')) {
@@ -35,12 +37,35 @@ const SLACK_TEAMS: { [index: string]: TeamConfig }
 const JIRA_CONFIGS: { [index: string]: JiraConfig }
     = JSON.parse(process.env['JIRA_CONFIGS'] as string);
 
+let client: RedisClient;
+
+function redis_client(): RedisClient {
+    if (typeof client === 'undefined') {
+        // TODO: move to secrets.ts ?
+        client = redis.createClient(REDIS_URL);
+
+        client.on('error', function(error: Error) {
+            logger.error(error);
+        });
+    }
+
+    return client;
+}
+
 const store = {
     slackTeamConfig: (id: string): TeamConfig => {
         return SLACK_TEAMS[id];
     },
     jiraConfig: (id: string): JiraConfig => {
         return JIRA_CONFIGS[id];
+    },
+
+    set: (...args: string[]): boolean => {
+        return redis_client().mset(args);
+    },
+
+    get: (key: string, callback: redis.Callback<string | null>): boolean => {
+        return redis_client().get(key, callback);
     }
 };
 
