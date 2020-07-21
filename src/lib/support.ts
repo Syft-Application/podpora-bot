@@ -11,7 +11,6 @@ import {
     SlackTeam
 } from './slack_team';
 import { Jira } from './jira';
-import redis_client from '../util/redis_client';
 import {
     PostCommandPayload,
     PostInteractionPayload,
@@ -19,6 +18,7 @@ import {
     SlackFiles,
     isSlackImageFile
 } from './slack/api_interfaces';
+import { store } from './../util/secrets';
 
 interface Submission {
     [index: string]: string;
@@ -148,16 +148,15 @@ const support = {
 
     // slack_message, jira_issue
     persist(message_key: string, issue_key: string): void {
-        redis_client().mset(
+        store.set(
             message_key, issue_key,
             issue_key, message_key
         );
     },
 
     fetch(key: string): Promise<string | null> {
-        // logger.debug('ss 2', typeof redis_client());
         return new Promise((resolve, reject) => {
-            redis_client().get(key, (error, response) => {
+            store.get(key, (error, response) => {
                 if (error) {
                     return reject(error);
                 }

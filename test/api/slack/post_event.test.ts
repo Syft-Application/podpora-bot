@@ -2,22 +2,12 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { build_service, build_response, fixture } from '../../helpers';
 import logger from '../../../src/util/logger';
-import redis_client from '../../../src/util/redis_client';
-
+import { store } from '../../../src/util/secrets';
 import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
-const redis_client_double = {
-    mset: jest.fn(),
-    get: jest.fn()
-};
-
-jest.mock('../../../src/util/redis_client');
-
-(redis_client as jest.Mock).mockImplementation(() => {
-    return redis_client_double;
-});
+const storeGetSpy = jest.spyOn(store, 'get');
 
 beforeAll(() => {
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
@@ -87,8 +77,9 @@ describe('POST /api/slack/event', () => {
                 describe('when redis throws an error', () => {
                     it('logs the error', (done) => {
                         const key_error: Error = new Error('Some redis error');
-                        redis_client_double.get.mockImplementationOnce((key, callback) => {
-                            return callback(key_error);
+                        storeGetSpy.mockImplementationOnce((key, callback) => {
+                            callback(key_error, null);
+                            return true;
                         });
 
                         service(params).expect(200).end((err) => {
@@ -106,8 +97,9 @@ describe('POST /api/slack/event', () => {
 
                 describe('when key is not in db', () => {
                     it('logs the error', (done) => {
-                        redis_client_double.get.mockImplementationOnce((key, callback) => {
-                            return callback(null, null);
+                        storeGetSpy.mockImplementationOnce((key, callback) => {
+                            callback(null, null);
+                            return true;
                         });
 
                         service(params).expect(200).end((err) => {
@@ -128,8 +120,9 @@ describe('POST /api/slack/event', () => {
                         .post(`/rest/api/2/issue/${issue_key}/comment`)
                         .reply(200);
 
-                    redis_client_double.get.mockImplementationOnce((key, callback) => {
-                        return callback(null, issue_key);
+                    storeGetSpy.mockImplementationOnce((key, callback) => {
+                        callback(null, issue_key);
+                        return true;
                     });
 
                     return service(params).expect(200, done);
