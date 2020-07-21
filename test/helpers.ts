@@ -34,12 +34,13 @@ export function build_service(app: express.Application, api_path: string) {
 }
 
 export function build_response(service: supertest.Test) {
-    return function(callback: ServiceResponseCallback, done: jest.DoneCallback): supertest.Test {
+    return function(callback: ServiceResponseCallback, onError: jest.DoneCallback): supertest.Test {
         // return service.end((err: any, res: Record<string, unknown>) => {
         return service.end((err: Error, res: supertest.Response) => {
             if (err) {
-                done(err);
+                onError(err);
             }
+
             return callback(res.body);
         });
     };
