@@ -6,6 +6,7 @@ import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
+jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
 
 const storeGetSpy = jest.spyOn(store, 'get').mockReturnValue(true);
 

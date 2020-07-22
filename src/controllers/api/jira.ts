@@ -78,6 +78,8 @@ export const postEvent = (req: Request, res: Response): void => {
                     return;
                 }
                 if (res === null) {
+                    logger.info(JSON.stringify(changelog));
+                    logger.info(JSON.stringify(issue));
                     logger.error(`Slack thread not found for issue: ${issue_key}`);
                     return;
                 }
