@@ -30,7 +30,7 @@
   "dependencies": {
     "@slack/events-api": "^2.3.3",
     "@slack/interactive-messages": "^1.7.0",
-    "@slack/web-api": "^5.10.0",
+    "@slack/web-api": "^5.11.0",
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
