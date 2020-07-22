@@ -18,79 +18,6 @@ interface IssueParams {
     }
 }
 
-interface BugSubmission {
-    title: string,
-    description: string
-    currently: string,
-    expected: string
-}
-
-interface DataSubmission {
-    title: string,
-    description: string
-}
-
-function bugToIssueParams(submission: BugSubmission, slack_user: SlackUser): IssueParams {
-    const issue_type = 'Bug';
-    const title = submission.title;
-    const board = 'SUP';
-    const desc = `${submission.description}
-
-Currently:
-${submission.currently}
-
-Expected:
-${submission.expected}
-
-Submitted by: ${slack_user.name}`;
-
-    return {
-        fields: {
-            project: { key: board },
-            summary: title,
-            issuetype: { name: issue_type },
-            description: desc,
-        }
-    };
-}
-
-function dataToIssueParams(submission: DataSubmission, slack_user: SlackUser): IssueParams {
-    const issue_type = 'Task';
-    const title = submission.title;
-    const board = 'SUP';
-    const desc = `${submission.description}
-
-Submitted by: ${slack_user.name}`;
-
-    return {
-        fields: {
-            project: { key: board },
-            summary: title,
-            issuetype: { name: issue_type },
-            description: desc,
-        }
-    };
-}
-
-function bugReportMessageText(
-    submission: BugSubmission,
-    user: SlackUser
-): string {
-    return `<@${user.id}> has submitted a bug report:\n\n` +
-        `*${submission.title}*\n\n` +
-        `*Steps to Reproduce*\n\n${submission.description}\n\n` +
-        `*Currently*\n\n${submission.currently}\n\n` +
-        `*Expected*\n\n${submission.expected}`;
-}
-
-function dataRequestMessageText(
-    submission: DataSubmission,
-    user: SlackUser
-): string {
-    return `<@${user.id}> has submitted a data request:\n\n` +
-        `*${submission.title}*\n\n${submission.description}`;
-}
-
 interface Templates {
     [index: string]: Dialog
 }
@@ -117,6 +44,7 @@ interface SupportRequestConfig {
 }
 
 const configs: { [index: string]: SupportRequestConfig } = {};
+
 configs.default = {
     commands: [
         {
@@ -136,11 +64,42 @@ configs.default = {
         slack_user: SlackUser,
         request_type: string,
     ): IssueParams {
+        let issue_type: string;
+        let title: string;
+        let board: string;
+        let desc: string;
+
         if (request_type === 'bug') {
-            return bugToIssueParams(submission as unknown as BugSubmission, slack_user);
+            issue_type = 'Bug';
+            title = submission.title;
+            board = 'SUP';
+            desc = `${submission.description}
+
+Currently:
+${submission.currently}
+
+Expected:
+${submission.expected}
+
+Submitted by: ${slack_user.name}`;
+
         } else {
-            return dataToIssueParams(submission as unknown as DataSubmission, slack_user);
+            issue_type = 'Task';
+            title = submission.title;
+            board = 'SUP';
+            desc = `${submission.description}
+
+Submitted by: ${slack_user.name}`;
         }
+
+        return {
+            fields: {
+                project: { key: board },
+                summary: title,
+                issuetype: { name: issue_type },
+                description: desc,
+            }
+        };
     },
     supportMessageText(
         submission: Submission,
@@ -148,9 +107,14 @@ configs.default = {
         request_type: string
     ): string {
         if (request_type === 'bug') {
-            return bugReportMessageText(submission as unknown as BugSubmission, user);
+            return `<@${user.id}> has submitted a bug report:\n\n` +
+                `*${submission.title}*\n\n` +
+                `*Steps to Reproduce*\n\n${submission.description}\n\n` +
+                `*Currently*\n\n${submission.currently}\n\n` +
+                `*Expected*\n\n${submission.expected}`;
         } else {
-            return dataRequestMessageText(submission as unknown as DataSubmission, user);
+            return `<@${user.id}> has submitted a data request:\n\n` +
+                `*${submission.title}*\n\n${submission.description}`;
         }
     }
 };
