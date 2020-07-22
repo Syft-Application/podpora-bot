@@ -19,43 +19,41 @@ interface IssueChangelog {
     }>
 }
 
-function jiraIssueUpdatedHandler(
-    team_id: string,
+function handleJiraIssueUpdate(
+    slack_team: SlackTeam,
+    jira: Jira,
     issue: Issue,
-    changelog: IssueChangelog
+    changelog: IssueChangelog,
+    slack_thread: { channel: string, ts: string }
 ): void {
-    const slack_config = store.slackTeamConfig(team_id);
-    const slack_team = new SlackTeam(slack_config);
-    const jira_config = store.jiraConfig(team_id);
-    const jira = new Jira(jira_config);
-    const issue_key = jira.toKey(issue);
     const status_change = changelog.items.find((el) => el.field === 'status');
+    const attachment_change = changelog.items.find((el) => el.field === 'Attachment');
+    let message: string;
 
-    store.get(issue_key, (err, res) => {
-        if (err) {
-            logger.error(err.message);
-            return;
-        }
-        if (res === null) {
-            logger.error(`Slack thread not found for issue: ${issue_key}`);
-            return;
-        }
+    if (status_change) {
+        const changed_from = status_change.fromString;
+        const changed_to = status_change.toString;
+        message = `Ticket status changed from *${changed_from}* to *${changed_to}*`;
 
-        const [, channel, ts] = res.split(',');
-        let message: string;
+        slack_team.postOnThread(
+            message,
+            slack_thread.channel,
+            slack_thread.ts
+        );
+    }
 
-        if (status_change) {
-            const changed_from = status_change.fromString;
-            const changed_to = status_change.toString;
-            message = `Ticket status changed from *${changed_from}* to *${changed_to}*`;
+    if (attachment_change) {
+        const filename = attachment_change.toString;
+        const issue_url = jira.issueUrl(issue);
+        message = `File [${filename}] has been attached to the Jira ticket, ` +
+            `view it here ${issue_url}`;
 
-            slack_team.postOnThread(
-                message,
-                channel,
-                ts
-            );
-        }
-    });
+        slack_team.postOnThread(
+            message,
+            slack_thread.channel,
+            slack_thread.ts
+        );
+    }
 }
 
 /**
@@ -63,12 +61,36 @@ function jiraIssueUpdatedHandler(
  *
  */
 export const postEvent = (req: Request, res: Response): void => {
-    const team_id = req.params.team_id;
-    const { webhookEvent, issue, changelog } = req.body;
-
     try {
+        const { webhookEvent, issue, changelog } = req.body;
+        const team_id = req.params.team_id;
+        const slack_config = store.slackTeamConfig(team_id);
+        const slack_team = new SlackTeam(slack_config);
+        const jira_config = store.jiraConfig(team_id);
+        const jira = new Jira(jira_config);
+
         if (webhookEvent === 'jira:issue_updated') {
-            jiraIssueUpdatedHandler(team_id, issue, changelog);
+            const issue_key = jira.toKey(issue);
+
+            store.get(issue_key, (err, res) => {
+                if (err) {
+                    logger.error(err.message);
+                    return;
+                }
+                if (res === null) {
+                    logger.error(`Slack thread not found for issue: ${issue_key}`);
+                    return;
+                }
+
+                const [, channel, ts] = res.split(',');
+                handleJiraIssueUpdate(
+                    slack_team,
+                    jira,
+                    issue,
+                    changelog,
+                    { channel, ts }
+                );
+            });
         }
     } catch (error) {
         logger.error('postEvent', error, req.body);
