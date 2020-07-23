@@ -156,7 +156,7 @@ const support = {
 
     issueKey(team_id: string, channel_id: string, message_id: string): Promise<string> {
         const key = [team_id, channel_id, message_id].join(',');
-        return store.fetch(key)
+        return store.get(key)
             .then((val) => {
                 if (val === null) {
                     return Promise.reject(new Error(`Issue key not found: ${key}`));

@@ -6,9 +6,7 @@ import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
-jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
-
-const storeGetSpy = jest.spyOn(store, 'get').mockReturnValue(true);
+const storeGetSpy = jest.spyOn(store, 'get');
 
 beforeAll(() => {
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
@@ -23,10 +21,8 @@ describe('POST /api/jira/event/:team_id', () => {
     const service = build_service(app, api_path);
     const params = {};
     const response = build_response(service(params));
-    storeGetSpy.mockImplementation((key, callback) => {
-        callback(null, 'team_id,some_channel_id,some_thread_ts');
-
-        return true;
+    storeGetSpy.mockImplementation(() => {
+        return Promise.resolve('team_id,some_channel_id,some_thread_ts');
     });
 
     it('returns 200 OK', () => {
@@ -50,17 +46,13 @@ describe('POST /api/jira/event/:team_id', () => {
         });
     });
 
-    // describe(')
-
     describe('slack thread not found', () => {
         const params = fixture('jira/webhook.issue_updated_status_change');
 
         it('logs the event', (done) => {
             expect.assertions(2);
-            storeGetSpy.mockImplementationOnce((key, callback) => {
-                callback(null, null);
-
-                return true;
+            storeGetSpy.mockImplementationOnce(() => {
+                return Promise.resolve(null);
             });
 
             service(params).expect(200).end((err) => {
@@ -80,11 +72,8 @@ describe('POST /api/jira/event/:team_id', () => {
 
         it('logs the event', (done) => {
             expect.assertions(2);
-            const err = new Error('Some store error');
-            storeGetSpy.mockImplementationOnce((key, callback) => {
-                callback(err, null);
-
-                return true;
+            storeGetSpy.mockImplementationOnce(() => {
+                return Promise.reject(new Error('Some store error'));
             });
 
             service(params).expect(200).end((err) => {

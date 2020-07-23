@@ -77,9 +77,8 @@ describe('POST /api/slack/event', () => {
                 describe('when redis throws an error', () => {
                     it('logs the error', (done) => {
                         const key_error: Error = new Error('Some redis error');
-                        storeGetSpy.mockImplementationOnce((key, callback) => {
-                            callback(key_error, null);
-                            return true;
+                        storeGetSpy.mockImplementationOnce(() => {
+                            return Promise.reject(key_error);
                         });
 
                         service(params).expect(200).end((err) => {
@@ -97,9 +96,8 @@ describe('POST /api/slack/event', () => {
 
                 describe('when key is not in db', () => {
                     it('logs the error', (done) => {
-                        storeGetSpy.mockImplementationOnce((key, callback) => {
-                            callback(null, null);
-                            return true;
+                        storeGetSpy.mockImplementationOnce(() => {
+                            return Promise.resolve(null);
                         });
 
                         service(params).expect(200).end((err) => {
@@ -120,9 +118,8 @@ describe('POST /api/slack/event', () => {
                         .post(`/rest/api/2/issue/${issue_key}/comment`)
                         .reply(200);
 
-                    storeGetSpy.mockImplementationOnce((key, callback) => {
-                        callback(null, issue_key);
-                        return true;
+                    storeGetSpy.mockImplementationOnce(() => {
+                        return Promise.resolve(issue_key);
                     });
 
                     return service(params).expect(200, done);

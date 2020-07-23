@@ -66,8 +66,7 @@ export const postEvent = (req: Request, res: Response): void => {
     const team_id = req.params.team_id;
     const slack_config = store.slackTeamConfig(team_id);
     if (!slack_config) {
-        logger.info(JSON.stringify(changelog));
-        logger.info(JSON.stringify(issue));
+        logger.error(`Missing config for team ${team_id}`);
         res.status(200).send();
         return;
     }
@@ -78,27 +77,24 @@ export const postEvent = (req: Request, res: Response): void => {
     if (webhookEvent === 'jira:issue_updated') {
         const issue_key = jira.toKey(issue);
 
-        store.get(issue_key, (err, res) => {
-            if (err) {
-                logger.error(err.message);
-                return;
-            }
-            if (res === null) {
-                logger.info(JSON.stringify(changelog));
-                logger.info(JSON.stringify(issue));
-                logger.error(`Slack thread not found for issue: ${issue_key}`);
-                return;
-            }
+        store.get(issue_key)
+            .then((res) => {
+                if (res === null) {
+                    logger.error(`Slack thread not found for issue: ${issue_key}`);
+                    return;
+                }
 
-            const [, channel, ts] = res.split(',');
-            handleJiraIssueUpdate(
-                slack_team,
-                jira,
-                issue,
-                changelog,
-                { channel, ts }
-            );
-        });
+                const [, channel, ts] = res.split(',');
+                handleJiraIssueUpdate(
+                    slack_team,
+                    jira,
+                    issue,
+                    changelog,
+                    { channel, ts }
+                );
+            }).catch((error) => {
+                logger.error(error.message);
+            });
     }
     // } catch (error) {
     //     logger.error('postEvent', error, req.body);

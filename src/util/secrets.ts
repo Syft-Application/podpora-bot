@@ -64,13 +64,9 @@ const store = {
         return redis_client().mset(args);
     },
 
-    get: (key: string, callback: redis.Callback<string | null>): boolean => {
-        return redis_client().get(key, callback);
-    },
-
-    fetch: (key: string): Promise<string | null> => {
+    get: (key: string): Promise<string | null> => {
         return new Promise((resolve, reject) => {
-            store.get(key, (error, response) => {
+            redis_client().get(key, (error, response) => {
                 if (error) {
                     return reject(error);
                 }
