@@ -66,6 +66,18 @@ const store = {
 
     get: (key: string, callback: redis.Callback<string | null>): boolean => {
         return redis_client().get(key, callback);
+    },
+
+    fetch: (key: string): Promise<string | null> => {
+        return new Promise((resolve, reject) => {
+            store.get(key, (error, response) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                return resolve(response);
+            });
+        });
     }
 };
 

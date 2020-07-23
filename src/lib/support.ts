@@ -154,21 +154,9 @@ const support = {
         );
     },
 
-    fetch(key: string): Promise<string | null> {
-        return new Promise((resolve, reject) => {
-            store.get(key, (error, response) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                return resolve(response);
-            });
-        });
-    },
-
     issueKey(team_id: string, channel_id: string, message_id: string): Promise<string> {
         const key = [team_id, channel_id, message_id].join(',');
-        return support.fetch(key)
+        return store.fetch(key)
             .then((val) => {
                 if (val === null) {
                     return Promise.reject(new Error(`Issue key not found: ${key}`));
