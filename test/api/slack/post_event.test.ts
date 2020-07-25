@@ -116,8 +116,8 @@ describe('POST /api/slack/event', () => {
 
     describe('when something goes wrong', () => {
         const params = {
-            "team_id": "BAD-TEAM-ID",
-            "event": {}
+            'team_id': 'BAD-TEAM-ID',
+            'event': {}
         };
 
         it('logs the error', (done) => {
@@ -132,5 +132,5 @@ describe('POST /api/slack/event', () => {
                 done();
             });
         });
-    })
+    });
 });

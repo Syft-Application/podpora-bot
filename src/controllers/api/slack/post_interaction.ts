@@ -1,7 +1,7 @@
 'use strict';
 
 import { Response, Request } from 'express';
-import logger from '../../../util/logger';
+import logger, { sanitise_for_log } from '../../../util/logger';
 import { store } from '../../../util/secrets';
 import { Slack } from '../../../lib/slack';
 import { Jira } from '../../../lib/jira';
@@ -47,7 +47,7 @@ export const postInteraction = (req: Request, res: Response): void => {
             res
         );
     } catch (error) {
-        logger.error('postInteraction', error, req.body);
+        logger.error('postInteraction', error, sanitise_for_log(req.body));
     }
 
     res.status(200).send();
