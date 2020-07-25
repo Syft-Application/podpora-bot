@@ -27,7 +27,7 @@ interface SupportConfig {
     dialogs: Dialogs,
     issueParams: (
         submission: Submission,
-        slack_user: SlackUser,
+        user: SlackUser,
         request_type: string
     ) => IssueParams,
     supportMessageText: (
@@ -115,7 +115,7 @@ configs.default = {
     },
     issueParams: function(
         submission: Submission,
-        slack_user: SlackUser,
+        user: SlackUser,
         request_type: string,
     ): IssueParams {
         const title: string = submission.title;
@@ -133,13 +133,13 @@ ${submission.currently}
 Expected:
 ${submission.expected}
 
-Submitted by: ${slack_user.name}`;
+Submitted by: ${user.name}`;
 
         } else {
             issue_type = 'Task';
             desc = `${submission.description}
 
-Submitted by: ${slack_user.name}`;
+Submitted by: ${user.name}`;
         }
 
         return {
@@ -246,7 +246,7 @@ configs.syft = {
     },
     issueParams: function(
         submission: Submission,
-        slack_user: SlackUser,
+        user: SlackUser,
         request_type: string,
     ): IssueParams {
         const title: string = submission.title;
@@ -264,13 +264,13 @@ ${submission.currently}
 Expected:
 ${submission.expected}
 
-Submitted by: ${slack_user.name}`;
+Submitted by: ${user.name}`;
 
         } else {
             issue_type = 'Data';
             desc = `${submission.description}
 
-Submitted by: ${slack_user.name}`;
+Submitted by: ${user.name}`;
         }
 
         return {
