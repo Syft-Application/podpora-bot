@@ -4,8 +4,8 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     SlackMessage,
-    SlackTeam
-} from '../../src/lib/slack_team';
+    Slack
+} from '../../src/lib/slack';
 import { config } from '../../src/lib/config';
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
@@ -13,7 +13,7 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-describe('SlackTeam', () => {
+describe('Slack', () => {
     const team_config = {
         id: 'abc',
         support_channel_id: 'channel-1234',
@@ -21,7 +21,7 @@ describe('SlackTeam', () => {
         domain: 'qwerty',
         support_config_name: 'default'
     };
-    const team = new SlackTeam(team_config);
+    const team = new Slack(team_config);
     const postMsgResponse = fixture('slack/chat.postMessage.response');
     const slack_message = postMsgResponse as SlackMessage;
     const supportMessageText = config(team).supportMessageText;

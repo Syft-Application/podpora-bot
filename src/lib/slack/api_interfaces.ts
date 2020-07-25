@@ -121,6 +121,8 @@ function isSlackImageFile(
     return (<SlackImageFile>file).thumb_360 !== undefined;
 }
 
+interface SlackUser { id: string, name: string }
+
 export {
     PostCommandPayload,
     InteractionTypes,
@@ -133,5 +135,6 @@ export {
     isChannelThreadEvent,
     isChannelThreadFileShareEvent,
     isSlackImageFile,
-    SlackFiles
+    SlackFiles,
+    SlackUser
 };

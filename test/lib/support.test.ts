@@ -4,8 +4,8 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     SlackMessage,
-    SlackTeam
-} from '../../src/lib/slack_team';
+    Slack
+} from '../../src/lib/slack';
 
 import {
     fileShareEventToIssueComment,
@@ -25,7 +25,7 @@ const team_config = {
     domain: 'qwerty',
     support_config_name: 'default'
 };
-const team = new SlackTeam(team_config);
+const team = new Slack(team_config);
 const postMsgResponse = fixture('slack/chat.postMessage.response');
 const slack_message = postMsgResponse as SlackMessage;
 

@@ -3,7 +3,7 @@
 import { Response, Request } from 'express';
 import logger from '../../util/logger';
 import { store } from '../../util/secrets';
-import { SlackTeam } from '../../lib/slack_team';
+import { Slack } from '../../lib/slack';
 import { Jira, Issue } from '../../lib/jira';
 
 interface IssueChangelog {
@@ -20,7 +20,7 @@ interface IssueChangelog {
 }
 
 function handleJiraIssueUpdate(
-    slack_team: SlackTeam,
+    slack: Slack,
     jira: Jira,
     issue: Issue,
     changelog: IssueChangelog,
@@ -35,7 +35,7 @@ function handleJiraIssueUpdate(
         const changed_to = status_change.toString;
         message = `Ticket status changed from *${changed_from}* to *${changed_to}*`;
 
-        slack_team.postOnThread(
+        slack.postOnThread(
             message,
             slack_thread.channel,
             slack_thread.ts
@@ -48,7 +48,7 @@ function handleJiraIssueUpdate(
         message = `File [${filename}] has been attached to the Jira ticket, ` +
             `view it here ${issue_url}`;
 
-        slack_team.postOnThread(
+        slack.postOnThread(
             message,
             slack_thread.channel,
             slack_thread.ts
@@ -70,7 +70,7 @@ export const postEvent = (req: Request, res: Response): void => {
         res.status(200).send();
         return;
     }
-    const slack_team = new SlackTeam(slack_config);
+    const slack = new Slack(slack_config);
     const jira_config = store.jiraConfig(team_id);
     const jira = new Jira(jira_config);
 
@@ -86,7 +86,7 @@ export const postEvent = (req: Request, res: Response): void => {
 
                 const [, channel, ts] = res.split(',');
                 handleJiraIssueUpdate(
-                    slack_team,
+                    slack,
                     jira,
                     issue,
                     changelog,

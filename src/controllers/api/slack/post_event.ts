@@ -3,7 +3,7 @@
 import { Response, Request } from 'express';
 import logger, { sanitise_for_log } from '../../../util/logger';
 import { store } from '../../../util/secrets';
-import { SlackTeam } from '../../../lib/slack_team';
+import { Slack } from '../../../lib/slack';
 import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
 import {
@@ -18,11 +18,11 @@ function handleCallbackEvent(payload: EventCallbackPayload, res: Response): Resp
     // TODO: maybe some more specific dispatch based on rules
     if (isChannelThreadFileShareEvent(event)) {
         const slack_config = store.slackTeamConfig(team_id);
-        const slack_team = new SlackTeam(slack_config);
+        const slack = new Slack(slack_config);
         const jira_config = store.jiraConfig(team_id);
         const jira = new Jira(jira_config);
 
-        support.addFileToJiraIssue(slack_team, jira, event);
+        support.addFileToJiraIssue(slack, jira, event);
     }
 
     return res.status(200).send();

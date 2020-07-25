@@ -3,7 +3,7 @@
 import { Response, Request } from 'express';
 import logger from '../../../util/logger';
 import { store } from '../../../util/secrets';
-import { SlackTeam } from '../../../lib/slack_team';
+import { Slack } from '../../../lib/slack';
 import { support } from '../../../lib/support';
 import {
     PostCommandPayload
@@ -12,10 +12,10 @@ import {
 function postCommandHandler(payload: PostCommandPayload, res: Response): Response {
     const { team_id, command } = payload;
     const slack_config = store.slackTeamConfig(team_id);
-    const slack_team = new SlackTeam(slack_config);
+    const slack = new Slack(slack_config);
 
     if (command === '/support') {
-        return support.handleCommand(slack_team, payload, res);
+        return support.handleCommand(slack, payload, res);
     }
 
     return res.json({

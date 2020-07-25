@@ -6,7 +6,6 @@ import {
 import logger from '../util/logger';
 import { TeamConfig } from '../util/secrets';
 
-interface SlackUser { id: string, name: string }
 interface SlackMessage extends WebAPICallResult {
     ts: string,
     channel: string,
@@ -22,7 +21,7 @@ interface SlackThreadMessage {
     thread_ts: string
 }
 
-class SlackTeam {
+class Slack {
     constructor(config: TeamConfig) {
         this.id = config.id;
         this.domain = config.domain;
@@ -113,6 +112,5 @@ class SlackTeam {
 
 export {
     SlackMessage,
-    SlackUser,
-    SlackTeam
+    Slack
 };

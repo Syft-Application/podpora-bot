@@ -1,7 +1,6 @@
 import { Dialog } from '@slack/web-api';
-import { SlackTeam } from './slack_team';
-
-interface SlackUser { id: string, name: string }
+import { Slack } from './slack';
+import { SlackUser } from './slack/api_interfaces';
 
 interface Submission {
     [index: string]: string;
@@ -178,8 +177,8 @@ configs.default.templates.data = {
     ]
 };
 
-function config(slack_team: SlackTeam): SupportRequestConfig {
-    return configs[slack_team.supportConfigName()];
+function config(slack: Slack): SupportRequestConfig {
+    return configs[slack.supportConfigName()];
 }
 
 export {

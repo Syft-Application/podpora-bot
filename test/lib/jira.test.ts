@@ -3,8 +3,8 @@ import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
-    SlackTeam
-} from '../../src/lib/slack_team';
+    Slack
+} from '../../src/lib/slack';
 import {
     Jira,
     Issue
@@ -38,7 +38,7 @@ const team_config = {
     domain: 'qwerty',
     support_config_name: 'default'
 };
-const slack_team = new SlackTeam(team_config);
+const slack = new Slack(team_config);
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -58,7 +58,7 @@ describe('Jira', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
         const request_type = 'bug';
-        const params = config(slack_team).issueParams(submission, user, request_type);
+        const params = config(slack).issueParams(submission, user, request_type);
         it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;
             expect.assertions(7);

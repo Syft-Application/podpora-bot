@@ -3,7 +3,7 @@
 import { Response, Request } from 'express';
 import logger from '../../../util/logger';
 import { store } from '../../../util/secrets';
-import { SlackTeam } from '../../../lib/slack_team';
+import { Slack } from '../../../lib/slack';
 import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
 import {
@@ -15,7 +15,7 @@ function handleDialogSubmission(params: PostInteractionPayload, res: Response): 
     const { team, state } = params;
     const [type, subtype] = state.split('_');
     const slack_config = store.slackTeamConfig(team.id);
-    const slack_team = new SlackTeam(slack_config);
+    const slack = new Slack(slack_config);
     const jira_config = store.jiraConfig(team.id);
     const jira = new Jira(jira_config);
 
@@ -24,7 +24,7 @@ function handleDialogSubmission(params: PostInteractionPayload, res: Response): 
     }
 
     return support.handleDialogSubmission(
-        slack_team, jira, params, subtype, res
+        slack, jira, params, subtype, res
     );
 }
 
