@@ -6,7 +6,6 @@ import { store } from '../../../src/util/secrets';
 import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
-const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
 const storeGetSpy = jest.spyOn(store, 'get');
 
 beforeAll(() => {
@@ -20,8 +19,6 @@ afterEach(() => {
 describe('POST /api/slack/event', () => {
     const api_path = '/api/slack/event';
     const service = build_service(app, api_path);
-    const createIssueResponse = fixture('jira/issues.createIssue.response');
-    const issue_key = createIssueResponse.key as string;
 
     describe('type: url_verification', () => {
         const params = {
@@ -37,23 +34,12 @@ describe('POST /api/slack/event', () => {
                 done();
             }, done);
         });
-
-        it('logs the event without token', (done) => {
-            expect.assertions(3);
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    return done(err);
-                }
-                expect(logInfoSpy).toHaveBeenCalled();
-                const log_args = JSON.stringify(logInfoSpy.mock.calls[0]);
-                expect(log_args).toContain('postEvent');
-                expect(log_args).not.toContain(params.token);
-                done();
-            });
-        });
     });
 
     describe('type: event_callback', () => {
+        const createIssueResponse = fixture('jira/issues.createIssue.response');
+        const issue_key = createIssueResponse.key as string;
+
         describe('messages not on support thread', () => {
             const params = fixture('slack/events.channel_message') as Record<string, unknown>;
 
@@ -127,4 +113,24 @@ describe('POST /api/slack/event', () => {
             });
         });
     });
+
+    describe('when something goes wrong', () => {
+        const params = {
+            "team_id": "BAD-TEAM-ID",
+            "event": {}
+        };
+
+        it('logs the error', (done) => {
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    return done(err);
+                }
+
+                expect(logErrorSpy).toHaveBeenCalled();
+                expect(logErrorSpy.mock.calls[0].toString())
+                    .toContain('postEvent');
+                done();
+            });
+        });
+    })
 });
