@@ -80,7 +80,7 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = config(slack).templates[request_type];
+        const dialog: Dialog = config(slack).dialogs[request_type];
 
         return slack.showDialog(dialog, trigger_id)
             .catch((error) => {

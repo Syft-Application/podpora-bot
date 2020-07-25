@@ -17,7 +17,7 @@ interface IssueParams {
     }
 }
 
-interface Templates {
+interface Dialogs {
     [index: string]: Dialog
 }
 
@@ -29,7 +29,7 @@ interface SlackSupportCommand {
 
 interface SupportRequestConfig {
     commands: Array<SlackSupportCommand>,
-    templates: Templates,
+    dialogs: Dialogs,
     issueParams: (
         submission: Submission,
         slack_user: SlackUser,
@@ -57,7 +57,7 @@ configs.default = {
             example: '/support bug'
         }
     ],
-    templates: {},
+    dialogs: {},
     issueParams: function(
         submission: Submission,
         slack_user: SlackUser,
@@ -118,7 +118,7 @@ Submitted by: ${slack_user.name}`;
     }
 };
 
-configs.default.templates.bug = {
+configs.default.dialogs.bug = {
     callback_id: '',
     title: 'Report Bug',
     submit_label: 'Submit',
@@ -154,7 +154,7 @@ configs.default.templates.bug = {
         },
     ]
 };
-configs.default.templates.data = {
+configs.default.dialogs.data = {
     callback_id: '',
     title: 'New Data Request',
     submit_label: 'Submit',
