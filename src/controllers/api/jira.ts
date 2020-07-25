@@ -20,12 +20,13 @@ interface IssueChangelog {
 }
 
 function handleJiraIssueUpdate(
-    slack: Slack,
     jira: Jira,
     issue: Issue,
     changelog: IssueChangelog,
-    slack_thread: { channel: string, ts: string }
+    slack_thread: { team: string, channel: string, ts: string }
 ): void {
+    const slack_config = store.slackTeamConfig(slack_thread.team);
+    const slack = new Slack(slack_config);
     const status_change = changelog.items.find((el) => el.field === 'status');
     const attachment_change = changelog.items.find((el) => el.field === 'Attachment');
     let message: string;
@@ -64,37 +65,32 @@ export const postEvent = (req: Request, res: Response): void => {
     // try {
     const { webhookEvent, issue, changelog } = req.body;
     const team_id = req.params.team_id;
-    const slack_config = store.slackTeamConfig(team_id);
-    if (!slack_config) {
-        logger.error(`Missing config for team ${team_id}`);
-        res.status(200).send();
-        return;
-    }
-    const slack = new Slack(slack_config);
     const jira_config = store.jiraConfig(team_id);
-    const jira = new Jira(jira_config);
+    if (jira_config) {
+        if (webhookEvent === 'jira:issue_updated') {
+            const jira = new Jira(jira_config);
+            const issue_key = jira.toKey(issue);
 
-    if (webhookEvent === 'jira:issue_updated') {
-        const issue_key = jira.toKey(issue);
+            store.get(issue_key)
+                .then((res) => {
+                    if (res === null) {
+                        logger.error(`Slack thread not found for issue: ${issue_key}`);
+                        return;
+                    }
 
-        store.get(issue_key)
-            .then((res) => {
-                if (res === null) {
-                    logger.error(`Slack thread not found for issue: ${issue_key}`);
-                    return;
-                }
-
-                const [, channel, ts] = res.split(',');
-                handleJiraIssueUpdate(
-                    slack,
-                    jira,
-                    issue,
-                    changelog,
-                    { channel, ts }
-                );
-            }).catch((error) => {
-                logger.error(error.message);
-            });
+                    const [team, channel, ts] = res.split(',');
+                    handleJiraIssueUpdate(
+                        jira,
+                        issue,
+                        changelog,
+                        { team, channel, ts }
+                    );
+                }).catch((error) => {
+                    logger.error(error.message);
+                });
+        }
+    } else {
+        logger.error(`Missing config for team ${team_id}`);
     }
     // } catch (error) {
     //     logger.error('postEvent', error, req.body);

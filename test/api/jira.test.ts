@@ -22,7 +22,7 @@ describe('POST /api/jira/event/:team_id', () => {
     const params = {};
     const response = build_response(service(params));
     storeGetSpy.mockImplementation(() => {
-        return Promise.resolve('team_id,some_channel_id,some_thread_ts');
+        return Promise.resolve('T0001,some_channel_id,some_thread_ts');
     });
 
     it('returns 200 OK', () => {
@@ -36,7 +36,7 @@ describe('POST /api/jira/event/:team_id', () => {
         }, done);
     });
 
-    describe('slack team config not found', () => {
+    describe('jira config not found', () => {
         const api_path = '/api/jira/event/BAD-TEAM-ID';
         const service = build_service(app, api_path);
         const params = {};
