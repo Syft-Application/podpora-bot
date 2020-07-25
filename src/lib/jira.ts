@@ -7,10 +7,8 @@ const slack_icon = {
 };
 
 interface Issue {
-    [index: string]: string;
-
     id: string
-    key: string,
+    key: string
     self: string
 }
 

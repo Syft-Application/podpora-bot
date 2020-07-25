@@ -53,7 +53,7 @@ describe('Jira', () => {
 
     const jira = new Jira(mock_config);
 
-    const issue = createIssueResponse as Issue;
+    const issue = createIssueResponse as unknown as Issue;
     describe('#createIssue(params)', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
@@ -142,7 +142,7 @@ describe('Jira', () => {
 
     describe('#issueUrl', () => {
         it('returns url to jira issue on host domain', () => {
-            const issue = createIssueResponse as Issue;
+            const issue = createIssueResponse as unknown as Issue;
             const url = jira.issueUrl(issue);
 
             expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);

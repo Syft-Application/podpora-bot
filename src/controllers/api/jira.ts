@@ -4,7 +4,7 @@ import { Response, Request } from 'express';
 import logger from '../../util/logger';
 import { store } from '../../util/secrets';
 import { Slack } from '../../lib/slack';
-import { Jira, Issue } from '../../lib/jira';
+import { Jira } from '../../lib/jira';
 
 interface IssueChangelog {
     id: string
@@ -17,6 +17,23 @@ interface IssueChangelog {
         to: string
         toString: string
     }>
+}
+
+interface Attachment {
+    self: string
+    id: string
+    filename: string
+    mimeType: string
+    content: string
+}
+
+interface Issue {
+    id: string
+    key: string,
+    self: string,
+    fields: {
+        attachment: Array<Attachment>
+    }
 }
 
 function handleJiraIssueUpdate(
@@ -34,7 +51,7 @@ function handleJiraIssueUpdate(
     if (status_change) {
         const changed_from = status_change.fromString;
         const changed_to = status_change.toString;
-        message = `Ticket status changed from *${changed_from}* to *${changed_to}*`;
+        message = `Status changed from *${changed_from}* to *${changed_to}*`;
 
         slack.postOnThread(
             message,
@@ -45,9 +62,17 @@ function handleJiraIssueUpdate(
 
     if (attachment_change) {
         const filename = attachment_change.toString;
-        const issue_url = jira.issueUrl(issue);
-        message = `File [${filename}] has been attached to the Jira ticket, ` +
-            `view it here ${issue_url}`;
+
+        const attachment = issue.fields.attachment.find((el) => {
+            return el.filename == filename;
+        });
+
+        if (!attachment) {
+            return;
+        }
+
+        message = `File [${filename}] has been attached. \n` +
+            `Download: ${attachment.content}`;
 
         slack.postOnThread(
             message,

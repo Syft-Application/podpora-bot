@@ -94,7 +94,7 @@ describe('POST /api/jira/event/:team_id', () => {
 
             it('sends message to Slack thread about status change', (done) => {
                 let api_call_body: string;
-                expect.assertions(4);
+                expect.assertions(6);
 
                 nock('https://slack.com')
                     .post('/api/chat.postMessage', (body) => {
@@ -111,7 +111,9 @@ describe('POST /api/jira/event/:team_id', () => {
                     expect(storeGetSpy).toHaveBeenCalled();
                     expect(api_call_body).toContain('some_channel_id');
                     expect(api_call_body).toContain('some_thread_ts');
-                    expect(api_call_body).toContain('status changed');
+                    expect(api_call_body).toContain('changed from');
+                    expect(api_call_body).toContain('Backlog');
+                    expect(api_call_body).toContain('Selected for Development');
                     done();
                 });
             });
@@ -137,10 +139,44 @@ describe('POST /api/jira/event/:team_id', () => {
                     }
 
                     expect(storeGetSpy).toHaveBeenCalled();
-                    expect(api_call_body).toContain('has been attached to');
+                    expect(api_call_body).toContain('has been attached');
                     done();
                 });
             });
+
+            describe('attachment not found in jira.fields.attachment', () => {
+                it('returns 200 OK', () => {
+                    const invalid_params = {
+                        webhookEvent: 'jira:issue_updated',
+                        issue_event_type_name: 'issue_updated',
+                        user: {},
+                        issue: {
+                            id: '10057',
+                            self: 'https://example.atlassian.net/rest/api/2/10057',
+                            key: 'SUP-58',
+                            fields: {
+                                attachment: []
+                            }
+                        },
+                        'changelog': {
+                            items: [
+                                {
+                                    field: 'Attachment',
+                                    fieldtype: 'jira',
+                                    fieldId: 'attachment',
+                                    from: null,
+                                    fromString: null,
+                                    to: '10000',
+                                    toString: 'dummy.png'
+                                }
+                            ]
+                        }
+                    };
+
+                    return service(invalid_params).expect(200);
+                });
+            });
+
         });
     });
 });
