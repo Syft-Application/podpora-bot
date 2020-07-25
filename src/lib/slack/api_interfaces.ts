@@ -123,6 +123,10 @@ function isSlackImageFile(
 
 interface SlackUser { id: string, name: string }
 
+interface Submission {
+    [index: string]: string;
+}
+
 export {
     PostCommandPayload,
     InteractionTypes,
@@ -136,5 +140,6 @@ export {
     isChannelThreadFileShareEvent,
     isSlackImageFile,
     SlackFiles,
-    SlackUser
+    SlackUser,
+    Submission
 };

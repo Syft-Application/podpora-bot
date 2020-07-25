@@ -1,10 +1,5 @@
 import { Dialog } from '@slack/web-api';
-import { Slack } from './slack';
-import { SlackUser } from './slack/api_interfaces';
-
-interface Submission {
-    [index: string]: string;
-}
+import { SlackUser, Submission } from './slack/api_interfaces';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -27,7 +22,7 @@ interface SlackSupportCommand {
     example: string
 }
 
-interface SupportRequestConfig {
+interface SupportConfig {
     commands: Array<SlackSupportCommand>,
     dialogs: Dialogs,
     issueParams: (
@@ -42,7 +37,7 @@ interface SupportRequestConfig {
     ) => string
 }
 
-const configs: { [index: string]: SupportRequestConfig } = {};
+const configs: { [index: string]: SupportConfig } = {};
 
 configs.default = {
     commands: [
@@ -177,10 +172,6 @@ configs.default.dialogs.data = {
     ]
 };
 
-function config(slack: Slack): SupportRequestConfig {
-    return configs[slack.supportConfigName()];
+export default function supportConfig(key: string): SupportConfig {
+    return configs[key];
 }
-
-export {
-    config
-};

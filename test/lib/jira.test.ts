@@ -9,7 +9,7 @@ import {
     Jira,
     Issue
 } from '../../src/lib/jira';
-import { config } from '../../src/lib/config';
+import supportConfig from '../../src/lib/support_config';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 const createIssueResponse = fixture('jira/issues.createIssue.response');
@@ -58,7 +58,8 @@ describe('Jira', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
         const request_type = 'bug';
-        const params = config(slack).issueParams(submission, user, request_type);
+        const params = supportConfig(slack.supportConfigName())
+            .issueParams(submission, user, request_type);
         it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;
             expect.assertions(7);

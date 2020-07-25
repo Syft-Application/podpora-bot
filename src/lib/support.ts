@@ -4,7 +4,7 @@ import {
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
-import { config } from './config';
+import supportConfig from './support_config';
 import {
     SlackMessage,
     Slack
@@ -16,13 +16,10 @@ import {
     ChannelThreadFileShareEvent,
     SlackFiles,
     isSlackImageFile,
-    SlackUser
+    SlackUser,
+    Submission
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
-
-interface Submission {
-    [index: string]: string;
-}
 
 function fileShareEventToIssueComment(
     event: ChannelThreadFileShareEvent,
@@ -80,7 +77,7 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = config(slack).dialogs[request_type];
+        const dialog: Dialog = supportConfig(slack.supportConfigName()).dialogs[request_type];
 
         return slack.showDialog(dialog, trigger_id)
             .catch((error) => {
@@ -115,7 +112,7 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const support_config = config(slack);
+        const support_config = supportConfig(slack.supportConfigName());
         const message_text = support_config.supportMessageText(
             submission, user, request_type
         );
@@ -185,7 +182,7 @@ const support = {
     handleCommand(slack: Slack, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const commands = config(slack).commands;
+        const commands = supportConfig(slack.supportConfigName()).commands;
         const requests_types = supportCommandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack, args[0], trigger_id);

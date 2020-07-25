@@ -6,7 +6,7 @@ import {
     SlackMessage,
     Slack
 } from '../../src/lib/slack';
-import { config } from '../../src/lib/config';
+import supportConfig from '../../src/lib/support_config';
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 afterEach(() => {
@@ -14,17 +14,17 @@ afterEach(() => {
 });
 
 describe('Slack', () => {
-    const team_config = {
+    const config = {
         id: 'abc',
         support_channel_id: 'channel-1234',
         api_token: 'dummy api token',
         domain: 'qwerty',
         support_config_name: 'default'
     };
-    const team = new Slack(team_config);
+    const slack = new Slack(config);
     const postMsgResponse = fixture('slack/chat.postMessage.response');
     const slack_message = postMsgResponse as SlackMessage;
-    const supportMessageText = config(team).supportMessageText;
+    const supportMessageText = supportConfig(slack.supportConfigName()).supportMessageText;
     describe('#postMessage(message_text, channel_id)', () => {
         const submission = {
             title: 'title of reported bug',
@@ -38,7 +38,7 @@ describe('Slack', () => {
         };
         const request_type = 'bug';
         const message_text = supportMessageText(submission, user, request_type);
-        const channel_id = team.support_channel_id;
+        const channel_id = slack.support_channel_id;
 
         it('returns a Promise that resolves to SlackMessage', (done) => {
             expect.assertions(1);
@@ -46,7 +46,7 @@ describe('Slack', () => {
                 .post('/api/chat.postMessage')
                 .reply(200, postMsgResponse);
 
-            team.postMessage(message_text, channel_id)
+            slack.postMessage(message_text, channel_id)
                 .then((res) => {
                     expect(res).toEqual(slack_message);
                     done();
@@ -60,7 +60,7 @@ describe('Slack', () => {
                     .post('/api/chat.postMessage')
                     .reply(200, { ok: false });
 
-                team.postMessage(message_text, channel_id)
+                slack.postMessage(message_text, channel_id)
                     .catch((res) => {
                         // expect(res).toEqual({ ok: false });
                         expect(res instanceof Error).toEqual(true);
@@ -88,7 +88,7 @@ describe('Slack', () => {
                     .post('/api/chat.postMessage', new RegExp('data'))
                     .reply(200, postMsgResponse);
 
-                team.postMessage(message_text, channel_id)
+                slack.postMessage(message_text, channel_id)
                     .then((res) => {
                         expect(res).toEqual(slack_message);
                         done();
