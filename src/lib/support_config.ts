@@ -52,21 +52,79 @@ configs.default = {
             example: '/support bug'
         }
     ],
-    dialogs: {},
+    dialogs: {
+        bug: {
+            callback_id: '',
+            title: 'Report Bug',
+            submit_label: 'Submit',
+            state: 'support_bug',
+            elements: [
+                {
+                    type: 'text',
+                    label: 'Title',
+                    placeholder: 'eg. Employer 1234 can\'t see shifts',
+                    name: 'title',
+                    value: '',
+                },
+                {
+                    type: 'textarea',
+                    label: 'Steps to Reproduce',
+                    placeholder: 'Bullet point steps to reproduce. ' +
+                        'Include specifics, eg. urls and ids',
+                    name: 'description',
+                    value: '',
+                },
+                {
+                    type: 'text',
+                    label: 'Current Outcome',
+                    placeholder: 'What *currently* happens when the above steps are taken?',
+                    name: 'currently',
+                    value: '',
+                },
+                {
+                    type: 'text',
+                    label: 'Expected Outcome',
+                    placeholder: 'What *should* happen when the above steps are taken?',
+                    name: 'expected',
+                    value: '',
+                },
+            ]
+        },
+        data: {
+            callback_id: '',
+            title: 'New Data Request',
+            submit_label: 'Submit',
+            state: 'support_data',
+            elements: [
+                {
+                    type: 'text',
+                    name: 'title',
+                    label: 'Title',
+                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
+                    value: '',
+                },
+                {
+                    type: 'textarea',
+                    label: 'Description',
+                    placeholder: 'Please include any extra information required, eg. column names',
+                    name: 'description',
+                    value: '',
+                },
+            ]
+        }
+    },
     issueParams: function(
         submission: Submission,
         slack_user: SlackUser,
         request_type: string,
     ): IssueParams {
+        const title: string = submission.title;
+        const board = 'SUP';
         let issue_type: string;
-        let title: string;
-        let board: string;
         let desc: string;
 
         if (request_type === 'bug') {
             issue_type = 'Bug';
-            title = submission.title;
-            board = 'SUP';
             desc = `${submission.description}
 
 Currently:
@@ -79,8 +137,6 @@ Submitted by: ${slack_user.name}`;
 
         } else {
             issue_type = 'Task';
-            title = submission.title;
-            board = 'SUP';
             desc = `${submission.description}
 
 Submitted by: ${slack_user.name}`;
@@ -113,63 +169,126 @@ Submitted by: ${slack_user.name}`;
     }
 };
 
-configs.default.dialogs.bug = {
-    callback_id: '',
-    title: 'Report Bug',
-    submit_label: 'Submit',
-    state: 'support_bug',
-    elements: [
+
+configs.syft = {
+    commands: [
         {
-            type: 'text',
-            label: 'Title',
-            placeholder: 'eg. Employer 1234 can\'t see shifts',
-            name: 'title',
-            value: '',
+            name: 'data',
+            desc: 'Submit a request for data',
+            example: '/support data'
         },
         {
-            type: 'textarea',
-            label: 'Steps to Reproduce',
-            placeholder: 'Bullet point steps to reproduce. Include specifics, eg. urls and ids',
-            name: 'description',
-            value: '',
+            name: 'bug',
+            desc: 'Submit a bug report',
+            example: '/support bug'
+        }
+    ],
+    dialogs: {
+        bug: {
+            callback_id: '',
+            title: 'Report Bug',
+            submit_label: 'Submit',
+            state: 'support_bug',
+            elements: [
+                {
+                    type: 'text',
+                    label: 'Title',
+                    placeholder: 'eg. Employer 1234 can\'t see shifts',
+                    name: 'title',
+                    value: '',
+                },
+                {
+                    type: 'textarea',
+                    label: 'Steps to Reproduce',
+                    placeholder: 'Bullet point steps to reproduce. ' +
+                        'Include specifics, eg. urls and ids',
+                    name: 'description',
+                    value: '',
+                },
+                {
+                    type: 'text',
+                    label: 'Current Outcome',
+                    placeholder: 'What *currently* happens when the above steps are taken?',
+                    name: 'currently',
+                    value: '',
+                },
+                {
+                    type: 'text',
+                    label: 'Expected Outcome',
+                    placeholder: 'What *should* happen when the above steps are taken?',
+                    name: 'expected',
+                    value: '',
+                },
+            ]
         },
-        {
-            type: 'text',
-            label: 'Current Outcome',
-            placeholder: 'What *currently* happens when the above steps are taken?',
-            name: 'currently',
-            value: '',
-        },
-        {
-            type: 'text',
-            label: 'Expected Outcome',
-            placeholder: 'What *should* happen when the above steps are taken?',
-            name: 'expected',
-            value: '',
-        },
-    ]
-};
-configs.default.dialogs.data = {
-    callback_id: '',
-    title: 'New Data Request',
-    submit_label: 'Submit',
-    state: 'support_data',
-    elements: [
-        {
-            type: 'text',
-            name: 'title',
-            label: 'Title',
-            placeholder: 'eg. Number of shifts per employer in Feb 2019',
-            value: '',
-        },
-        {
-            type: 'textarea',
-            label: 'Description',
-            placeholder: 'Please include any extra information required, eg. column names',
-            name: 'description',
-            value: '',
-        },
-    ]
+        data: {
+            callback_id: '',
+            title: 'New Data Request',
+            submit_label: 'Submit',
+            state: 'support_data',
+            elements: [
+                {
+                    type: 'text',
+                    name: 'title',
+                    label: 'Title',
+                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
+                    value: '',
+                },
+                {
+                    type: 'textarea',
+                    label: 'Description',
+                    placeholder: 'Please include any extra information required, eg. column names',
+                    name: 'description',
+                    value: '',
+                },
+            ]
+        }
+    },
+    issueParams: function(
+        submission: Submission,
+        slack_user: SlackUser,
+        request_type: string,
+    ): IssueParams {
+        const title: string = submission.title;
+        const board = 'SUP';
+        let issue_type: string;
+        let desc: string;
+
+        if (request_type === 'bug') {
+            issue_type = 'Bug';
+            desc = `${submission.description}
+
+Currently:
+${submission.currently}
+
+Expected:
+${submission.expected}
+
+Submitted by: ${slack_user.name}`;
+
+        } else {
+            issue_type = 'Data';
+            desc = `${submission.description}
+
+Submitted by: ${slack_user.name}`;
+        }
+
+        return {
+            fields: {
+                project: { key: board },
+                summary: title,
+                issuetype: { name: issue_type },
+                description: desc,
+            }
+        };
+    },
+    supportMessageText(
+        submission: Submission,
+        user: SlackUser,
+        request_type: string
+    ): string {
+        return configs.default.supportMessageText(submission, user, request_type);
+    }
 };
 
 export default function supportConfig(key: string): SupportConfig {
