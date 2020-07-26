@@ -3,6 +3,7 @@
 import { Response, Request } from 'express';
 import logger from '../../../util/logger';
 import { store } from '../../../util/secrets';
+import feature from '../../../util/feature';
 import { Slack } from '../../../lib/slack';
 import { support } from '../../../lib/support';
 import {
@@ -20,7 +21,7 @@ export const postCommand = (req: Request, res: Response): void => {
         const slack_options = store.slackOptions(team_id);
         const slack = new Slack(slack_options);
 
-        if (command === '/support') {
+        if (command === '/support' || feature.is_enabled(`support_command_${command}`)) {
             support.handleCommand(slack, payload, res);
         } else {
             res.json({

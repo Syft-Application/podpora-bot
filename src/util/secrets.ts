@@ -43,6 +43,10 @@ const JIRA_OPTIONS: { [index: string]: JiraOptions }
 const SUPPORT_OPTIONS: { [index: string]: SupportOptions }
     = JSON.parse(process.env['SUPPORT_OPTIONS'] as string);
 
+const FEATURE_FLAGS: { [index: string]: Boolean }
+    = (process.env['FEATURE_FLAGS'] &&
+        JSON.parse(process.env['FEATURE_FLAGS'] as string)) || {};
+
 let client: RedisClient;
 
 function redis_client(): RedisClient {
@@ -67,6 +71,9 @@ const store = {
     },
     supportOptions: (id: string): SupportOptions => {
         return SUPPORT_OPTIONS[id];
+    },
+    featureFlag: (name: string): Boolean => {
+        return FEATURE_FLAGS[name];
     },
 
     set: (...args: string[]): boolean => {
