@@ -14,10 +14,10 @@ import {
 function handleDialogSubmission(params: PostInteractionPayload, res: Response): Response {
     const { team, state } = params;
     const [type, subtype] = state.split('_');
-    const slack_config = store.slackTeamConfig(team.id);
-    const slack = new Slack(slack_config);
-    const jira_config = store.jiraConfig(team.id);
-    const jira = new Jira(jira_config);
+    const slack_options = store.slackOptions(team.id);
+    const slack = new Slack(slack_options);
+    const jira_options = store.jiraOptions(team.id);
+    const jira = new Jira(jira_options);
 
     if (type !== 'support') {
         throw new Error('Unexpected state param: ' + state);

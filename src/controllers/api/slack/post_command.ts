@@ -17,8 +17,8 @@ export const postCommand = (req: Request, res: Response): void => {
     try {
         const payload: PostCommandPayload = req.body;
         const { team_id, command } = payload;
-        const slack_config = store.slackTeamConfig(team_id);
-        const slack = new Slack(slack_config);
+        const slack_options = store.slackOptions(team_id);
+        const slack = new Slack(slack_options);
 
         if (command === '/support') {
             support.handleCommand(slack, payload, res);

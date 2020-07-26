@@ -2,6 +2,7 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
+import { store } from '../../src/util/secrets';
 import {
     SlackMessage,
     Slack
@@ -18,14 +19,8 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-const team_config = {
-    id: 'abc',
-    support_channel_id: 'channel-1234',
-    api_token: 'dummy api token',
-    domain: 'qwerty',
-    support_config_name: 'default'
-};
-const team = new Slack(team_config);
+const slack_options = store.slackOptions('T0001');
+const slack = new Slack(slack_options);
 const postMsgResponse = fixture('slack/chat.postMessage.response');
 const slack_message = postMsgResponse as SlackMessage;
 
@@ -37,7 +32,7 @@ describe('#postIssueUrlOnThread(url, )', () => {
             .post('/api/chat.postMessage')
             .reply(200, { ok: true });
 
-        support.postIssueUrlOnThread(team, url, slack_message)
+        support.postIssueUrlOnThread(slack, url, slack_message)
             .then((res) => {
                 expect(res.ok).toEqual(true);
                 done();
@@ -51,7 +46,7 @@ describe('#postIssueUrlOnThread(url, )', () => {
                 .post('/api/chat.postMessage')
                 .reply(200, { ok: false });
 
-            support.postIssueUrlOnThread(team, url, slack_message)
+            support.postIssueUrlOnThread(slack, url, slack_message)
                 .catch((error) => {
                     expect(error.message).toContain('postIssueUrlOnThread');
                     expect(loggerSpy).toHaveBeenCalled();
@@ -75,7 +70,7 @@ describe('#showForm()', () => {
                 .post('/api/dialog.open')
                 .reply(200, { ok: false });
 
-            support.showForm(team, 'bug', 'abc')
+            support.showForm(slack, 'bug', 'abc')
                 .catch(() => {
                     expect(loggerSpy).toHaveBeenCalled();
                     const logger_call = loggerSpy.mock.calls[0].toString();

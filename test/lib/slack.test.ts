@@ -16,15 +16,13 @@ afterEach(() => {
 describe('Slack', () => {
     const config = {
         id: 'abc',
-        support_channel_id: 'channel-1234',
         api_token: 'dummy api token',
-        domain: 'qwerty',
-        support_config_name: 'default'
+        domain: 'qwerty'
     };
     const slack = new Slack(config);
     const postMsgResponse = fixture('slack/chat.postMessage.response');
     const slack_message = postMsgResponse as SlackMessage;
-    const supportMessageText = supportConfig(slack.supportConfigName()).supportMessageText;
+    const supportMessageText = supportConfig('default').supportMessageText;
     describe('#postMessage(message_text, channel_id)', () => {
         const submission = {
             title: 'title of reported bug',
@@ -38,7 +36,7 @@ describe('Slack', () => {
         };
         const request_type = 'bug';
         const message_text = supportMessageText(submission, user, request_type);
-        const channel_id = slack.support_channel_id;
+        const channel_id = 'foo';
 
         it('returns a Promise that resolves to SlackMessage', (done) => {
             expect.assertions(1);

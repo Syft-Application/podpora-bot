@@ -4,7 +4,7 @@ import {
     WebClient
 } from '@slack/web-api';
 import logger from '../util/logger';
-import { TeamConfig } from '../util/secrets';
+import { SlackOptions } from '../util/secrets';
 
 interface SlackMessage extends WebAPICallResult {
     ts: string,
@@ -22,19 +22,15 @@ interface SlackThreadMessage {
 }
 
 class Slack {
-    constructor(config: TeamConfig) {
+    constructor(config: SlackOptions) {
         this.id = config.id;
         this.domain = config.domain;
-        this.support_channel_id = config.support_channel_id;
         this.client = new WebClient(config.api_token);
-        this.support_config_name = config.support_config_name;
     }
 
     id: string;
     domain: string;
-    support_channel_id: string;
     client: WebClient;
-    support_config_name: string;
 
     callbackId(): string {
         return `${this.id}${(new Date()).getTime()}`;
@@ -103,10 +99,6 @@ class Slack {
         } = message;
 
         return [team, channel, ts].join(',');
-    }
-
-    supportConfigName(): string {
-        return this.support_config_name;
     }
 }
 

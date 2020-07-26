@@ -14,17 +14,15 @@ if (process.env.NODE_ENV === 'test') {
     process.exit(1);
 }
 
-export interface TeamConfig {
+export interface SlackOptions {
     [index: string]: string;
 
     id: string,
     api_token: string,
-    support_channel_id: string,
     domain: string,
-    support_config_name: string
 }
 
-export interface JiraConfig {
+export interface JiraOptions {
     [index: string]: string;
 
     username: string,
@@ -32,10 +30,18 @@ export interface JiraConfig {
     host: string
 }
 
-const SLACK_TEAMS: { [index: string]: TeamConfig }
-    = JSON.parse(process.env['SLACK_TEAMS'] as string);
-const JIRA_CONFIGS: { [index: string]: JiraConfig }
-    = JSON.parse(process.env['JIRA_CONFIGS'] as string);
+export interface SupportOptions {
+    [index: string]: string;
+    channel_id: string
+    config_name: string
+}
+
+const SLACK_OPTIONS: { [index: string]: SlackOptions }
+    = JSON.parse(process.env['SLACK_OPTIONS'] as string);
+const JIRA_OPTIONS: { [index: string]: JiraOptions }
+    = JSON.parse(process.env['JIRA_OPTIONS'] as string);
+const SUPPORT_OPTIONS: { [index: string]: SupportOptions }
+    = JSON.parse(process.env['SUPPORT_OPTIONS'] as string);
 
 let client: RedisClient;
 
@@ -53,11 +59,14 @@ function redis_client(): RedisClient {
 }
 
 const store = {
-    slackTeamConfig: (id: string): TeamConfig => {
-        return SLACK_TEAMS[id];
+    slackOptions: (id: string): SlackOptions => {
+        return SLACK_OPTIONS[id];
     },
-    jiraConfig: (id: string): JiraConfig => {
-        return JIRA_CONFIGS[id];
+    jiraOptions: (id: string): JiraOptions => {
+        return JIRA_OPTIONS[id];
+    },
+    supportOptions: (id: string): SupportOptions => {
+        return SUPPORT_OPTIONS[id];
     },
 
     set: (...args: string[]): boolean => {

@@ -42,8 +42,8 @@ function handleJiraIssueUpdate(
     changelog: IssueChangelog,
     slack_thread: { team: string, channel: string, ts: string }
 ): void {
-    const slack_config = store.slackTeamConfig(slack_thread.team);
-    const slack = new Slack(slack_config);
+    const slack_options = store.slackOptions(slack_thread.team);
+    const slack = new Slack(slack_options);
     const status_change = changelog.items.find((el) => el.field === 'status');
     const attachment_change = changelog.items.find((el) => el.field === 'Attachment');
     let message: string;
@@ -90,10 +90,10 @@ export const postEvent = (req: Request, res: Response): void => {
     // try {
     const { webhookEvent, issue, changelog } = req.body;
     const team_id = req.params.team_id;
-    const jira_config = store.jiraConfig(team_id);
-    if (jira_config) {
+    const jira_options = store.jiraOptions(team_id);
+    if (jira_options) {
         if (webhookEvent === 'jira:issue_updated') {
-            const jira = new Jira(jira_config);
+            const jira = new Jira(jira_options);
             const issue_key = jira.toKey(issue);
 
             store.get(issue_key)

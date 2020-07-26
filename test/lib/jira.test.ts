@@ -3,9 +3,6 @@ import { Logger } from 'winston';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
-    Slack
-} from '../../src/lib/slack';
-import {
     Jira,
     Issue
 } from '../../src/lib/jira';
@@ -31,14 +28,6 @@ const bug_report = {
     channel: 'CHS7JQ7PY',
     state: 'bug'
 };
-const team_config = {
-    id: 'abc',
-    support_channel_id: 'channel-1234',
-    api_token: 'dummy api token',
-    domain: 'qwerty',
-    support_config_name: 'default'
-};
-const slack = new Slack(team_config);
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -58,7 +47,7 @@ describe('Jira', () => {
         const submission = bug_report.submission;
         const user = bug_report.user;
         const request_type = 'bug';
-        const params = supportConfig(slack.supportConfigName())
+        const params = supportConfig('default')
             .issueParams(submission, user, request_type);
         it('returns a Promise that resolves to issue object', (done) => {
             let api_call_body: string;

@@ -15,13 +15,13 @@ import {
 
 function handleCallbackEvent(payload: EventCallbackPayload): void {
     const { event, team_id } = payload;
-    const slack_config = store.slackTeamConfig(team_id);
-    const slack = new Slack(slack_config);
+    const slack_options = store.slackOptions(team_id);
+    const slack = new Slack(slack_options);
 
     // TODO: maybe some more specific dispatch based on rules
     if (isChannelThreadFileShareEvent(event)) {
-        const jira_config = store.jiraConfig(team_id);
-        const jira = new Jira(jira_config);
+        const jira_options = store.jiraOptions(team_id);
+        const jira = new Jira(jira_options);
 
         support.addFileToJiraIssue(slack, jira, event);
     }

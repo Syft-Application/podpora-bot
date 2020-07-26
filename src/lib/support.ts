@@ -77,7 +77,7 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = supportConfig(slack.supportConfigName()).dialogs[request_type];
+        const dialog: Dialog = supportConfig(support.configName(slack)).dialogs[request_type];
 
         return slack.showDialog(dialog, trigger_id)
             .catch((error) => {
@@ -112,11 +112,14 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const support_config = supportConfig(slack.supportConfigName());
+        const support_config = supportConfig(support.configName(slack));
         const message_text = support_config.supportMessageText(
             submission, user, request_type
         );
-        const p1 = slack.postMessage(message_text, slack.support_channel_id);
+        const p1 = slack.postMessage(
+            message_text,
+            support.channel(slack)
+        );
         const issue_params = support_config.issueParams(
             submission, user, request_type
         );
@@ -182,7 +185,7 @@ const support = {
     handleCommand(slack: Slack, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const commands = supportConfig(slack.supportConfigName()).commands;
+        const commands = supportConfig(support.configName(slack)).commands;
         const requests_types = supportCommandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack, args[0], trigger_id);
@@ -213,6 +216,14 @@ const support = {
         );
 
         return res;
+    },
+
+    configName: function(slack: Slack): string {
+        return store.supportOptions(slack.id).config_name;
+    },
+
+    channel: function(slack: Slack): string {
+        return store.supportOptions(slack.id).channel_id;
     }
 };
 
