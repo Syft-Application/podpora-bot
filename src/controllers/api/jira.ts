@@ -36,50 +36,65 @@ interface Issue {
     }
 }
 
-function handleJiraIssueUpdate(
-    jira: Jira,
+interface SlackThread {
+    team: string
+    channel: string
+    ts: string
+}
+
+function handleStatusChange(
     issue: Issue,
     changelog: IssueChangelog,
-    slack_thread: { team: string, channel: string, ts: string }
+    slack_thread: SlackThread
 ): void {
     const slack_options = store.slackOptions(slack_thread.team);
     const slack = new Slack(slack_options);
     const status_change = changelog.items.find((el) => el.field === 'status');
+
+    if (!status_change) {
+        return;
+    }
+
+    const changed_from = status_change.fromString;
+    const changed_to = status_change.toString;
+    const message = `Status changed from *${changed_from}* to *${changed_to}*`;
+
+    slack.postOnThread(
+        message,
+        slack_thread.channel,
+        slack_thread.ts
+    );
+}
+
+function handleAttachmentChange(
+    issue: Issue,
+    changelog: IssueChangelog,
+    slack_thread: SlackThread
+): void {
+    const slack_options = store.slackOptions(slack_thread.team);
+    const slack = new Slack(slack_options);
     const attachment_change = changelog.items.find((el) => el.field === 'Attachment');
-    let message: string;
-
-    if (status_change) {
-        const changed_from = status_change.fromString;
-        const changed_to = status_change.toString;
-        message = `Status changed from *${changed_from}* to *${changed_to}*`;
-
-        slack.postOnThread(
-            message,
-            slack_thread.channel,
-            slack_thread.ts
-        );
+    if (!attachment_change) {
+        return;
     }
 
-    if (attachment_change) {
-        const filename = attachment_change.toString;
+    const filename = attachment_change.toString;
+    const attachment = issue.fields.attachment.find((el) => {
+        return el.filename == filename;
+    });
 
-        const attachment = issue.fields.attachment.find((el) => {
-            return el.filename == filename;
-        });
-
-        if (!attachment) {
-            return;
-        }
-
-        message = `File [${filename}] has been attached. \n` +
-            `Download: ${attachment.content}`;
-
-        slack.postOnThread(
-            message,
-            slack_thread.channel,
-            slack_thread.ts
-        );
+    if (!attachment) {
+        return;
     }
+
+    const message = `File [${filename}] has been attached. \n` +
+        `Download: ${attachment.content}`;
+
+    slack.postOnThread(
+        message,
+        slack_thread.channel,
+        slack_thread.ts
+    );
 }
 
 /**
@@ -104,12 +119,9 @@ export const postEvent = (req: Request, res: Response): void => {
                     }
 
                     const [team, channel, ts] = res.split(',');
-                    handleJiraIssueUpdate(
-                        jira,
-                        issue,
-                        changelog,
-                        { team, channel, ts }
-                    );
+                    const slack_thread = { team, channel, ts };
+                    handleStatusChange(issue, changelog, slack_thread);
+                    handleAttachmentChange(issue, changelog, slack_thread);
                 }).catch((error) => {
                     logger.error(error.message);
                 });
