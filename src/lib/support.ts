@@ -93,7 +93,7 @@ const support = {
     ): Promise<SlackMessage> {
         const msg_text =
             `${url}\n` +
-            'We will post for you all updates on this thread.';
+            'Thank You, we will post updates on this thread.';
 
         return slack.postOnThread(msg_text, thread.channel, thread.ts)
             .then((response) => {

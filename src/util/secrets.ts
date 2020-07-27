@@ -43,7 +43,7 @@ const JIRA_OPTIONS: { [index: string]: JiraOptions }
 const SUPPORT_OPTIONS: { [index: string]: SupportOptions }
     = JSON.parse(process.env['SUPPORT_OPTIONS'] as string);
 
-const FEATURE_FLAGS: { [index: string]: Boolean }
+const FEATURE_FLAGS: { [index: string]: boolean }
     = (process.env['FEATURE_FLAGS'] &&
         JSON.parse(process.env['FEATURE_FLAGS'] as string)) || {};
 
@@ -72,7 +72,7 @@ const store = {
     supportOptions: (id: string): SupportOptions => {
         return SUPPORT_OPTIONS[id];
     },
-    featureFlag: (name: string): Boolean => {
+    featureFlag: (name: string): boolean => {
         return FEATURE_FLAGS[name];
     },
 
