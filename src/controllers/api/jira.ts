@@ -50,6 +50,7 @@ function handleStatusChange(
     const slack_options = store.slackOptions(slack_thread.team);
     const slack = new Slack(slack_options);
     const status_change = changelog.items.find((el) => el.field === 'status');
+    const resolution_change = changelog.items.find((el) => el.field === 'resolution');
 
     if (!status_change) {
         return;
@@ -57,7 +58,11 @@ function handleStatusChange(
 
     const changed_from = status_change.fromString;
     const changed_to = status_change.toString;
-    const message = `Status changed from *${changed_from}* to *${changed_to}*`;
+    let message = `Status changed from *${changed_from}* to *${changed_to}*`;
+
+    if (resolution_change && resolution_change.toString !== 'Done') {
+        message = `${message}\nResolution: ${resolution_change.toString}`;
+    }
 
     slack.postOnThread(
         message,

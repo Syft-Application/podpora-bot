@@ -117,6 +117,38 @@ describe('POST /api/jira/event/:team_id', () => {
                     done();
                 });
             });
+
+            describe('status: Done with resolution', () => {
+                const params = fixture('jira/webhook.issue_updated_status_change2');
+
+                it('includes the resolution in Slack message', (done) => {
+                    let api_call_body: string;
+                    expect.assertions(7);
+
+                    nock('https://slack.com')
+                        .post('/api/chat.postMessage', (body) => {
+                            api_call_body = JSON.stringify(body);
+                            return body;
+                        })
+                        .reply(200, { ok: true });
+
+                    service(params).expect(200).end((err) => {
+                        if (err) {
+                            return done(err);
+                        }
+
+                        expect(storeGetSpy).toHaveBeenCalled();
+                        expect(api_call_body).toContain('some_channel_id');
+                        expect(api_call_body).toContain('some_thread_ts');
+                        expect(api_call_body).toContain('changed from');
+                        expect(api_call_body).toContain('Selected for Development');
+                        expect(api_call_body).toContain('Done');
+                        expect(api_call_body).toContain('Duplicate');
+
+                        done();
+                    });
+                });
+            });
         });
 
         describe('file attachment added', () => {

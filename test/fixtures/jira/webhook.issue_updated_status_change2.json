@@ -190,7 +190,7 @@
         "from": null,
         "fromString": null,
         "to": "10000",
-        "toString": "Done"
+        "toString": "Duplicate"
       },
       {
         "field": "status",
