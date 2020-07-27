@@ -62,8 +62,8 @@ function slackFileToText(file: SlackFiles): string {
     if (isSlackImageFile(file)) {
         return `${file.name}\n` +
             `Preview: ${file.thumb_360}\n` +
-            `Download: ${file.url_private_download}\n` +
-            `Show: ${file.url_private}`;
+            `Show: ${file.url_private}\n` +
+            `Download: ${file.url_private_download}`;
     } else {
         return `${file.name}\n` +
             `Download: ${file.url_private_download}`;
