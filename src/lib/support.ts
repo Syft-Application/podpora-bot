@@ -66,8 +66,7 @@ function slackFileToText(file: SlackFiles): string {
             `Show: ${file.url_private}`;
     } else {
         return `${file.name}\n` +
-            `Download: ${file.url_private_download}\n` +
-            `Show: ${file.url_private}`;
+            `Download: ${file.url_private_download}`;
     }
 }
 

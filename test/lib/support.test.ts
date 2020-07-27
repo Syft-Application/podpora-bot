@@ -135,8 +135,7 @@ describe('#fileShareEventToIssueComment(event, url)', () => {
     });
 
     describe('files: [bin_file]', () => {
-        it('contains file download link and show', () => {
-            expect(result).toContain(bin_file.url_private);
+        it('contains file download link', () => {
             expect(result).toContain(bin_file.url_private_download);
         });
     });
