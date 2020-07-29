@@ -37,7 +37,8 @@ Visit `http://localhost:3000`
 
 # Deployment
 
-TODO
+Set in production ENV variables specified in .env.example
+where key is Slack Team id
 
 # Development
 
@@ -77,12 +78,9 @@ npm run --list
 
 # To-do
 
-- README details on app configuration.
 - Upgrade Slack dialog to modal https://api.slack.com/block-kit/dialogs-to-modals
-- Test that correct dialog is open when different commands are send
 - Define shortcuts for support requests https://api.slack.com/interactivity/shortcuts
-- Use pattern from https://www.npmjs.com/package/@slack-wrench/jest-mock-web-client
-  to mock slack api
+
 # License
 Copyright (c) Marek L. All rights reserved.
 Licensed under the [MIT](LICENSE) License.
