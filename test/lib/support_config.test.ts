@@ -65,7 +65,7 @@ Submitted by: ${slack_user.name}`;
                         fields: {
                             project: { key: 'SUP' },
                             summary: 'A',
-                            issuetype: { name: 'Data' },
+                            issuetype: { name: 'Data Request' },
                             description: desc,
                         }
                     });

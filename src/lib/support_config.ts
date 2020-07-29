@@ -267,7 +267,7 @@ ${submission.expected}
 Submitted by: ${user.name}`;
 
         } else {
-            issue_type = 'Data';
+            issue_type = 'Data Request';
             desc = `${submission.description}
 
 Submitted by: ${user.name}`;
