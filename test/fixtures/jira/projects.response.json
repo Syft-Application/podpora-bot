@@ -1,7 +1,7 @@
 [
   {
     "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
-    "self": "https://podpora-bot.atlassian.net/rest/api/2/project/10000",
+    "self": "https://example.atlassian.net/rest/api/2/project/10000",
     "id": "10000",
     "key": "SUP",
     "name": "support",

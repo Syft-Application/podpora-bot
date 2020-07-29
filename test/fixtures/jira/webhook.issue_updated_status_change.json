@@ -3,7 +3,7 @@
   "webhookEvent": "jira:issue_updated",
   "issue_event_type_name": "issue_generic",
   "user": {
-    "self": "https://podpora-bot.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+    "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
     "accountId": "5edfdc75f557470abafa39fa",
     "avatarUrls": {
       "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
@@ -18,32 +18,32 @@
   },
   "issue": {
     "id": "10057",
-    "self": "https://podpora-bot.atlassian.net/rest/api/2/10057",
+    "self": "https://example.atlassian.net/rest/api/2/10057",
     "key": "SUP-58",
     "fields": {
       "statuscategorychangedate": "2020-07-18T13:48:03.514+0100",
       "issuetype": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/issuetype/10004",
+        "self": "https://example.atlassian.net/rest/api/2/issuetype/10004",
         "id": "10004",
         "description": "A problem or error.",
-        "iconUrl": "https://podpora-bot.atlassian.net/secure/viewavatar?size=medium&avatarId=10303&avatarType=issuetype",
+        "iconUrl": "https://example.atlassian.net/secure/viewavatar?size=medium&avatarId=10303&avatarType=issuetype",
         "name": "Bug",
         "subtask": false,
         "avatarId": 10303
       },
       "timespent": null,
       "project": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/project/10000",
+        "self": "https://example.atlassian.net/rest/api/2/project/10000",
         "id": "10000",
         "key": "SUP",
         "name": "support",
         "projectTypeKey": "software",
         "simplified": false,
         "avatarUrls": {
-          "48x48": "https://podpora-bot.atlassian.net/secure/projectavatar?pid=10000&avatarId=10414",
-          "24x24": "https://podpora-bot.atlassian.net/secure/projectavatar?size=small&s=small&pid=10000&avatarId=10414",
-          "16x16": "https://podpora-bot.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10000&avatarId=10414",
-          "32x32": "https://podpora-bot.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10000&avatarId=10414"
+          "48x48": "https://example.atlassian.net/secure/projectavatar?pid=10000&avatarId=10414",
+          "24x24": "https://example.atlassian.net/secure/projectavatar?size=small&s=small&pid=10000&avatarId=10414",
+          "16x16": "https://example.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10000&avatarId=10414",
+          "32x32": "https://example.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10000&avatarId=10414"
         }
       },
       "fixVersions": [],
@@ -58,7 +58,7 @@
         "shouldDisplay": false
       },
       "watches": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/issue/SUP-58/watchers",
+        "self": "https://example.atlassian.net/rest/api/2/issue/SUP-58/watchers",
         "watchCount": 1,
         "isWatching": true
       },
@@ -67,8 +67,8 @@
       "customfield_10021": null,
       "customfield_10022": null,
       "priority": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/priority/3",
-        "iconUrl": "https://podpora-bot.atlassian.net/images/icons/priorities/medium.svg",
+        "self": "https://example.atlassian.net/rest/api/2/priority/3",
+        "iconUrl": "https://example.atlassian.net/images/icons/priorities/medium.svg",
         "name": "Medium",
         "id": "3"
       },
@@ -94,13 +94,13 @@
       "assignee": null,
       "updated": "2020-07-19T22:05:25.495+0100",
       "status": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/status/10001",
+        "self": "https://example.atlassian.net/rest/api/2/status/10001",
         "description": "",
-        "iconUrl": "https://podpora-bot.atlassian.net/",
+        "iconUrl": "https://example.atlassian.net/",
         "name": "Selected for Development",
         "id": "10001",
         "statusCategory": {
-          "self": "https://podpora-bot.atlassian.net/rest/api/2/statuscategory/2",
+          "self": "https://example.atlassian.net/rest/api/2/statuscategory/2",
           "id": 2,
           "key": "new",
           "colorName": "blue-gray",
@@ -125,7 +125,7 @@
       "aggregatetimeestimate": null,
       "summary": "aaa",
       "creator": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+        "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
         "accountId": "5edfdc75f557470abafa39fa",
         "avatarUrls": {
           "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
@@ -140,7 +140,7 @@
       },
       "subtasks": [],
       "reporter": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+        "self": "https://example.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
         "accountId": "5edfdc75f557470abafa39fa",
         "avatarUrls": {
           "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
@@ -169,7 +169,7 @@
         "total": 0
       },
       "votes": {
-        "self": "https://podpora-bot.atlassian.net/rest/api/2/issue/SUP-58/votes",
+        "self": "https://example.atlassian.net/rest/api/2/issue/SUP-58/votes",
         "votes": 0,
         "hasVoted": false
       }

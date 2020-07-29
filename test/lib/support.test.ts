@@ -25,7 +25,7 @@ const postMsgResponse = fixture('slack/chat.postMessage.response');
 const slack_message = postMsgResponse as SlackMessage;
 
 describe('#postIssueUrlOnThread(url, )', () => {
-    const url = 'https://podpora-bot.atlassian.net/issue/10008';
+    const url = 'https://example.atlassian.net/issue/10008';
     it('returns a Promise that resolves to SupportRequest', (done) => {
         expect.assertions(1);
         nock('https://slack.com')
