@@ -14,6 +14,10 @@ interface SlackMessage extends WebAPICallResult {
     }
 }
 
+interface UserProfile {
+    real_name: string
+}
+
 interface SlackThreadMessage {
     ts: string,
     channel: string,
@@ -99,6 +103,17 @@ class Slack {
         } = message;
 
         return [team, channel, ts].join(',');
+    }
+
+    userName(user_id: string): Promise<string> {
+        return this.client.users.info({
+            user: user_id
+        }).then((response: WebAPICallResult) => {
+            const user = response.user as UserProfile;
+            return Promise.resolve(user.real_name);
+        }).catch((error) => {
+            throw new Error('Unexpected error #userName');
+        });
     }
 }
 

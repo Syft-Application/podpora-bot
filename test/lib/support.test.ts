@@ -7,11 +7,17 @@ import {
     SlackMessage,
     Slack
 } from '../../src/lib/slack';
+import {
+    Jira
+} from '../../src/lib/jira';
 
 import {
     fileShareEventToIssueComment,
     support
 } from '../../src/lib/support';
+import {
+    ChannelThreadFileShareEvent,
+} from '../../src/lib/slack/api_interfaces';
 
 const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
@@ -84,7 +90,7 @@ describe('#showForm()', () => {
     });
 });
 
-describe('#fileShareEventToIssueComment(event, url)', () => {
+describe('#fileShareEventToIssueComment(event, url, user_name)', () => {
     const bin_file = {
         id: 'F015XSUL1K4',
         name: 'puzzle.org',
@@ -127,11 +133,15 @@ describe('#fileShareEventToIssueComment(event, url)', () => {
         subtype: 'file_share'
     };
 
-    const result = fileShareEventToIssueComment(event, 'some url');
+    const result = fileShareEventToIssueComment(event, 'some url', 'Egon Bondy');
 
     it('contains the text message and link to slack', () => {
         expect(result).toContain('some message');
         expect(result).toContain('some url');
+    });
+
+    it('contains user name', () => {
+        expect(result).toContain('Egon Bondy');
     });
 
     describe('files: [bin_file]', () => {
@@ -145,6 +155,39 @@ describe('#fileShareEventToIssueComment(event, url)', () => {
             expect(result).toContain(img_file.thumb_360);
             expect(result).toContain(img_file.url_private);
             expect(result).toContain(img_file.url_private_download);
+        });
+    });
+});
+
+describe('#addFileToJiraIssue(slack, jira, event)', () => {
+    const event = fixture('slack/events.message_with_file').event as ChannelThreadFileShareEvent;
+    const jira = new Jira(store.jiraOptions('T0001'));
+    const storeGetSpy = jest.spyOn(store, 'get');
+    const issue_key = 'foo-issue-key'
+
+    describe('when fetching user name fail', () => {
+        it('add message as comment to Jira Issue with user id', (done) => {
+            expect.assertions(1);
+            const checkJiraComment = (body: string) => {
+                expect(body).toContain('UHAV00MD0');
+
+                done();
+            };
+
+            nock('https://example.com')
+                .post(`/rest/api/2/issue/${issue_key}/comment`, (body) => {
+                    checkJiraComment(JSON.stringify(body));
+                    return body;
+                }).reply(200);
+
+            nock('https://slack.com')
+                .post('/api/users.info')
+                .reply(200, { ok: false, error: 'something wrong' });
+
+            storeGetSpy.mockImplementationOnce(() => {
+                return Promise.resolve(issue_key);
+            });
+            support.addFileToJiraIssue(slack, jira, event)
         });
     });
 });

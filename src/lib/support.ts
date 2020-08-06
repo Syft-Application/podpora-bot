@@ -23,11 +23,12 @@ import { store } from './../util/secrets';
 
 function fileShareEventToIssueComment(
     event: ChannelThreadFileShareEvent,
-    url: string
+    url: string,
+    user_name: string
 ): string {
     const files_str = event.files.map(slackFileToText).join('\n\n');
 
-    return `${event.text}\n\n${files_str}\n \n${url}\n`;
+    return `${user_name}: ${event.text}\n\n${files_str}\n \n${url}\n`;
 }
 
 interface SlackSupportCommand {
@@ -171,15 +172,25 @@ const support = {
     ): void {
         support.issueKey(slack.id, event.channel, event.thread_ts)
             .then((issue_key: string) => {
-                const comment = fileShareEventToIssueComment(
-                    event,
-                    slack.threadMessageUrl(event)
-                );
-                jira.addComment(issue_key, comment);
+                const user_name = slack.userName(event.user);
+                const addComment = (name: string) => {
+                    const comment = fileShareEventToIssueComment(
+                        event,
+                        slack.threadMessageUrl(event),
+                        name
+                    );
+                    jira.addComment(issue_key, comment);
+                };
+                user_name.then(addComment)
+                    .catch((error) => {
+                        addComment(event.user);
+                    });
             }).catch((error) => {
                 logger.error('addFileToJiraIssue', error);
             });
     },
+
+
 
     handleCommand(slack: Slack, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;

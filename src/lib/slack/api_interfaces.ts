@@ -82,7 +82,8 @@ interface ChannelThreadEvent extends ChannelEvent {
 
 interface ChannelThreadFileShareEvent extends ChannelThreadEvent {
     subtype: string
-    files: Array<SlackFile>
+    files: Array<SlackFile>,
+    user: string
 }
 
 type ChannelEvents = ChannelThreadFileShareEvent | ChannelThreadEvent | ChannelEvent;

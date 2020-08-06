@@ -94,4 +94,20 @@ describe('Slack', () => {
             });
         });
     });
+
+    describe('#userName(id)', () => {
+        const getUserInfo = fixture('slack/users.info.response');
+        it('returns a Promise that resolves to as string', (done) => {
+            expect.assertions(1);
+            nock('https://slack.com')
+                .post('/api/users.info')
+                .reply(200, getUserInfo);
+
+            slack.userName('W012A3CDE')
+                .then((res) => {
+                    expect(res).toEqual('Egon Spengler');
+                    done();
+                });
+        });
+    });
 });

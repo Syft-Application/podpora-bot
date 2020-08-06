@@ -100,16 +100,63 @@ describe('POST /api/slack/event', () => {
                 });
 
                 it('add message as comment to Jira Issue', (done) => {
+                    expect.assertions(2);
+                    const getUserInfo = fixture('slack/users.info.response');
+                    const checkJiraComment = (body: string) => {
+                        expect(body).toContain('files.slack');
+                        expect(body).toContain('Egon Spengler');
+
+                        done();
+                    };
+
                     nock('https://example.com')
-                        .post(`/rest/api/2/issue/${issue_key}/comment`)
-                        .reply(200);
+                        .post(`/rest/api/2/issue/${issue_key}/comment`, (body) => {
+                            checkJiraComment(JSON.stringify(body));
+
+                            return body;
+                        }).reply(200);
+
+                    nock('https://slack.com')
+                        .post('/api/users.info')
+                        .reply(200, getUserInfo);
 
                     storeGetSpy.mockImplementationOnce(() => {
                         return Promise.resolve(issue_key);
                     });
 
-                    return service(params).expect(200, done);
+                    service(params).expect(200).end((err) => {
+                        if (err) {
+                            return done(err);
+                        }
+                    });
                 });
+
+                // describe('when fetching user name fail', () => {
+                //     it('add message as comment to jira issue with user id', (done) => {
+                //         expect.assertions(1);
+                //         const checkjiracomment = (body: string) => {
+                //             expect(body).tocontain('egon spengler');
+
+                //             done();
+                //         };
+
+                //         nock('https://example.com')
+                //             .post(`/rest/api/2/issue/${issue_key}/comment`, (body) => {
+                //                 checkjiracomment(json.stringify(body));
+                //                 return body;
+                //             }).reply(200);
+
+                //         nock('https://slack.com')
+                //             .post('/api/users.info')
+                //             .reply(200, { ok: false, error: 'something wrong' });
+
+                //         storegetspy.mockimplementationonce(() => {
+                //             return promise.resolve(issue_key);
+                //         });
+
+                //         service(params).expect(200);
+                //     });
+                // });
             });
         });
     });
