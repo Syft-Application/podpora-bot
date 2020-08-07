@@ -163,11 +163,11 @@ describe('#addFileToJiraIssue(slack, jira, event)', () => {
     const event = fixture('slack/events.message_with_file').event as ChannelThreadFileShareEvent;
     const jira = new Jira(store.jiraOptions('T0001'));
     const storeGetSpy = jest.spyOn(store, 'get');
-    const issue_key = 'foo-issue-key';
 
     describe('when fetching user name fail', () => {
         it('add message as comment to Jira Issue with user id', (done) => {
             expect.assertions(1);
+            const issue_key = 'foo-issue-key';
             const checkJiraComment = (body: string) => {
                 expect(body).toContain('UHAV00MD0');
 
@@ -187,6 +187,26 @@ describe('#addFileToJiraIssue(slack, jira, event)', () => {
             storeGetSpy.mockImplementationOnce(() => {
                 return Promise.resolve(issue_key);
             });
+            support.addFileToJiraIssue(slack, jira, event);
+        });
+    });
+
+
+    describe('when issue key not found db', () => {
+        it('logs the error', (done) => {
+            expect.assertions(2);
+
+            storeGetSpy.mockImplementationOnce(() => {
+                return Promise.resolve(null);
+            });
+
+            logErrorSpy.mockImplementationOnce((msg) => {
+                expect(msg).toContain('addFileToJiraIssue');
+                expect(msg.toString()).toContain('Issue key not found');
+                done();
+                return {} as Logger;
+            });
+
             support.addFileToJiraIssue(slack, jira, event);
         });
     });

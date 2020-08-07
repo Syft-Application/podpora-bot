@@ -49,14 +49,6 @@ describe('POST /api/slack/event', () => {
         });
 
         describe('messages on support thread', () => {
-            // describe('without files', () => {
-            //     const params = fixture('slack/events.message')
-
-            //     it('will be ignored', () => {
-            //         return service(params).expect(200);
-            //     });
-            // });
-
             describe('subtype: file_share', () => {
                 const params = fixture('slack/events.message_with_file') as Record<string, unknown>;
 
@@ -80,24 +72,24 @@ describe('POST /api/slack/event', () => {
                     });
                 });
 
-                describe('when key is not in db', () => {
-                    it('logs the error', (done) => {
-                        storeGetSpy.mockImplementationOnce(() => {
-                            return Promise.resolve(null);
-                        });
+                // describe('when key is not in db', () => {
+                //     it('logs the error', (done) => {
+                //         storeGetSpy.mockImplementationOnce(() => {
+                //             return Promise.resolve(null);
+                //         });
 
-                        service(params).expect(200).end((err) => {
-                            if (err) {
-                                return done(err);
-                            }
+                //         service(params).expect(200).end((err) => {
+                //             if (err) {
+                //                 return done(err);
+                //             }
 
-                            expect(logErrorSpy).toHaveBeenCalled();
-                            expect(logErrorSpy.mock.calls[0].toString())
-                                .toContain('Issue key not found');
-                            done();
-                        });
-                    });
-                });
+                //             expect(logErrorSpy).toHaveBeenCalled();
+                //             expect(logErrorSpy.mock.calls[0].toString())
+                //                 .toContain('Issue key not found');
+                //             done();
+                //         });
+                //     });
+                // });
 
                 it('add message as comment to Jira Issue', (done) => {
                     expect.assertions(2);

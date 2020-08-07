@@ -186,11 +186,9 @@ const support = {
                         addComment(event.user);
                     });
             }).catch((error) => {
-                logger.error('addFileToJiraIssue', error);
+                logger.error(`addFileToJiraIssue: ${error}`);
             });
     },
-
-
 
     handleCommand(slack: Slack, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
