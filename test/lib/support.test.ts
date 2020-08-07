@@ -19,7 +19,7 @@ import {
     ChannelThreadFileShareEvent,
 } from '../../src/lib/slack/api_interfaces';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
+const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -55,8 +55,8 @@ describe('#postIssueUrlOnThread(url, )', () => {
             support.postIssueUrlOnThread(slack, url, slack_message)
                 .catch((error) => {
                     expect(error.message).toContain('postIssueUrlOnThread');
-                    expect(loggerSpy).toHaveBeenCalled();
-                    const logger_call = loggerSpy.mock.calls[0].toString();
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const logger_call = logErrorSpy.mock.calls[0].toString();
                     expect(logger_call).toEqual(
                         expect.stringContaining('postIssueUrlOnThread')
                     );
@@ -78,8 +78,8 @@ describe('#showForm()', () => {
 
             support.showForm(slack, 'bug', 'abc')
                 .catch(() => {
-                    expect(loggerSpy).toHaveBeenCalled();
-                    const logger_call = loggerSpy.mock.calls[0].toString();
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const logger_call = logErrorSpy.mock.calls[0].toString();
 
                     expect(logger_call).toEqual(
                         expect.stringContaining('showForm')
@@ -163,7 +163,7 @@ describe('#addFileToJiraIssue(slack, jira, event)', () => {
     const event = fixture('slack/events.message_with_file').event as ChannelThreadFileShareEvent;
     const jira = new Jira(store.jiraOptions('T0001'));
     const storeGetSpy = jest.spyOn(store, 'get');
-    const issue_key = 'foo-issue-key'
+    const issue_key = 'foo-issue-key';
 
     describe('when fetching user name fail', () => {
         it('add message as comment to Jira Issue with user id', (done) => {
@@ -187,7 +187,7 @@ describe('#addFileToJiraIssue(slack, jira, event)', () => {
             storeGetSpy.mockImplementationOnce(() => {
                 return Promise.resolve(issue_key);
             });
-            support.addFileToJiraIssue(slack, jira, event)
+            support.addFileToJiraIssue(slack, jira, event);
         });
     });
 });

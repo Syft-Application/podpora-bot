@@ -130,33 +130,6 @@ describe('POST /api/slack/event', () => {
                         }
                     });
                 });
-
-                // describe('when fetching user name fail', () => {
-                //     it('add message as comment to jira issue with user id', (done) => {
-                //         expect.assertions(1);
-                //         const checkjiracomment = (body: string) => {
-                //             expect(body).tocontain('egon spengler');
-
-                //             done();
-                //         };
-
-                //         nock('https://example.com')
-                //             .post(`/rest/api/2/issue/${issue_key}/comment`, (body) => {
-                //                 checkjiracomment(json.stringify(body));
-                //                 return body;
-                //             }).reply(200);
-
-                //         nock('https://slack.com')
-                //             .post('/api/users.info')
-                //             .reply(200, { ok: false, error: 'something wrong' });
-
-                //         storegetspy.mockimplementationonce(() => {
-                //             return promise.resolve(issue_key);
-                //         });
-
-                //         service(params).expect(200);
-                //     });
-                // });
             });
         });
     });
