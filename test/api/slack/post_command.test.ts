@@ -2,20 +2,9 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
-import redis_client from '../../../src/util/redis_client';
 import app from '../../../src/app';
 
-jest.mock('../../../src/util/redis_client');
-
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
-const redis_client_double = {
-    mset: jest.fn(),
-    get: jest.fn()
-};
-
-(redis_client as jest.Mock).mockImplementation(() => {
-    return redis_client_double;
-});
 
 beforeAll(() => {
     return nock.enableNetConnect(/localhost|127\.0\.0\.1/);
