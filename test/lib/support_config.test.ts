@@ -87,9 +87,9 @@ Submitted by: ${slack_user.name}`;
                         config.issueParams(submission, slack_user, request_type)
                     ).toEqual({
                         fields: {
-                            project: { key: 'SUP' },
+                            project: { key: 'MLA' },
                             summary: 'A',
-                            issuetype: { name: 'Product Idea' },
+                            issuetype: { name: 'Epic' },
                             description: desc,
                         }
                     });

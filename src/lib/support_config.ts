@@ -184,7 +184,7 @@ configs.syft = {
         },
         {
             name: 'idea',
-            desc: 'Submit a product idea',
+            desc: 'Submit an idea',
             example: '/support idea'
         }
     ],
@@ -250,7 +250,7 @@ configs.syft = {
         },
         idea: {
             callback_id: '',
-            title: 'New Product Idea',
+            title: 'New Product Idea (beta)',
             submit_label: 'Submit',
             state: 'support_idea',
             elements: [
@@ -277,11 +277,12 @@ configs.syft = {
         request_type: string,
     ): IssueParams {
         const title: string = submission.title;
-        const board = 'SUP';
+        let board: string;
         let issue_type: string;
         let desc: string;
 
         if (request_type === 'bug') {
+            board = 'SUP';
             issue_type = 'Bug';
             desc = `${submission.description}
 
@@ -294,11 +295,13 @@ ${submission.expected}
 Submitted by: ${user.name}`;
 
         } else if (request_type === 'idea') {
-            issue_type = 'Product Idea';
+            board = 'MLA';
+            issue_type = 'Epic';
             desc = `${submission.description}
 
 Submitted by: ${user.name}`;
         } else {
+            board = 'SUP';
             issue_type = 'Data Request';
             desc = `${submission.description}
 
