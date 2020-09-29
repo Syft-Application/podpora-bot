@@ -71,6 +71,30 @@ Submitted by: ${slack_user.name}`;
                     });
                 });
             });
+
+            describe('idea', () => {
+                const request_type = 'idea';
+                const submission = {
+                    title: 'A',
+                    description: 'B'
+                };
+                const desc = `${submission.description}
+
+Submitted by: ${slack_user.name}`;
+
+                it('matches expected object', () => {
+                    expect(
+                        config.issueParams(submission, slack_user, request_type)
+                    ).toEqual({
+                        fields: {
+                            project: { key: 'SUP' },
+                            summary: 'A',
+                            issuetype: { name: 'Product Idea' },
+                            description: desc,
+                        }
+                    });
+                });
+            });
         });
 
         describe('#supportMessageText(submission, user, request_type)', () => {
