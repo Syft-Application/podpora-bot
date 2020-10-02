@@ -6,6 +6,7 @@ import { store } from '../../../util/secrets';
 import { Slack } from '../../../lib/slack';
 import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
+import { product } from '../../../lib/product';
 import {
     InteractionTypes,
     PostInteractionPayload
@@ -19,13 +20,19 @@ function handleDialogSubmission(params: PostInteractionPayload, res: Response): 
     const jira_options = store.jiraOptions(team.id);
     const jira = new Jira(jira_options);
 
-    if (type !== 'support') {
-        throw new Error('Unexpected state param: ' + state);
+    if (type === 'support') {
+        return support.handleDialogSubmission(
+            slack, jira, params, subtype, res
+        );
     }
 
-    return support.handleDialogSubmission(
-        slack, jira, params, subtype, res
-    );
+    if (type === 'product') {
+        return product.handleDialogSubmission(
+            slack, jira, params, subtype, res
+        );
+    }
+
+    throw new Error('Unexpected state param: ' + state);
 }
 
 function interactionHandler(params: PostInteractionPayload, res: Response): Response {

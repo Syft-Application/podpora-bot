@@ -6,6 +6,7 @@ import { store } from '../../../util/secrets';
 import feature from '../../../util/feature';
 import { Slack } from '../../../lib/slack';
 import { support } from '../../../lib/support';
+import { product } from '../../../lib/product';
 import {
     PostCommandPayload
 } from '../../../lib/slack/api_interfaces';
@@ -23,6 +24,8 @@ export const postCommand = (req: Request, res: Response): void => {
 
         if (command === '/support' || feature.is_enabled(`support_command_${command}`)) {
             support.handleCommand(slack, payload, res);
+        } else if (command === '/product') {
+            product.handleCommand(slack, payload, res);
         } else {
             res.json({
                 text: 'Unknown or not implemented command.'

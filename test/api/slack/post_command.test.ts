@@ -33,7 +33,7 @@ describe('POST /api/slack/command', () => {
     const api_path = '/api/slack/command';
     const service = build_service(app, api_path);
 
-    function test_support_command_with_dialog(params: Record<string, unknown>): void {
+    function test_command_with_dialog(params: Record<string, unknown>): void {
         it('sends dialog to Slack', (done) => {
             nock('https://slack.com')
                 .post('/api/dialog.open')
@@ -92,6 +92,20 @@ describe('POST /api/slack/command', () => {
         });
     }
 
+    function test_command_help(
+        params: Record<string, unknown>,
+        commandHelpResponse: { text: string }
+    ): void {
+        const response = build_response(service(params));
+
+        it('contains command help message', (done) => {
+            response((body: Record<string, unknown>) => {
+                expect(body).toEqual(commandHelpResponse);
+                done();
+            }, done);
+        });
+    }
+
     it('returns 200 OK', () => {
         return service(default_params).expect(200);
     });
@@ -99,32 +113,26 @@ describe('POST /api/slack/command', () => {
     describe('command: /support', () => {
         const support_params = merge(default_params, { command: '/support' });
 
-        describe('response.body', () => {
+        describe('text: anything than bug, data or ping', () => {
             const commandHelpResponse = {
                 text: '👋 Need help with support bot?\n\n'
                     + '> Submit a request for data:\n>`/support data`\n\n'
                     + '> Submit a bug report:\n>`/support bug`'
             };
-            const response = build_response(service(support_params));
 
-            it('contains command help message', (done) => {
-                response((body: Record<string, unknown>) => {
-                    expect(body).toEqual(commandHelpResponse);
-                    done();
-                }, done);
-            });
+            test_command_help(support_params, commandHelpResponse);
         });
 
         describe('text: bug', () => {
             const bug_params = merge(support_params, { text: 'bug' });
 
-            test_support_command_with_dialog(bug_params);
+            test_command_with_dialog(bug_params);
         });
 
         describe('text: data', () => {
             const data_params = merge(support_params, { text: 'data' });
 
-            test_support_command_with_dialog(data_params);
+            test_command_with_dialog(data_params);
         });
 
         describe('text: ping', () => {
@@ -140,6 +148,24 @@ describe('POST /api/slack/command', () => {
                     done();
                 }, done);
             });
+        });
+    });
+
+    describe('command: /product', () => {
+        const product_params = merge(default_params, { command: '/product' });
+
+        describe('text: anything else than `idea`', () => {
+            const commandHelpResponse = {
+                text: '👋 Need help with product bot?\n\n'
+                    + '> Submit new product idea:\n>`/product idea`'
+            };
+            test_command_help(product_params, commandHelpResponse);
+        });
+
+        describe('text: idea', () => {
+            const idea_params = merge(product_params, { text: 'idea' });
+
+            test_command_with_dialog(idea_params);
         });
     });
 

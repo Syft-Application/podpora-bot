@@ -6,6 +6,7 @@ import { store } from '../../../util/secrets';
 import { Slack } from '../../../lib/slack';
 import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
+import { product } from '../../../lib/product';
 import {
     EventCallbackPayload,
     isChannelThreadFileShareEvent,
@@ -17,13 +18,18 @@ function handleCallbackEvent(payload: EventCallbackPayload): void {
     const { event, team_id } = payload;
     const slack_options = store.slackOptions(team_id);
     const slack = new Slack(slack_options);
+    const channel_id = event.channel;
 
     // TODO: maybe some more specific dispatch based on rules
     if (isChannelThreadFileShareEvent(event)) {
         const jira_options = store.jiraOptions(team_id);
         const jira = new Jira(jira_options);
 
-        support.addFileToJiraIssue(slack, jira, event);
+        if (channel_id == support.channel(slack)) {
+            support.addFileToJiraIssue(slack, jira, event);
+        } else if (channel_id == product.channel(slack)) {
+            product.addFileToJiraIssue(slack, jira, event);
+        }
     }
 }
 

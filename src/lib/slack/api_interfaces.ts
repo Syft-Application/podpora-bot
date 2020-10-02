@@ -69,6 +69,7 @@ interface EventCallbackPayload {
 }
 
 interface ChannelEvent {
+    [index: string]: string | Array<SlackFile> | undefined
     ts: string,
     type: string,
     team?: string,

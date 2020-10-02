@@ -88,92 +88,10 @@ describe('POST /api/slack/interaction', () => {
     });
 
     describe('dialog_submission', () => {
-        const submission = {
-            title: 'Android app is crashing',
-            description: 'pokojny vecer na vrsky padal',
-            expected: 'expected-foo',
-            currently: 'currently-baz'
-        };
-        const payload = {
-            type: 'dialog_submission',
-            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-            action_ts: '1591735130.109259',
-            team: {
-                id: 'T0001',
-                domain: 'supportdemo'
-            },
-            user: {
-                id: 'UHAV00MD0',
-                name: 'joe_wick'
-            },
-            channel: {
-                id: 'CHNBT34FJ',
-                name: 'support'
-            },
-            submission: submission,
-            callback_id: '12345',
-            response_url: 'https://hooks.slack.com/app/response_url',
-            state: 'support_bug'
-        };
-        const params = { payload: JSON.stringify(payload) };
-
-        it('returns 200 OK', (done) => {
-            storeSetSpy.mockImplementationOnce(() => {
-                done();
-                return true;
-            });
-
-            nock('https://slack.com')
-                .post('/api/chat.postMessage')
-                .reply(200, postMessageResponse);
-
-            nock('https://example.com')
-                .post('/rest/api/2/issue')
-                .reply(200, createIssueResponse);
-
-            nock('https://example.com')
-                .post(`/rest/api/2/issue/${issue_key}/remotelink`)
-                .reply(200);
-
-            nock('https://slack.com')
-                .post('/api/chat.postMessage', new RegExp(issue_key))
-                .reply(200, { ok: true });
-
-            // TODO: remove `() => { true; }`
-            // The test are failing without atm ;/
-            return service(params).expect(200, () => { true; });
-        });
-
-        describe('data request', () => {
-            const submission = {
-                title: 'Active clients on platform',
-                description: 'please provide csv of all active employers'
-            };
-            const payload = {
-                type: 'dialog_submission',
-                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-                action_ts: '1591735130.109259',
-                team: {
-                    id: 'T0001',
-                    domain: 'supportdemo'
-                },
-                user: {
-                    id: 'UHAV00MD0',
-                    name: 'joe_wick'
-                },
-                channel: {
-                    id: 'CHNBT34FJ',
-                    name: 'support'
-                },
-                submission: submission,
-                callback_id: 'abc1591734883700',
-                response_url: 'https://hooks.slack.com/app/response_url',
-                state: 'support_data'
-            };
-            const params = { payload: JSON.stringify(payload) };
-
-            it('returns 200 OK', () => {
+        function test_dialog_submission(params: Record<string, unknown>): void {
+            it('returns 200 OK', (done) => {
                 storeSetSpy.mockImplementationOnce(() => {
+                    done();
                     return true;
                 });
 
@@ -189,13 +107,140 @@ describe('POST /api/slack/interaction', () => {
                     .post(`/rest/api/2/issue/${issue_key}/remotelink`)
                     .reply(200);
 
-
                 nock('https://slack.com')
                     .post('/api/chat.postMessage', new RegExp(issue_key))
                     .reply(200, { ok: true });
 
-                return service(params).expect(200);
+                return service(params).expect(200, () => { true; });
             });
+
+            describe('response.body', () => {
+                const response = build_response(service(params));
+
+                it('returns empty', (done) => {
+                    storeSetSpy.mockImplementationOnce(() => {
+                        done();
+                        return true;
+                    });
+
+                    nock('https://slack.com')
+                        .post('/api/chat.postMessage')
+                        .reply(200, postMessageResponse);
+
+                    nock('https://example.com')
+                        .post('/rest/api/2/issue')
+                        .reply(200, createIssueResponse);
+
+                    nock('https://example.com')
+                        .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                        .reply(200);
+
+                    nock('https://slack.com')
+                        .post('/api/chat.postMessage', new RegExp(issue_key))
+                        .reply(200, { ok: true });
+
+                    response((body: Record<string, unknown>) => {
+                        expect(body).toEqual({});
+                    }, done);
+                });
+            });
+        }
+
+        describe('support', () => {
+            describe('bug report', () => {
+                const submission = {
+                    title: 'Android app is crashing',
+                    description: 'pokojny vecer na vrsky padal',
+                    expected: 'expected-foo',
+                    currently: 'currently-baz'
+                };
+                const payload = {
+                    type: 'dialog_submission',
+                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                    action_ts: '1591735130.109259',
+                    team: {
+                        id: 'T0001',
+                        domain: 'supportdemo'
+                    },
+                    user: {
+                        id: 'UHAV00MD0',
+                        name: 'joe_wick'
+                    },
+                    channel: {
+                        id: 'CHNBT34FJ',
+                        name: 'support'
+                    },
+                    submission: submission,
+                    callback_id: '12345',
+                    response_url: 'https://hooks.slack.com/app/response_url',
+                    state: 'support_bug'
+                };
+                const params = { payload: JSON.stringify(payload) };
+
+                test_dialog_submission(params);
+            });
+
+            describe('data request', () => {
+                const submission = {
+                    title: 'Active clients on platform',
+                    description: 'please provide csv of all active employers'
+                };
+                const payload = {
+                    type: 'dialog_submission',
+                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                    action_ts: '1591735130.109259',
+                    team: {
+                        id: 'T0001',
+                        domain: 'supportdemo'
+                    },
+                    user: {
+                        id: 'UHAV00MD0',
+                        name: 'joe_wick'
+                    },
+                    channel: {
+                        id: 'CHNBT34FJ',
+                        name: 'support'
+                    },
+                    submission: submission,
+                    callback_id: 'abc1591734883700',
+                    response_url: 'https://hooks.slack.com/app/response_url',
+                    state: 'support_data'
+                };
+                const params = { payload: JSON.stringify(payload) };
+
+                test_dialog_submission(params);
+            });
+        });
+
+        describe('product', () => {
+            const submission = {
+                title: 'New £1_00_000 feature',
+                description: 'redacted .)'
+            };
+            const payload = {
+                type: 'dialog_submission',
+                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                action_ts: '1591735130.109259',
+                team: {
+                    id: 'T0001',
+                    domain: 'productdemo'
+                },
+                user: {
+                    id: 'UHAV00MD0',
+                    name: 'joe_wick'
+                },
+                channel: {
+                    id: 'CHNBT34FJ',
+                    name: 'product'
+                },
+                submission: submission,
+                callback_id: '12345',
+                response_url: 'https://hooks.slack.com/app/response_url',
+                state: 'product_idea'
+            };
+            const params = { payload: JSON.stringify(payload) };
+
+            test_dialog_submission(params);
         });
 
         describe('unknown state', () => {
@@ -205,7 +250,7 @@ describe('POST /api/slack/interaction', () => {
                 action_ts: '1591735130.109259',
                 team: {
                     id: 'T0001',
-                    domain: 'supportdemo'
+                    domain: 'productdemo'
                 },
                 user: {
                     id: 'UHAV00MD0',
@@ -244,35 +289,5 @@ describe('POST /api/slack/interaction', () => {
             });
         });
 
-        describe('response.body', () => {
-            const response = build_response(service(params));
-
-            it('returns empty', (done) => {
-                storeSetSpy.mockImplementationOnce(() => {
-                    done();
-                    return true;
-                });
-
-                nock('https://slack.com')
-                    .post('/api/chat.postMessage')
-                    .reply(200, postMessageResponse);
-
-                nock('https://example.com')
-                    .post('/rest/api/2/issue')
-                    .reply(200, createIssueResponse);
-
-                nock('https://example.com')
-                    .post(`/rest/api/2/issue/${issue_key}/remotelink`)
-                    .reply(200);
-
-                nock('https://slack.com')
-                    .post('/api/chat.postMessage', new RegExp(issue_key))
-                    .reply(200, { ok: true });
-
-                response((body: Record<string, unknown>) => {
-                    expect(body).toEqual({});
-                }, done);
-            });
-        });
     });
 });
