@@ -181,11 +181,6 @@ configs.syft = {
             name: 'bug',
             desc: 'Submit a bug report',
             example: '/support bug'
-        },
-        {
-            name: 'idea',
-            desc: 'Submit an idea',
-            example: '/support idea'
         }
     ],
     dialogs: {
@@ -247,28 +242,6 @@ configs.syft = {
                     value: '',
                 },
             ]
-        },
-        idea: {
-            callback_id: '',
-            title: 'New Product Idea (beta)',
-            submit_label: 'Submit',
-            state: 'support_idea',
-            elements: [
-                {
-                    type: 'text',
-                    name: 'title',
-                    label: 'Title',
-                    placeholder: 'eg. Portal: Filter of happy workers for employer.',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Description',
-                    placeholder: 'Please describe your idea or feature, eg. benefits, impact..',
-                    name: 'description',
-                    value: '',
-                },
-            ]
         }
     },
     issueParams: function(
@@ -294,12 +267,6 @@ ${submission.expected}
 
 Submitted by: ${user.name}`;
 
-        } else if (request_type === 'idea') {
-            board = 'MLA';
-            issue_type = 'Epic';
-            desc = `${submission.description}
-
-Submitted by: ${user.name}`;
         } else {
             board = 'SUP';
             issue_type = 'Data Request';
