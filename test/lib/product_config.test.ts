@@ -28,6 +28,7 @@ Submitted by: ${slack_user.name}`;
                             summary: 'A',
                             issuetype: { name: 'Idea' },
                             description: desc,
+                            labels: 'product'
                         }
                     });
                 });

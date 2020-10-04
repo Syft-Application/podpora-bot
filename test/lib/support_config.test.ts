@@ -43,6 +43,7 @@ Submitted by: ${slack_user.name}`;
                             summary: 'A',
                             issuetype: { name: 'Bug' },
                             description: desc,
+                            labels: 'support'
                         }
                     });
                 });
@@ -67,6 +68,7 @@ Submitted by: ${slack_user.name}`;
                             summary: 'A',
                             issuetype: { name: 'Data Request' },
                             description: desc,
+                            labels: 'support'
                         }
                     });
                 });
