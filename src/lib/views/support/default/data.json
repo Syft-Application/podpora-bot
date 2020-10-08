@@ -1,0 +1,52 @@
+{
+  "title": {
+    "type": "plain_text",
+    "text": "New Data Request"
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit"
+  },
+  "blocks": [
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_title",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "e.g. Report on number of shifts per employer in Feb 2019"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Summary"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": " "
+      }
+    },
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "ml_description",
+        "multiline": true,
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Please include any extra information required, \ne.g. column names."
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Description"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "Providing ID of employer, venue, worker or role may make the task easier."
+      }
+    }
+  ],
+  "type": "modal"
+}

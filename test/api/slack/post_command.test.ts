@@ -2,6 +2,7 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
+import feature from '../../../src/util/feature';
 import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
@@ -147,6 +148,53 @@ describe('POST /api/slack/command', () => {
                     });
                     done();
                 }, done);
+            });
+        });
+
+        describe('with enabled modal views', () => {
+            const featureSpy = jest.spyOn(feature, 'is_enabled');
+            // TODO: ability to toggle multiple feature flags same time
+            function modalsEnabled(name: string): boolean {
+                return name == 'slack_modals';
+            }
+
+            function test_command_with_modal(params: Record<string, unknown>): void {
+                it('sends modal view to Slack', (done) => {
+                    featureSpy.mockImplementationOnce(modalsEnabled);
+                    nock('https://slack.com')
+                        .post('/api/views.open')
+                        .reply(200, { ok: true });
+
+                    service(params).expect(200).end(done);
+                });
+
+                describe('response.body', () => {
+                    const response = build_response(service(params));
+
+                    it('returns empty', (done) => {
+                        featureSpy.mockImplementationOnce(modalsEnabled);
+                        nock('https://slack.com')
+                            .post('/api/views.open')
+                            .reply(200, { ok: true });
+
+                        response((body: Record<string, unknown>) => {
+                            expect(body).toEqual({});
+                            done();
+                        }, done);
+                    });
+                });
+            }
+
+            describe('text: bug', () => {
+                const bug_params = merge(support_params, { text: 'bug' });
+
+                test_command_with_modal(bug_params);
+            });
+
+            describe('text: data', () => {
+                const data_params = merge(support_params, { text: 'data' });
+
+                test_command_with_modal(data_params);
             });
         });
     });

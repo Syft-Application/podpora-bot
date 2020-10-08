@@ -1,5 +1,6 @@
 import {
     Dialog,
+    View,
     WebAPICallResult,
     WebClient
 } from '@slack/web-api';
@@ -48,6 +49,18 @@ class Slack {
 
         return this.client.dialog.open({
             dialog,
+            trigger_id
+        });
+    }
+
+    showModalView(
+        view: View,
+        trigger_id: string
+    ): Promise<WebAPICallResult> {
+        view.callback_id = this.callbackId();
+
+        return this.client.views.open({
+            view,
             trigger_id
         });
     }

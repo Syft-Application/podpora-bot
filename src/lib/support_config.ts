@@ -1,4 +1,6 @@
-import { Dialog } from '@slack/web-api';
+import fs from 'fs';
+import path from 'path';
+import { Dialog, View } from '@slack/web-api';
 import { SlackUser, Submission } from './slack/api_interfaces';
 
 interface IssueParams {
@@ -17,6 +19,10 @@ interface Dialogs {
     [index: string]: Dialog
 }
 
+interface Views {
+    [index: string]: View
+}
+
 interface SlackSupportCommand {
     name: string,
     desc: string,
@@ -26,6 +32,7 @@ interface SlackSupportCommand {
 interface SupportConfig {
     commands: Array<SlackSupportCommand>,
     dialogs: Dialogs,
+    view: (key: string) => View,
     issueParams: (
         submission: Submission,
         user: SlackUser,
@@ -37,6 +44,16 @@ interface SupportConfig {
         request_type: string
     ) => string
 }
+
+const viewsDirectoryPath = path.join(__dirname, 'views', 'support', 'default');
+const views: Views = {};
+fs.readdirSync(viewsDirectoryPath).reduce((acc, name: string) => {
+    const fpath = path.join(viewsDirectoryPath, name);
+    acc[path.parse(fpath).name] = JSON.parse(
+        fs.readFileSync(fpath).toString()
+    );
+    return acc;
+}, views);
 
 const configs: { [index: string]: SupportConfig } = {};
 
@@ -113,6 +130,9 @@ configs.default = {
                 },
             ]
         }
+    },
+    view: function(key: string): View {
+        return views[key];
     },
     issueParams: function(
         submission: Submission,
@@ -245,6 +265,9 @@ configs.syft = {
                 },
             ]
         }
+    },
+    view: function(key: string): View {
+        return configs.default.view(key);
     },
     issueParams: function(
         submission: Submission,

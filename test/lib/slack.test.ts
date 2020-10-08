@@ -110,4 +110,37 @@ describe('Slack', () => {
                 });
         });
     });
+
+    describe('#showModalView(modal, trigger_id)', () => {
+        it('returns a Promise', (done) => {
+            const modal = {
+                'type': 'modal' as const,
+                'title': {
+                    'type': 'plain_text' as const,
+                    'text': 'Just a modal'
+                },
+                'blocks': [
+                    {
+                        'type': 'section',
+                        'block_id': 'section-identifier',
+                        'text': {
+                            'type': 'mrkdwn',
+                            'text': '*Welcome* to ~my~ Block Kit _modal_!'
+                        }
+                    }
+                ],
+            };
+            const trigger_id = 'bar';
+            expect.assertions(1);
+            nock('https://slack.com')
+                .post('/api/views.open')
+                .reply(200, { ok: true });
+
+            slack.showModalView(modal, trigger_id)
+                .then((res) => {
+                    expect(res.ok).toEqual(true);
+                    done();
+                });
+        });
+    });
 });

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import {
     Dialog,
+    View,
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
@@ -20,6 +21,7 @@ import {
     Submission
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
+import feature from './../util/feature';
 
 function fileShareEventToIssueComment(
     event: ChannelThreadFileShareEvent,
@@ -77,14 +79,23 @@ const support = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = supportConfig(support.configName(slack)).dialogs[request_type];
+        const errorHandler = (error: Error): Promise<WebAPICallResult> => {
+            logger.error('showForm', error.message);
 
-        return slack.showDialog(dialog, trigger_id)
-            .catch((error) => {
-                logger.error('showForm', error.message);
+            return Promise.reject({ ok: false });
+        };
 
-                return Promise.reject({ ok: false });
-            });
+        if (feature.is_enabled('slack_modals')) {
+            const view: View = supportConfig(support.configName(slack)).view(request_type);
+
+            return slack.showModalView(view, trigger_id)
+                .catch(errorHandler);
+        } else {
+            const dialog: Dialog = supportConfig(support.configName(slack)).dialogs[request_type];
+
+            return slack.showDialog(dialog, trigger_id)
+                .catch(errorHandler);
+        }
     },
 
     postIssueUrlOnThread(

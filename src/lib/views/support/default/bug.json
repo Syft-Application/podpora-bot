@@ -1,0 +1,90 @@
+{
+  "title": {
+    "type": "plain_text",
+    "text": "New Bug Report"
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit"
+  },
+  "blocks": [
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_title",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "One line summary, e.g. Employer id 1234 can't post a shift"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Summary"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "Mention keywords such as Employer, Worker, ACP, App, etc."
+      }
+    },
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "ml_description",
+        "multiline": true,
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Bullet point steps to reproduce. \nInclude specifics, e.g. urls and ids."
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Steps to reproduce"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "Include specifics, e.g. urls and ids."
+      }
+    },
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_currently",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "What *currently* happens when the above steps are taken?"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Current Outcome"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": " "
+      }
+    },
+    {
+      "type": "input",
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_expected",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "What *should* happen when the above steps are taken?"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Expected Outcome"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": " "
+      }
+    }
+  ],
+  "type": "modal"
+}

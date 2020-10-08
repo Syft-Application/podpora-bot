@@ -87,5 +87,15 @@ Submitted by: ${slack_user.name}`;
                 expect(result).toContain('B');
             });
         });
+
+        describe('#view(key)', () => {
+            it('returns json modal definition', () => {
+                const result = config.view('bug');
+
+                expect(
+                    new Set(Object.keys(result))
+                ).toEqual(new Set(['title', 'type', 'blocks', 'submit']));
+            });
+        });
     });
 });
