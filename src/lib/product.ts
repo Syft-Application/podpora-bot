@@ -12,12 +12,12 @@ import {
 import { Jira } from './jira';
 import {
     PostCommandPayload,
-    PostInteractionPayload,
     ChannelThreadFileShareEvent,
     SlackFiles,
     isSlackImageFile,
     SlackUser,
-    Submission
+    Submission,
+    DialogSubmission
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
 
@@ -211,7 +211,7 @@ const product = {
     handleDialogSubmission(
         slack: Slack,
         jira: Jira,
-        payload: PostInteractionPayload,
+        payload: DialogSubmission,
         request_type: string,
         res: Response
     ): Response {

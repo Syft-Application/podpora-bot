@@ -15,11 +15,18 @@ interface PostCommandPayload {
 }
 
 const enum InteractionTypes {
-    dialog_submission = 'dialog_submission'
+    dialog_submission = 'dialog_submission',
+    view_submission = 'view_submission'
 }
 
-interface PostInteractionPayload {
-    type: InteractionTypes,
+type PostInteractionPayload = (DialogSubmission | ViewSubmission | UnknownSubmission)
+
+interface UnknownSubmission {
+    type: string
+}
+
+interface DialogSubmission {
+    type: InteractionTypes.dialog_submission,
     token: string,
     action_ts: string,
     team: {
@@ -43,6 +50,38 @@ interface PostInteractionPayload {
     callback_id: string,
     response_url: string,
     state: string
+}
+
+interface ViewSubmissionBlockValue {
+    [index: string]: ViewSubmissionInputValue
+}
+
+interface ViewSubmissionInputValue {
+    type: string,
+    value: string
+}
+
+
+interface ViewSubmission {
+    type: InteractionTypes.view_submission,
+    team: {
+        id: string,
+        domain: string
+    },
+    user: {
+        id: string,
+        name: string
+    },
+    view: {
+        id: string,
+        type: string,
+        private_metadata: string,
+        callback_id: string,
+        state: {
+            values: Record<string, ViewSubmissionBlockValue>
+        },
+        hash: string
+    }
 }
 
 interface PostEventUrlVerificationPayload {
@@ -143,5 +182,7 @@ export {
     isSlackImageFile,
     SlackFiles,
     SlackUser,
-    Submission
+    Submission,
+    DialogSubmission,
+    ViewSubmission,
 };

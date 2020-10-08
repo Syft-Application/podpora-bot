@@ -94,7 +94,7 @@ Submitted by: ${slack_user.name}`;
 
                 expect(
                     new Set(Object.keys(result))
-                ).toEqual(new Set(['title', 'type', 'blocks', 'submit']));
+                ).toEqual(new Set(['title', 'type', 'blocks', 'submit', 'private_metadata']));
             });
         });
     });

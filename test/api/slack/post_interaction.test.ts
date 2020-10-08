@@ -87,9 +87,36 @@ describe('POST /api/slack/interaction', () => {
         });
     });
 
-    describe('dialog_submission', () => {
-        function test_dialog_submission(params: Record<string, unknown>): void {
-            it('returns 200 OK', (done) => {
+    function test_submission(params: Record<string, unknown>): void {
+        it('returns 200 OK', (done) => {
+            storeSetSpy.mockImplementationOnce(() => {
+                done();
+                return true;
+            });
+
+            nock('https://slack.com')
+                .post('/api/chat.postMessage')
+                .reply(200, postMessageResponse);
+
+            nock('https://example.com')
+                .post('/rest/api/2/issue')
+                .reply(200, createIssueResponse);
+
+            nock('https://example.com')
+                .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                .reply(200);
+
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', new RegExp(issue_key))
+                .reply(200, { ok: true });
+
+            return service(params).expect(200, () => { true; });
+        });
+
+        describe('response.body', () => {
+            const response = build_response(service(params));
+
+            it('returns empty', (done) => {
                 storeSetSpy.mockImplementationOnce(() => {
                     done();
                     return true;
@@ -111,41 +138,15 @@ describe('POST /api/slack/interaction', () => {
                     .post('/api/chat.postMessage', new RegExp(issue_key))
                     .reply(200, { ok: true });
 
-                return service(params).expect(200, () => { true; });
+                response((body: Record<string, unknown>) => {
+                    expect(body).toEqual({});
+                }, done);
             });
+        });
+    }
 
-            describe('response.body', () => {
-                const response = build_response(service(params));
 
-                it('returns empty', (done) => {
-                    storeSetSpy.mockImplementationOnce(() => {
-                        done();
-                        return true;
-                    });
-
-                    nock('https://slack.com')
-                        .post('/api/chat.postMessage')
-                        .reply(200, postMessageResponse);
-
-                    nock('https://example.com')
-                        .post('/rest/api/2/issue')
-                        .reply(200, createIssueResponse);
-
-                    nock('https://example.com')
-                        .post(`/rest/api/2/issue/${issue_key}/remotelink`)
-                        .reply(200);
-
-                    nock('https://slack.com')
-                        .post('/api/chat.postMessage', new RegExp(issue_key))
-                        .reply(200, { ok: true });
-
-                    response((body: Record<string, unknown>) => {
-                        expect(body).toEqual({});
-                    }, done);
-                });
-            });
-        }
-
+    describe('dialog_submission', () => {
         describe('support', () => {
             describe('bug report', () => {
                 const submission = {
@@ -177,7 +178,7 @@ describe('POST /api/slack/interaction', () => {
                 };
                 const params = { payload: JSON.stringify(payload) };
 
-                test_dialog_submission(params);
+                test_submission(params);
             });
 
             describe('data request', () => {
@@ -208,7 +209,7 @@ describe('POST /api/slack/interaction', () => {
                 };
                 const params = { payload: JSON.stringify(payload) };
 
-                test_dialog_submission(params);
+                test_submission(params);
             });
         });
 
@@ -240,7 +241,7 @@ describe('POST /api/slack/interaction', () => {
             };
             const params = { payload: JSON.stringify(payload) };
 
-            test_dialog_submission(params);
+            test_submission(params);
         });
 
         describe('unknown state', () => {
@@ -288,6 +289,185 @@ describe('POST /api/slack/interaction', () => {
                 });
             });
         });
+    });
 
+    describe('view_submission', () => {
+        describe('support', () => {
+            describe('bug report', () => {
+                const view = {
+                    'private_metadata': 'support_bug',
+                    'user': {
+                        'id': 'UHAV00MD0',
+                        'username': 'foo',
+                        'name': 'bar',
+                        'team_id': 'THS7JQ2RL'
+                    },
+                    'token': 'Shh_its_a_seekrit',
+                    'trigger_id': '12466734323.1395872398',
+                    'team': {
+                        'id': 'THS7JQ2RL',
+                        'domain': 'kudosdemo'
+                    },
+                    'state': {
+                        'values': {
+                            'sl_title_block': {
+                                'sl_title': {
+                                    'type': 'plain_text_input',
+                                    'value': 'fii'
+                                }
+                            },
+                            'ml_description_block': {
+                                'ml_description': {
+                                    'type': 'plain_text_input',
+                                    'value': 'afdsfdsadfsaf'
+                                }
+                            },
+                            'sl_currently_block': {
+                                'sl_currently': {
+                                    'type': 'plain_text_input',
+                                    'value': 'fii'
+                                }
+                            },
+                            'sl_expected_block': {
+                                'sl_expected': {
+                                    'type': 'plain_text_input',
+                                    'value': 'fii'
+                                }
+                            },
+                        }
+                    }
+                };
+                const payload = {
+                    type: 'view_submission',
+                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                    action_ts: '1591735130.109259',
+                    team: {
+                        id: 'T0001',
+                        domain: 'supportdemo'
+                    },
+                    user: {
+                        id: 'UHAV00MD0',
+                        name: 'joe_wick'
+                    },
+                    channel: {
+                        id: 'CHNBT34FJ',
+                        name: 'support'
+                    },
+                    view: view,
+                    callback_id: '12345',
+                    response_url: 'https://hooks.slack.com/app/response_url',
+                    state: 'support_bug'
+                };
+                const params = { payload: JSON.stringify(payload) };
+
+                test_submission(params);
+            });
+
+            describe('data request', () => {
+                const view = {
+                    'private_metadata': 'support_data',
+                    'user': {
+                        'id': 'UHAV00MD0',
+                        'username': 'foo',
+                        'name': 'bar',
+                        'team_id': 'THS7JQ2RL'
+                    },
+                    'token': 'Shh_its_a_seekrit',
+                    'trigger_id': '12466734323.1395872398',
+                    'team': {
+                        'id': 'THS7JQ2RL',
+                        'domain': 'kudosdemo'
+                    },
+                    'state': {
+                        'values': {
+                            'sl_title_block': {
+                                'sl_title': {
+                                    'type': 'plain_text_input',
+                                    'value': 'fii'
+                                }
+                            },
+                            'ml_description_block': {
+                                'ml_description': {
+                                    'type': 'plain_text_input',
+                                    'value': 'afdsfdsadfsaf'
+                                }
+                            }
+                        }
+                    }
+                };
+                const payload = {
+                    type: 'view_submission',
+                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                    action_ts: '1591735130.109259',
+                    team: {
+                        id: 'T0001',
+                        domain: 'supportdemo'
+                    },
+                    user: {
+                        id: 'UHAV00MD0',
+                        name: 'joe_wick'
+                    },
+                    channel: {
+                        id: 'CHNBT34FJ',
+                        name: 'support'
+                    },
+                    view: view,
+                    callback_id: '12345',
+                    response_url: 'https://hooks.slack.com/app/response_url',
+                    state: 'support_bug'
+                };
+                const params = { payload: JSON.stringify(payload) };
+
+                test_submission(params);
+            });
+        });
+
+        describe('unknown state', () => {
+            const view = {
+                'private_metadata': 'unknnown state',
+            };
+            const payload = {
+                type: 'view_submission',
+                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                action_ts: '1591735130.109259',
+                team: {
+                    id: 'T0001',
+                    domain: 'supportdemo'
+                },
+                user: {
+                    id: 'UHAV00MD0',
+                    name: 'joe_wick'
+                },
+                channel: {
+                    id: 'CHNBT34FJ',
+                    name: 'support'
+                },
+                view: view,
+                callback_id: '12345',
+                response_url: 'https://hooks.slack.com/app/response_url'
+            };
+            const params = { payload: JSON.stringify(payload) };
+
+            it('returns 200 OK', (done) => {
+                return service(params).expect(200, done);
+            });
+
+            it('returns successfuly but logs the error', (done) => {
+                expect.assertions(3);
+
+                service(params).expect(200).end((err) => {
+                    if (err) {
+                        done(err);
+                    }
+
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const mock = logErrorSpy.mock;
+                    const calls = mock.calls[0].toString();
+                    expect(calls).toContain('postInteraction');
+                    expect(calls).toContain(view.private_metadata);
+                    done();
+                });
+            });
+        });
     });
 });

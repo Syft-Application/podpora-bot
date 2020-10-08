@@ -1,4 +1,5 @@
 {
+  "private_metadata": "support_bug",
   "title": {
     "type": "plain_text",
     "text": "New Bug Report"
@@ -10,6 +11,7 @@
   "blocks": [
     {
       "type": "input",
+      "block_id": "sl_title_block",
       "element": {
         "type": "plain_text_input",
         "action_id": "sl_title",
@@ -24,18 +26,19 @@
       },
       "hint": {
         "type": "plain_text",
-        "text": "Mention keywords such as Employer, Worker, ACP, App, etc."
+        "text": "Using words such as Employer, Worker, ACP, App helps to identify the problem."
       }
     },
     {
       "type": "input",
+      "block_id": "ml_description_block",
       "element": {
         "type": "plain_text_input",
         "action_id": "ml_description",
         "multiline": true,
         "placeholder": {
           "type": "plain_text",
-          "text": "Bullet point steps to reproduce. \nInclude specifics, e.g. urls and ids."
+          "text": "Bullet point steps to reproduce the issue. \nPlease include specifics, e.g. ACP or portal url, employer, shift or worker id."
         }
       },
       "label": {
@@ -44,11 +47,12 @@
       },
       "hint": {
         "type": "plain_text",
-        "text": "Include specifics, e.g. urls and ids."
+        "text": "You can attach screenshots in slack thread later."
       }
     },
     {
       "type": "input",
+      "block_id": "sl_currently_block",
       "element": {
         "type": "plain_text_input",
         "action_id": "sl_currently",
@@ -68,6 +72,7 @@
     },
     {
       "type": "input",
+      "block_id": "sl_expected_block",
       "element": {
         "type": "plain_text_input",
         "action_id": "sl_expected",

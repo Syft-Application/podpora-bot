@@ -13,7 +13,8 @@ import {
 import { Jira } from './jira';
 import {
     PostCommandPayload,
-    PostInteractionPayload,
+    DialogSubmission,
+    ViewSubmission,
     ChannelThreadFileShareEvent,
     SlackFiles,
     isSlackImageFile,
@@ -48,6 +49,25 @@ function supportCommandsHelpText(commands: Array<SlackSupportCommand>): string {
         (cmd) => {
             return `> ${cmd.desc}:\n>\`${cmd.example}\``;
         }).join('\n\n');
+}
+
+function viewToSubmission(
+    view: ViewSubmission['view'],
+    request_type: string
+): Submission {
+    const values = view.state.values;
+    const submission: Submission = {};
+    if (request_type === 'bug') {
+        submission.title = values.sl_title_block.sl_title.value;
+        submission.description = values.ml_description_block.ml_description.value;
+        submission.currently = values.sl_currently_block.sl_currently.value;
+        submission.expected = values.sl_expected_block.sl_expected.value;
+    } else {
+        submission.title = values.sl_title_block.sl_title.value;
+        submission.description = values.ml_description_block.ml_description.value;
+    }
+
+    return submission;
 }
 
 // Unfortunaly preview slack images does not work as explained here:
@@ -224,11 +244,28 @@ const support = {
     handleDialogSubmission(
         slack: Slack,
         jira: Jira,
-        payload: PostInteractionPayload,
+        payload: DialogSubmission,
         request_type: string,
         res: Response
     ): Response {
         const { user, submission } = payload;
+
+        support.createSupportRequest(
+            slack, jira, submission, user, request_type
+        );
+
+        return res;
+    },
+
+    handleViewSubmission(
+        slack: Slack,
+        jira: Jira,
+        payload: ViewSubmission,
+        request_type: string,
+        res: Response
+    ): Response {
+        const { user, view } = payload;
+        const submission = viewToSubmission(view, request_type);
 
         support.createSupportRequest(
             slack, jira, submission, user, request_type

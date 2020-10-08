@@ -1,0 +1,58 @@
+{
+  "type": "block_actions",
+  "user": {
+    "id": "UHAV00MD0",
+    "username": "podnajom_se5",
+    "name": "podnajom_se5",
+    "team_id": "THS7JQ2RL"
+  },
+  "api_app_id": "A02",
+  "token": "Shh_its_a_seekrit",
+  "container": {
+    "type": "message",
+    "text": "The contents of the original message where the action originated"
+  },
+  "trigger_id": "12466734323.1395872398",
+  "team": {
+    "id": "THS7JQ2RL",
+    "domain": "kudosdemo"
+  },
+  "state": {
+    "values": {
+      "sl_title_block": {
+        "sl_title": {
+          "type": "plain_text_input",
+          "value": "Foo summary"
+        }
+      },
+      "ml_description_block": {
+        "ml_description": {
+          "type": "plain_text_input",
+          "value": "- put butter on bread\n- let the bread with butter fall on the floor"
+        }
+      },
+      "sl_currently_block": {
+        "sl_currently": {
+          "type": "plain_text_input",
+          "value": "bread ends with butter side facing floor"
+        }
+      },
+      "sl_expected_block": {
+        "sl_expected": {
+          "type": "plain_text_input",
+          "value": "butter side facing ceiling"
+        }
+      }
+    }
+  },
+  "response_url": "https://www.postresponsestome.com/T123567/1509734234",
+  "actions": [
+    {
+      "type": "plain_text_input",
+      "block_id": "sl_expected_block",
+      "action_id": "sl_expected",
+      "value": "butter side facing ceiling",
+      "action_ts": "1602197794.534752"
+    }
+  ]
+}

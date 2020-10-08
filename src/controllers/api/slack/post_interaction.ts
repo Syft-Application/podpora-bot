@@ -8,11 +8,31 @@ import { Jira } from '../../../lib/jira';
 import { support } from '../../../lib/support';
 import { product } from '../../../lib/product';
 import {
+    DialogSubmission,
+    ViewSubmission,
     InteractionTypes,
     PostInteractionPayload
 } from '../../../lib/slack/api_interfaces';
 
-function handleDialogSubmission(params: PostInteractionPayload, res: Response): Response {
+function handleViewSubmission(params: ViewSubmission, res: Response): Response {
+    const { team, view } = params;
+    const private_metadata = view.private_metadata;
+    const [type, subtype] = view.private_metadata.split('_');
+    const slack_options = store.slackOptions(team.id);
+    const slack = new Slack(slack_options);
+    const jira_options = store.jiraOptions(team.id);
+    const jira = new Jira(jira_options);
+
+    if (type === 'support') {
+        return support.handleViewSubmission(
+            slack, jira, params, subtype, res
+        );
+    }
+
+    throw new Error('Unexpected state param: ' + private_metadata);
+}
+
+function handleDialogSubmission(params: DialogSubmission, res: Response): Response {
     const { team, state } = params;
     const [type, subtype] = state.split('_');
     const slack_options = store.slackOptions(team.id);
@@ -36,11 +56,15 @@ function handleDialogSubmission(params: PostInteractionPayload, res: Response): 
 }
 
 function interactionHandler(params: PostInteractionPayload, res: Response): Response {
-    if (params.type !== InteractionTypes.dialog_submission) {
-        throw new Error('Unexpected interaction: ' + params.type);
+    if (params.type == InteractionTypes.dialog_submission) {
+        return handleDialogSubmission(params as DialogSubmission, res);
     }
 
-    return handleDialogSubmission(params, res);
+    if (params.type == InteractionTypes.view_submission) {
+        return handleViewSubmission(params as ViewSubmission, res);
+    }
+
+    throw new Error('Unexpected interaction: ' + params.type);
 }
 
 /**
