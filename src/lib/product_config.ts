@@ -75,6 +75,7 @@ configs.default = {
     issueParams: function(
         submission: Submission,
         user: SlackUser,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         request_type: string,
     ): IssueParams {
         const title: string = submission.title;
@@ -97,6 +98,7 @@ Submitted by: ${user.name}`;
     productMessageText(
         submission: Submission,
         user: SlackUser,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         request_type: string
     ): string {
         return `<@${user.id}> has submitted a new product idea:\n\n` +
