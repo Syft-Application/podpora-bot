@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import {
-    Dialog,
+    View,
     WebAPICallResult
 } from '@slack/web-api';
 import logger from '../util/logger';
@@ -17,7 +17,9 @@ import {
     isSlackImageFile,
     SlackUser,
     Submission,
-    DialogSubmission
+    ViewSubmission,
+    ViewSubmissionInputValue,
+    ViewSubmissionSelectValue
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
 
@@ -46,6 +48,40 @@ function productCommandsHelpText(commands: Array<SlackCommand>): string {
         (cmd) => {
             return `> ${cmd.desc}:\n>\`${cmd.example}\``;
         }).join('\n\n');
+}
+
+function viewToSubmission(
+    view: ViewSubmission['view'],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    request_type: string
+): Submission {
+    const values = view.state.values;
+    const submission: Submission = {};
+    const title_input = values.sl_title_block.sl_title as ViewSubmissionInputValue;
+    const desc_input = values.ml_description_block.ml_description as ViewSubmissionInputValue;
+    function selected(select_value: ViewSubmissionSelectValue): string | null {
+        if (select_value.selected_option) {
+            return select_value.selected_option.text.text;
+        }
+
+        return null;
+    }
+    const prod_area_value = selected(
+        values.sl_product_area_block.sl_product_area as ViewSubmissionSelectValue
+    );
+    const urgency_value = selected(
+        values.sl_urgency_block.sl_urgency as ViewSubmissionSelectValue
+    );
+    submission.title = title_input.value;
+    submission.description = desc_input.value;
+    if (prod_area_value) {
+        submission.product_area = prod_area_value;
+    }
+    if (urgency_value) {
+        submission.urgency = urgency_value;
+    }
+
+    return submission;
 }
 
 // Unfortunaly preview slack images does not work as explained here:
@@ -77,9 +113,9 @@ const product = {
         request_type: string,
         trigger_id: string
     ): Promise<WebAPICallResult> {
-        const dialog: Dialog = productConfig(product.configName(slack)).dialogs[request_type];
+        const view: View = productConfig(product.configName(slack)).view(request_type);
 
-        return slack.showDialog(dialog, trigger_id)
+        return slack.showModalView(view, trigger_id)
             .catch((error) => {
                 logger.error('showForm', error.message);
 
@@ -208,14 +244,15 @@ const product = {
         });
     },
 
-    handleDialogSubmission(
+    handleViewSubmission(
         slack: Slack,
         jira: Jira,
-        payload: DialogSubmission,
+        payload: ViewSubmission,
         request_type: string,
         res: Response
     ): Response {
-        const { user, submission } = payload;
+        const { user, view } = payload;
+        const submission = viewToSubmission(view, request_type);
 
         product.createProductRequest(
             slack, jira, submission, user, request_type
@@ -235,6 +272,5 @@ const product = {
 
 export {
     fileShareEventToIssueComment,
-    Submission,
     product
 };

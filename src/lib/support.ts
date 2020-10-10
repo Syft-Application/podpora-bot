@@ -15,6 +15,7 @@ import {
     PostCommandPayload,
     DialogSubmission,
     ViewSubmission,
+    ViewSubmissionInputValue,
     ChannelThreadFileShareEvent,
     SlackFiles,
     isSlackImageFile,
@@ -57,14 +58,18 @@ function viewToSubmission(
 ): Submission {
     const values = view.state.values;
     const submission: Submission = {};
+    function input_val(id: string): string {
+        const input = values[id + '_block'][id] as ViewSubmissionInputValue;
+        return input.value;
+    }
     if (request_type === 'bug') {
-        submission.title = values.sl_title_block.sl_title.value;
-        submission.description = values.ml_description_block.ml_description.value;
-        submission.currently = values.sl_currently_block.sl_currently.value;
-        submission.expected = values.sl_expected_block.sl_expected.value;
+        submission.title = input_val('sl_title');
+        submission.description = input_val('ml_description');
+        submission.currently = input_val('sl_currently');
+        submission.expected = input_val('sl_expected');
     } else {
-        submission.title = values.sl_title_block.sl_title.value;
-        submission.description = values.ml_description_block.ml_description.value;
+        submission.title = input_val('sl_title');
+        submission.description = input_val('ml_description');
     }
 
     return submission;

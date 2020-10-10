@@ -1,4 +1,6 @@
-import { Dialog } from '@slack/web-api';
+import fs from 'fs';
+import path from 'path';
+import { View } from '@slack/web-api';
 import { SlackUser, Submission } from './slack/api_interfaces';
 
 interface IssueParams {
@@ -13,8 +15,8 @@ interface IssueParams {
     }
 }
 
-interface Dialogs {
-    [index: string]: Dialog
+interface Views {
+    [index: string]: View
 }
 
 interface SlackProductCommand {
@@ -25,7 +27,7 @@ interface SlackProductCommand {
 
 interface ProductConfig {
     commands: Array<SlackProductCommand>,
-    dialogs: Dialogs,
+    view: (key: string) => View,
     issueParams: (
         submission: Submission,
         user: SlackUser,
@@ -38,6 +40,16 @@ interface ProductConfig {
     ) => string
 }
 
+const viewsDirectoryPath = path.join(__dirname, '..', 'views', 'product', 'default');
+const views: Views = {};
+fs.readdirSync(viewsDirectoryPath).reduce((acc, name: string) => {
+    const fpath = path.join(viewsDirectoryPath, name);
+    acc[path.parse(fpath).name] = JSON.parse(
+        fs.readFileSync(fpath).toString()
+    );
+    return acc;
+}, views);
+
 const configs: { [index: string]: ProductConfig } = {};
 
 configs.default = {
@@ -48,29 +60,8 @@ configs.default = {
             example: '/product idea'
         }
     ],
-    dialogs: {
-        idea: {
-            callback_id: '',
-            title: 'New Product Idea (beta)',
-            submit_label: 'Submit',
-            state: 'product_idea',
-            elements: [
-                {
-                    type: 'text',
-                    name: 'title',
-                    label: 'Title',
-                    placeholder: 'eg. Portal: Filter of happy workers for employer.',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Description',
-                    placeholder: 'Please describe your idea or feature, eg. benefits, impact..',
-                    name: 'description',
-                    value: '',
-                },
-            ]
-        }
+    view: function(key: string): View {
+        return views[key];
     },
     issueParams: function(
         submission: Submission,

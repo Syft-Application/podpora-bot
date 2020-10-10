@@ -1,0 +1,85 @@
+{
+  "private_metadata": "product_idea",
+  "type": "block_actions",
+  "user": {
+    "id": "UHAV00MD0",
+    "username": "podnajom_se5",
+    "name": "podnajom_se5",
+    "team_id": "THS7JQ2RL"
+  },
+  "api_app_id": "A02",
+  "token": "Shh_its_a_seekrit",
+  "container": {
+    "type": "message",
+    "text": "The contents of the original message where the action originated"
+  },
+  "trigger_id": "12466734323.1395872398",
+  "team": {
+    "id": "THS7JQ2RL",
+    "domain": "kudosdemo"
+  },
+  "state": {
+    "values": {
+      "sl_title_block": {
+        "sl_title": {
+          "type": "plain_text_input",
+          "value": "fooo"
+        }
+      },
+      "ml_description_block": {
+        "ml_description": {
+          "type": "plain_text_input",
+          "value": "bar"
+        }
+      },
+      "sl_product_area_block": {
+        "sl_product_area": {
+          "type": "static_select",
+          "selected_option": {
+            "text": {
+              "type": "plain_text",
+              "text": "US Product",
+              "emoji": false
+            },
+            "value": "2"
+          }
+        }
+      },
+      "sl_urgency_block": {
+        "sl_urgency": {
+          "type": "static_select",
+          "selected_option": {
+            "text": {
+              "type": "plain_text",
+              "text": "A week wait is fine",
+              "emoji": false
+            },
+            "value": "2"
+          }
+        }
+      }
+    }
+  },
+  "response_url": "https://www.postresponsestome.com/T123567/1509734234",
+  "actions": [
+    {
+      "type": "static_select",
+      "block_id": "sl_urgency_block",
+      "action_id": "sl_urgency",
+      "selected_option": {
+        "text": {
+          "type": "plain_text",
+          "text": "A week wait is fine",
+          "emoji": false
+        },
+        "value": "2"
+      },
+      "placeholder": {
+        "type": "plain_text",
+        "text": "Select an urgency",
+        "emoji": true
+      },
+      "action_ts": "1602334195.571451"
+    }
+  ]
+}

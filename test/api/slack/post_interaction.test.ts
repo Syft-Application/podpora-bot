@@ -3,6 +3,10 @@ import { Logger } from 'winston';
 import { build_service, build_response, fixture } from '../../helpers';
 import logger from '../../../src/util/logger';
 import { store } from '../../../src/util/secrets';
+import {
+    ViewSubmission,
+    ViewSubmissionSelectValue
+} from '../../../src/lib/slack/api_interfaces';
 
 import app from '../../../src/app';
 
@@ -213,37 +217,6 @@ describe('POST /api/slack/interaction', () => {
             });
         });
 
-        describe('product', () => {
-            const submission = {
-                title: 'New £1_00_000 feature',
-                description: 'redacted .)'
-            };
-            const payload = {
-                type: 'dialog_submission',
-                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-                action_ts: '1591735130.109259',
-                team: {
-                    id: 'T0001',
-                    domain: 'productdemo'
-                },
-                user: {
-                    id: 'UHAV00MD0',
-                    name: 'joe_wick'
-                },
-                channel: {
-                    id: 'CHNBT34FJ',
-                    name: 'product'
-                },
-                submission: submission,
-                callback_id: '12345',
-                response_url: 'https://hooks.slack.com/app/response_url',
-                state: 'product_idea'
-            };
-            const params = { payload: JSON.stringify(payload) };
-
-            test_submission(params);
-        });
-
         describe('unknown state', () => {
             const payload = {
                 type: 'dialog_submission',
@@ -292,6 +265,28 @@ describe('POST /api/slack/interaction', () => {
     });
 
     describe('view_submission', () => {
+        const payload = function(view: Record<string, unknown>): Record<string, unknown> {
+            return {
+                type: 'view_submission',
+                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+                action_ts: '1591735130.109259',
+                team: {
+                    id: 'T0001',
+                    domain: 'viewdemo'
+                },
+                user: {
+                    id: 'UHAV00MD0',
+                    name: 'joe_wick'
+                },
+                channel: {
+                    id: 'CHNBT34FJ',
+                    name: 'foobar'
+                },
+                view: view,
+                callback_id: '12345',
+                response_url: 'https://hooks.slack.com/app/response_url'
+            };
+        };
         describe('support', () => {
             describe('bug report', () => {
                 const view = {
@@ -337,28 +332,7 @@ describe('POST /api/slack/interaction', () => {
                         }
                     }
                 };
-                const payload = {
-                    type: 'view_submission',
-                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-                    action_ts: '1591735130.109259',
-                    team: {
-                        id: 'T0001',
-                        domain: 'supportdemo'
-                    },
-                    user: {
-                        id: 'UHAV00MD0',
-                        name: 'joe_wick'
-                    },
-                    channel: {
-                        id: 'CHNBT34FJ',
-                        name: 'support'
-                    },
-                    view: view,
-                    callback_id: '12345',
-                    response_url: 'https://hooks.slack.com/app/response_url',
-                    state: 'support_bug'
-                };
-                const params = { payload: JSON.stringify(payload) };
+                const params = { payload: JSON.stringify(payload(view)) };
 
                 test_submission(params);
             });
@@ -395,28 +369,28 @@ describe('POST /api/slack/interaction', () => {
                         }
                     }
                 };
-                const payload = {
-                    type: 'view_submission',
-                    token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-                    action_ts: '1591735130.109259',
-                    team: {
-                        id: 'T0001',
-                        domain: 'supportdemo'
-                    },
-                    user: {
-                        id: 'UHAV00MD0',
-                        name: 'joe_wick'
-                    },
-                    channel: {
-                        id: 'CHNBT34FJ',
-                        name: 'support'
-                    },
-                    view: view,
-                    callback_id: '12345',
-                    response_url: 'https://hooks.slack.com/app/response_url',
-                    state: 'support_bug'
+                const params = { payload: JSON.stringify(payload(view)) };
+
+                test_submission(params);
+            });
+        });
+
+        describe('product', () => {
+            const view = fixture('product/idea_submission');
+            const params = { payload: JSON.stringify(payload(view)) };
+
+            test_submission(params);
+
+            describe('with missing optional select value', () => {
+                const view2 = view as ViewSubmission['view'];
+                const nullify = (view: ViewSubmission['view'], id: string): void => {
+                    const vals = view.state.values;
+                    const select_elm = vals[id + '_block'][id] as ViewSubmissionSelectValue;
+                    select_elm.selected_option = null;
                 };
-                const params = { payload: JSON.stringify(payload) };
+                nullify(view2, 'sl_urgency');
+                nullify(view2, 'sl_product_area');
+                const params = { payload: JSON.stringify(payload(view2)) };
 
                 test_submission(params);
             });
@@ -426,27 +400,7 @@ describe('POST /api/slack/interaction', () => {
             const view = {
                 'private_metadata': 'unknnown state',
             };
-            const payload = {
-                type: 'view_submission',
-                token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-                action_ts: '1591735130.109259',
-                team: {
-                    id: 'T0001',
-                    domain: 'supportdemo'
-                },
-                user: {
-                    id: 'UHAV00MD0',
-                    name: 'joe_wick'
-                },
-                channel: {
-                    id: 'CHNBT34FJ',
-                    name: 'support'
-                },
-                view: view,
-                callback_id: '12345',
-                response_url: 'https://hooks.slack.com/app/response_url'
-            };
-            const params = { payload: JSON.stringify(payload) };
+            const params = { payload: JSON.stringify(payload(view)) };
 
             it('returns 200 OK', (done) => {
                 return service(params).expect(200, done);

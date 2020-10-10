@@ -199,6 +199,31 @@ describe('POST /api/slack/command', () => {
         });
     });
 
+    function test_command_with_modal(params: Record<string, unknown>): void {
+        it('sends modal view to Slack', (done) => {
+            nock('https://slack.com')
+                .post('/api/views.open')
+                .reply(200, { ok: true });
+
+            service(params).expect(200).end(done);
+        });
+
+        describe('response.body', () => {
+            const response = build_response(service(params));
+
+            it('returns empty', (done) => {
+                nock('https://slack.com')
+                    .post('/api/views.open')
+                    .reply(200, { ok: true });
+
+                response((body: Record<string, unknown>) => {
+                    expect(body).toEqual({});
+                    done();
+                }, done);
+            });
+        });
+    }
+
     describe('command: /product', () => {
         const product_params = merge(default_params, { command: '/product' });
 
@@ -213,7 +238,7 @@ describe('POST /api/slack/command', () => {
         describe('text: idea', () => {
             const idea_params = merge(product_params, { text: 'idea' });
 
-            test_command_with_dialog(idea_params);
+            test_command_with_modal(idea_params);
         });
     });
 

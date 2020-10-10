@@ -53,12 +53,21 @@ interface DialogSubmission {
 }
 
 interface ViewSubmissionBlockValue {
-    [index: string]: ViewSubmissionInputValue
+    [index: string]: ViewSubmissionInputValue | ViewSubmissionSelectValue
 }
 
 interface ViewSubmissionInputValue {
     type: string,
     value: string
+}
+
+interface ViewSubmissionSelectValue {
+    type: string,
+    selected_option: null | {
+        text: {
+            text: string
+        }
+    }
 }
 
 
@@ -185,4 +194,6 @@ export {
     Submission,
     DialogSubmission,
     ViewSubmission,
+    ViewSubmissionInputValue,
+    ViewSubmissionSelectValue
 };

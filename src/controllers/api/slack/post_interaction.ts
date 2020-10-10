@@ -29,6 +29,12 @@ function handleViewSubmission(params: ViewSubmission, res: Response): Response {
         );
     }
 
+    if (type === 'product') {
+        return product.handleViewSubmission(
+            slack, jira, params, subtype, res
+        );
+    }
+
     throw new Error('Unexpected state param: ' + private_metadata);
 }
 
@@ -42,12 +48,6 @@ function handleDialogSubmission(params: DialogSubmission, res: Response): Respon
 
     if (type === 'support') {
         return support.handleDialogSubmission(
-            slack, jira, params, subtype, res
-        );
-    }
-
-    if (type === 'product') {
-        return product.handleDialogSubmission(
             slack, jira, params, subtype, res
         );
     }

@@ -1,0 +1,175 @@
+{
+  "private_metadata": "product_idea",
+  "title": {
+    "type": "plain_text",
+    "text": "Product Idea"
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit"
+  },
+  "blocks": [
+    {
+      "type": "input",
+      "block_id": "sl_title_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_title",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "One line summary, e.g. Language courses for workers"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Summary"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": " "
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "ml_description_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "ml_description",
+        "multiline": true,
+        "placeholder": {
+          "type": "plain_text",
+          "text": " "
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Description"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "You can attach screenshots in slack thread later."
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "sl_product_area_block",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Area"
+      },
+      "accessory": {
+        "type": "static_select",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select a product area",
+          "emoji": false
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Worker experience",
+              "emoji": false
+            },
+            "value": "0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Employer experience",
+              "emoji": false
+            },
+            "value": "1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "US Product",
+              "emoji": false
+            },
+            "value": "2"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "ACP internal operations",
+              "emoji": false
+            },
+            "value": "3"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Finance & billing",
+              "emoji": false
+            },
+            "value": "4"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Ops efficiency",
+              "emoji": false
+            },
+            "value": "5"
+          }
+        ],
+        "action_id": "sl_product_area"
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "sl_urgency_block",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Urgency"
+      },
+      "accessory": {
+        "type": "static_select",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select an urgency",
+          "emoji": false
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Hampering daily operations",
+              "emoji": false
+            },
+            "value": "0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Want it asap",
+              "emoji": false
+            },
+            "value": "1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "A week wait is fine",
+              "emoji": false
+            },
+            "value": "2"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Its a long term request",
+              "emoji": false
+            },
+            "value": "3"
+          }
+        ],
+        "action_id": "sl_urgency"
+      }
+    }
+  ],
+  "type": "modal"
+}
