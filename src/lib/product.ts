@@ -13,35 +13,18 @@ import { Jira } from './jira';
 import {
     PostCommandPayload,
     ChannelThreadFileShareEvent,
-    SlackFiles,
-    isSlackImageFile,
     SlackUser,
     Submission,
     ViewSubmission,
     ViewSubmissionInputValue,
     ViewSubmissionSelectValue
 } from './slack/api_interfaces';
+import {
+    commandsNames,
+    fileShareEventToIssueComment,
+    SlackCommand,
+} from './slack_jira_helpers';
 import { store } from './../util/secrets';
-
-function fileShareEventToIssueComment(
-    event: ChannelThreadFileShareEvent,
-    url: string,
-    user_name: string
-): string {
-    const files_str = event.files.map(slackFileToText).join('\n\n');
-
-    return `${user_name}: ${event.text}\n\n${files_str}\n \n${url}\n`;
-}
-
-interface SlackCommand {
-    name: string,
-    desc: string,
-    example: string
-}
-
-function commandsNames(commands: Array<SlackCommand>): Array<string> {
-    return commands.map((cmd) => { return cmd.name; });
-}
 
 function productCommandsHelpText(commands: Array<SlackCommand>): string {
     return '👋 Need help with product bot?\n\n' + commands.map(
@@ -82,29 +65,6 @@ function viewToSubmission(
     }
 
     return submission;
-}
-
-// Unfortunaly preview slack images does not work as explained here:
-// https://community.atlassian.com/t5/Jira-Questions/ \
-// How-to-embed-images-by-URL-in-new-Markdown-Jira-editor/qaq-p/1126329
-// > in the New editor and the editing view used in Next-gen Projects,
-// > is moving away from using wiki style markup to a WYSIWYG editing approach,
-// if (isSlackImageFile(file)) {
-//     f = `!${file.url_private}!\n` +
-//         `[Download](${file.url_private_download}) or ` +
-//         `[See on Slack](${file.permalink})`;
-// } else {
-// }
-function slackFileToText(file: SlackFiles): string {
-    if (isSlackImageFile(file)) {
-        return `${file.name}\n` +
-            `Preview: ${file.thumb_360}\n` +
-            `Show: ${file.url_private}\n` +
-            `Download: ${file.url_private_download}`;
-    } else {
-        return `${file.name}\n` +
-            `Download: ${file.url_private_download}`;
-    }
 }
 
 const product = {
