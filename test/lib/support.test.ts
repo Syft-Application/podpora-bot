@@ -73,7 +73,7 @@ describe('#showForm()', () => {
         it('logs the error', (done) => {
             expect.assertions(2);
             nock('https://slack.com')
-                .post('/api/dialog.open')
+                .post('/api/views.open')
                 .reply(200, { ok: false });
 
             support.showForm(slack, 'bug', 'abc')

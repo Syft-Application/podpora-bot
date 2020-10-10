@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import {
-    Dialog,
     View,
     WebAPICallResult
 } from '@slack/web-api';
@@ -13,7 +12,6 @@ import {
 import { Jira } from './jira';
 import {
     PostCommandPayload,
-    DialogSubmission,
     ViewSubmission,
     Shortcut,
     ChannelThreadFileShareEvent,
@@ -21,7 +19,6 @@ import {
     Submission
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
-import feature from './../util/feature';
 import {
     commandsNames,
     fileShareEventToIssueComment
@@ -39,17 +36,10 @@ const support = {
             return Promise.reject({ ok: false });
         };
 
-        if (feature.is_enabled('slack_modals')) {
-            const view: View = supportConfig(support.configName(slack)).view(request_type);
+        const view: View = supportConfig(support.configName(slack)).view(request_type);
 
-            return slack.showModalView(view, trigger_id)
-                .catch(errorHandler);
-        } else {
-            const dialog: Dialog = supportConfig(support.configName(slack)).dialogs[request_type];
-
-            return slack.showDialog(dialog, trigger_id)
-                .catch(errorHandler);
-        }
+        return slack.showModalView(view, trigger_id)
+            .catch(errorHandler);
     },
 
     postIssueUrlOnThread(
@@ -190,22 +180,6 @@ const support = {
                 callback_id
             );
         }
-
-        return res;
-    },
-
-    handleDialogSubmission(
-        slack: Slack,
-        jira: Jira,
-        payload: DialogSubmission,
-        request_type: string,
-        res: Response
-    ): Response {
-        const { user, submission } = payload;
-
-        support.createSupportRequest(
-            slack, jira, submission, user, request_type
-        );
 
         return res;
     },

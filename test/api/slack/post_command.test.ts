@@ -2,7 +2,6 @@ import nock from 'nock';
 import { Logger } from 'winston';
 import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
-import feature from '../../../src/util/feature';
 import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
@@ -34,19 +33,13 @@ describe('POST /api/slack/command', () => {
     const api_path = '/api/slack/command';
     const service = build_service(app, api_path);
 
-    function test_command_with_dialog(params: Record<string, unknown>): void {
-        it('sends dialog to Slack', (done) => {
+    function test_command_with_modal(params: Record<string, unknown>): void {
+        it('sends modal view to Slack', (done) => {
             nock('https://slack.com')
-                .post('/api/dialog.open')
+                .post('/api/views.open')
                 .reply(200, { ok: true });
 
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    done(err);
-                }
-
-                done();
-            });
+            service(params).expect(200).end(done);
         });
 
         describe('response.body', () => {
@@ -54,7 +47,7 @@ describe('POST /api/slack/command', () => {
 
             it('returns empty', (done) => {
                 nock('https://slack.com')
-                    .post('/api/dialog.open')
+                    .post('/api/views.open')
                     .reply(200, { ok: true });
 
                 response((body: Record<string, unknown>) => {
@@ -114,26 +107,16 @@ describe('POST /api/slack/command', () => {
     describe('command: /support', () => {
         const support_params = merge(default_params, { command: '/support' });
 
-        describe('text: anything than bug, data or ping', () => {
-            const commandHelpResponse = {
-                text: '👋 Need help with support bot?\n\n'
-                    + '> Submit a request for data:\n>`/support data`\n\n'
-                    + '> Submit a bug report:\n>`/support bug`'
-            };
-
-            test_command_help(support_params, commandHelpResponse);
-        });
-
         describe('text: bug', () => {
             const bug_params = merge(support_params, { text: 'bug' });
 
-            test_command_with_dialog(bug_params);
+            test_command_with_modal(bug_params);
         });
 
         describe('text: data', () => {
             const data_params = merge(support_params, { text: 'data' });
 
-            test_command_with_dialog(data_params);
+            test_command_with_modal(data_params);
         });
 
         describe('text: ping', () => {
@@ -151,78 +134,16 @@ describe('POST /api/slack/command', () => {
             });
         });
 
-        describe('with enabled modal views', () => {
-            const featureSpy = jest.spyOn(feature, 'is_enabled');
-            // TODO: ability to toggle multiple feature flags same time
-            function modalsEnabled(name: string): boolean {
-                return name == 'slack_modals';
-            }
+        describe('text: anything than bug, data or ping', () => {
+            const commandHelpResponse = {
+                text: '👋 Need help with support bot?\n\n'
+                    + '> Submit a request for data:\n>`/support data`\n\n'
+                    + '> Submit a bug report:\n>`/support bug`'
+            };
 
-            function test_command_with_modal(params: Record<string, unknown>): void {
-                it('sends modal view to Slack', (done) => {
-                    featureSpy.mockImplementationOnce(modalsEnabled);
-                    nock('https://slack.com')
-                        .post('/api/views.open')
-                        .reply(200, { ok: true });
-
-                    service(params).expect(200).end(done);
-                });
-
-                describe('response.body', () => {
-                    const response = build_response(service(params));
-
-                    it('returns empty', (done) => {
-                        featureSpy.mockImplementationOnce(modalsEnabled);
-                        nock('https://slack.com')
-                            .post('/api/views.open')
-                            .reply(200, { ok: true });
-
-                        response((body: Record<string, unknown>) => {
-                            expect(body).toEqual({});
-                            done();
-                        }, done);
-                    });
-                });
-            }
-
-            describe('text: bug', () => {
-                const bug_params = merge(support_params, { text: 'bug' });
-
-                test_command_with_modal(bug_params);
-            });
-
-            describe('text: data', () => {
-                const data_params = merge(support_params, { text: 'data' });
-
-                test_command_with_modal(data_params);
-            });
+            test_command_help(support_params, commandHelpResponse);
         });
     });
-
-    function test_command_with_modal(params: Record<string, unknown>): void {
-        it('sends modal view to Slack', (done) => {
-            nock('https://slack.com')
-                .post('/api/views.open')
-                .reply(200, { ok: true });
-
-            service(params).expect(200).end(done);
-        });
-
-        describe('response.body', () => {
-            const response = build_response(service(params));
-
-            it('returns empty', (done) => {
-                nock('https://slack.com')
-                    .post('/api/views.open')
-                    .reply(200, { ok: true });
-
-                response((body: Record<string, unknown>) => {
-                    expect(body).toEqual({});
-                    done();
-                }, done);
-            });
-        });
-    }
 
     describe('command: /idea', () => {
         const product_params = merge(default_params, { command: '/idea' });

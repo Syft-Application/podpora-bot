@@ -1,5 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
+import { Dialog } from '@slack/web-api';
 import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
@@ -106,6 +107,45 @@ describe('Slack', () => {
             slack.userName('W012A3CDE')
                 .then((res) => {
                     expect(res).toEqual('Egon Spengler');
+                    done();
+                });
+        });
+    });
+
+    describe('#showDialog(dialog, trigger_id)', () => {
+        const dialog = {
+            callback_id: '',
+            title: 'New Data Request',
+            submit_label: 'Submit',
+            state: 'support_data',
+            elements: [
+                {
+                    type: 'text',
+                    name: 'title',
+                    label: 'Title',
+                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
+                    value: '',
+                },
+                {
+                    type: 'textarea',
+                    label: 'Description',
+                    placeholder: 'Please include any extra information required, eg. column names',
+                    name: 'description',
+                    value: '',
+                },
+            ]
+        } as Dialog;
+
+        it('returns a Promise', (done) => {
+            const trigger_id = 'bar';
+            expect.assertions(1);
+            nock('https://slack.com')
+                .post('/api/dialog.open')
+                .reply(200, { ok: true });
+
+            slack.showDialog(dialog, trigger_id)
+                .then((res) => {
+                    expect(res.ok).toEqual(true);
                     done();
                 });
         });
