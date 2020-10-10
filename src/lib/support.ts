@@ -17,35 +17,18 @@ import {
     ViewSubmission,
     ViewSubmissionInputValue,
     ChannelThreadFileShareEvent,
-    SlackFiles,
-    isSlackImageFile,
     SlackUser,
     Submission
 } from './slack/api_interfaces';
 import { store } from './../util/secrets';
 import feature from './../util/feature';
+import {
+    commandsNames,
+    fileShareEventToIssueComment,
+    SlackCommand,
+} from './slack_jira_helpers';
 
-function fileShareEventToIssueComment(
-    event: ChannelThreadFileShareEvent,
-    url: string,
-    user_name: string
-): string {
-    const files_str = event.files.map(slackFileToText).join('\n\n');
-
-    return `${user_name}: ${event.text}\n\n${files_str}\n \n${url}\n`;
-}
-
-interface SlackSupportCommand {
-    name: string,
-    desc: string,
-    example: string
-}
-
-function supportCommandsNames(commands: Array<SlackSupportCommand>): Array<string> {
-    return commands.map((cmd) => { return cmd.name; });
-}
-
-function supportCommandsHelpText(commands: Array<SlackSupportCommand>): string {
+function supportCommandsHelpText(commands: Array<SlackCommand>): string {
     return '👋 Need help with support bot?\n\n' + commands.map(
         (cmd) => {
             return `> ${cmd.desc}:\n>\`${cmd.example}\``;
@@ -73,29 +56,6 @@ function viewToSubmission(
     }
 
     return submission;
-}
-
-// Unfortunaly preview slack images does not work as explained here:
-// https://community.atlassian.com/t5/Jira-Questions/ \
-// How-to-embed-images-by-URL-in-new-Markdown-Jira-editor/qaq-p/1126329
-// > in the New editor and the editing view used in Next-gen Projects,
-// > is moving away from using wiki style markup to a WYSIWYG editing approach,
-// if (isSlackImageFile(file)) {
-//     f = `!${file.url_private}!\n` +
-//         `[Download](${file.url_private_download}) or ` +
-//         `[See on Slack](${file.permalink})`;
-// } else {
-// }
-function slackFileToText(file: SlackFiles): string {
-    if (isSlackImageFile(file)) {
-        return `${file.name}\n` +
-            `Preview: ${file.thumb_360}\n` +
-            `Show: ${file.url_private}\n` +
-            `Download: ${file.url_private_download}`;
-    } else {
-        return `${file.name}\n` +
-            `Download: ${file.url_private_download}`;
-    }
 }
 
 const support = {
@@ -230,7 +190,7 @@ const support = {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
         const commands = supportConfig(support.configName(slack)).commands;
-        const requests_types = supportCommandsNames(commands);
+        const requests_types = commandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack, args[0], trigger_id);
             return res.status(200).send();
