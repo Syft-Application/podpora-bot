@@ -3,7 +3,8 @@ import {
     SlackFiles,
     isSlackImageFile,
     ViewSubmission,
-    ViewSubmissionInputValue
+    ViewSubmissionInputValue,
+    ViewSubmissionSelectValue
 } from './slack/api_interfaces';
 
 function fileShareEventToIssueComment(
@@ -49,7 +50,7 @@ function slackFileToText(file: SlackFiles): string {
     }
 }
 
-function viewInputVals(
+function viewInputVal(
     id: string,
     values: ViewSubmission['view']['state']['values']
 ): string {
@@ -57,10 +58,23 @@ function viewInputVals(
     return input.value;
 }
 
+function viewSelectedVal(
+    id: string,
+    values: ViewSubmission['view']['state']['values']
+): string | null {
+    const elm = values[id + '_block'][id] as ViewSubmissionSelectValue;
+    if (elm.selected_option) {
+        return elm.selected_option.text.text;
+    }
+
+    return null;
+}
+
 export {
     commandsNames,
     fileShareEventToIssueComment,
     SlackCommand,
     slackFileToText,
-    viewInputVals
+    viewInputVal,
+    viewSelectedVal
 };

@@ -15,9 +15,7 @@ import {
     ChannelThreadFileShareEvent,
     SlackUser,
     Submission,
-    ViewSubmission,
-    ViewSubmissionInputValue,
-    ViewSubmissionSelectValue
+    ViewSubmission
 } from './slack/api_interfaces';
 import {
     commandsNames,
@@ -31,40 +29,6 @@ function productCommandsHelpText(commands: Array<SlackCommand>): string {
         (cmd) => {
             return `> ${cmd.desc}:\n>\`${cmd.example}\``;
         }).join('\n\n');
-}
-
-function viewToSubmission(
-    view: ViewSubmission['view'],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    request_type: string
-): Submission {
-    const values = view.state.values;
-    const submission: Submission = {};
-    const title_input = values.sl_title_block.sl_title as ViewSubmissionInputValue;
-    const desc_input = values.ml_description_block.ml_description as ViewSubmissionInputValue;
-    function selected(select_value: ViewSubmissionSelectValue): string | null {
-        if (select_value.selected_option) {
-            return select_value.selected_option.text.text;
-        }
-
-        return null;
-    }
-    const prod_area_value = selected(
-        values.sl_product_area_block.sl_product_area as ViewSubmissionSelectValue
-    );
-    const urgency_value = selected(
-        values.sl_urgency_block.sl_urgency as ViewSubmissionSelectValue
-    );
-    submission.title = title_input.value;
-    submission.description = desc_input.value;
-    if (prod_area_value) {
-        submission.product_area = prod_area_value;
-    }
-    if (urgency_value) {
-        submission.urgency = urgency_value;
-    }
-
-    return submission;
 }
 
 const product = {
@@ -212,7 +176,8 @@ const product = {
         res: Response
     ): Response {
         const { user, view } = payload;
-        const submission = viewToSubmission(view, request_type);
+        const config = productConfig(product.configName(slack));
+        const submission = config.viewToSubmission(view, request_type);
 
         product.createProductRequest(
             slack, jira, submission, user, request_type

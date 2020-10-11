@@ -7,7 +7,7 @@ import {
     ViewSubmission
 } from './slack/api_interfaces';
 import {
-    viewInputVals
+    viewInputVal
 } from './slack_jira_helpers';
 
 interface IssueParams {
@@ -81,13 +81,13 @@ function viewToSubmission(
     const values = view.state.values;
     const submission: Submission = {};
     if (request_type === 'bug') {
-        submission.title = viewInputVals('sl_title', values);
-        submission.description = viewInputVals('ml_description', values);
-        submission.currently = viewInputVals('sl_currently', values);
-        submission.expected = viewInputVals('sl_expected', values);
+        submission.title = viewInputVal('sl_title', values);
+        submission.description = viewInputVal('ml_description', values);
+        submission.currently = viewInputVal('sl_currently', values);
+        submission.expected = viewInputVal('sl_expected', values);
     } else {
-        submission.title = viewInputVals('sl_title', values);
-        submission.description = viewInputVals('ml_description', values);
+        submission.title = viewInputVal('sl_title', values);
+        submission.description = viewInputVal('ml_description', values);
     }
 
     return submission;

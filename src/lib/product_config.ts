@@ -1,7 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { View } from '@slack/web-api';
-import { SlackUser, Submission } from './slack/api_interfaces';
+import {
+    SlackUser,
+    Submission,
+    ViewSubmission
+} from './slack/api_interfaces';
+import {
+    viewInputVal,
+    viewSelectedVal
+} from './slack_jira_helpers';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -28,6 +36,10 @@ interface SlackProductCommand {
 interface ProductConfig {
     commands: Array<SlackProductCommand>,
     view: (key: string) => View,
+    viewToSubmission: (
+        view: ViewSubmission['view'],
+        request_type: string
+    ) => Submission,
     issueParams: (
         submission: Submission,
         user: SlackUser,
@@ -50,6 +62,29 @@ fs.readdirSync(viewsDirectoryPath).reduce((acc, name: string) => {
     return acc;
 }, views);
 
+
+function viewToSubmission(
+    view: ViewSubmission['view'],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    request_type: string
+): Submission {
+    const values = view.state.values;
+    const submission: Submission = {};
+    submission.title = viewInputVal('sl_title', values)
+    submission.description = viewInputVal('ml_description', values);
+    const prod_area_value = viewSelectedVal('sl_product_area', values);
+    const urgency_value = viewSelectedVal('sl_urgency', values);
+
+    if (prod_area_value) {
+        submission.product_area = prod_area_value;
+    }
+    if (urgency_value) {
+        submission.urgency = urgency_value;
+    }
+
+    return submission;
+}
+
 const configs: { [index: string]: ProductConfig } = {};
 
 configs.default = {
@@ -63,6 +98,7 @@ configs.default = {
     view: function(key: string): View {
         return views[key];
     },
+    viewToSubmission: viewToSubmission,
     issueParams: function(
         submission: Submission,
         user: SlackUser,
