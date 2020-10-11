@@ -13,9 +13,14 @@ describe('productConfig', () => {
                 const request_type = 'idea';
                 const submission = {
                     title: 'A',
-                    description: 'B'
+                    description: 'B',
+                    urgency: 'C',
+                    product_area: 'D'
                 };
                 const desc = `${submission.description}
+
+Product Area: ${submission.product_area}
+Urgency: ${submission.urgency}
 
 Submitted by: ${slack_user.name}`;
 
@@ -39,12 +44,16 @@ Submitted by: ${slack_user.name}`;
             const request_type = 'idea';
             const submission = {
                 title: 'A',
-                description: 'B'
+                description: 'B',
+                urgency: 'C',
+                product_area: 'D'
             };
             it('returns a string', () => {
                 const result = config.productMessageText(submission, slack_user, request_type);
                 expect(result).toContain('*A*');
                 expect(result).toContain('B');
+                expect(result).toContain('C');
+                expect(result).toContain('D');
             });
         });
     });
