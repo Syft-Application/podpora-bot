@@ -15,7 +15,6 @@ import {
     PostCommandPayload,
     DialogSubmission,
     ViewSubmission,
-    ViewSubmissionInputValue,
     ChannelThreadFileShareEvent,
     SlackUser,
     Submission
@@ -23,6 +22,7 @@ import {
 import { store } from './../util/secrets';
 import feature from './../util/feature';
 import {
+    viewInputVals,
     commandsNames,
     fileShareEventToIssueComment
 } from './slack_jira_helpers';
@@ -33,18 +33,14 @@ function viewToSubmission(
 ): Submission {
     const values = view.state.values;
     const submission: Submission = {};
-    function input_val(id: string): string {
-        const input = values[id + '_block'][id] as ViewSubmissionInputValue;
-        return input.value;
-    }
     if (request_type === 'bug') {
-        submission.title = input_val('sl_title');
-        submission.description = input_val('ml_description');
-        submission.currently = input_val('sl_currently');
-        submission.expected = input_val('sl_expected');
+        submission.title = viewInputVals('sl_title', values);
+        submission.description = viewInputVals('ml_description', values);
+        submission.currently = viewInputVals('sl_currently', values);
+        submission.expected = viewInputVals('sl_expected', values);
     } else {
-        submission.title = input_val('sl_title');
-        submission.description = input_val('ml_description');
+        submission.title = viewInputVals('sl_title', values);
+        submission.description = viewInputVals('ml_description', values);
     }
 
     return submission;

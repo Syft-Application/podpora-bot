@@ -2,6 +2,8 @@ import {
     ChannelThreadFileShareEvent,
     SlackFiles,
     isSlackImageFile,
+    ViewSubmission,
+    ViewSubmissionInputValue
 } from './slack/api_interfaces';
 
 function fileShareEventToIssueComment(
@@ -47,9 +49,18 @@ function slackFileToText(file: SlackFiles): string {
     }
 }
 
+function viewInputVals(
+    id: string,
+    values: ViewSubmission['view']['state']['values']
+): string {
+    const input = values[id + '_block'][id] as ViewSubmissionInputValue;
+    return input.value;
+}
+
 export {
     commandsNames,
     fileShareEventToIssueComment,
     SlackCommand,
     slackFileToText,
+    viewInputVals
 };

@@ -102,7 +102,7 @@ Submitted by: ${slack_user.name}`;
             const expected_text =
                 '👋 Need help with support bot?\n\n'
                 + '> Submit a request for data:\n>`/support data`\n\n'
-                + '> Submit a bug report:\n>`/support bug`'
+                + '> Submit a bug report:\n>`/support bug`';
 
             it('matches expected text', () => {
                 expect(config.commandsHelpText()).toEqual(expected_text);
