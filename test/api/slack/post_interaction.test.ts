@@ -33,64 +33,6 @@ describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
     const service = build_service(app, api_path);
 
-    describe('when parsing payload fails', () => {
-        const bad_json_payload = 'this is not a json';
-        const params = { payload: bad_json_payload };
-
-        it('returns successfuly but logs the error', (done) => {
-            expect.assertions(2);
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    done(err);
-                }
-                expect(logErrorSpy).toHaveBeenCalled();
-                expect(logErrorSpy.mock.calls[0].toString())
-                    .toContain('postInteraction');
-                done();
-            });
-        });
-    });
-
-    describe('unknown interaction type', () => {
-        const payload = {
-            type: 'some_interaction',
-            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
-            action_ts: '1591735130.109259',
-            team: {
-                id: 'T0001',
-                domain: 'supportdemo'
-            },
-            user: {
-                id: 'UHAV00MD0',
-                name: 'joe_wick'
-            },
-            channel: {
-                id: 'CHNBT34FJ',
-                name: 'support'
-            },
-            callback_id: '12345',
-            response_url: 'https://hooks.slack.com/app/response_url',
-        };
-        const params = { payload: JSON.stringify(payload) };
-
-        it('returns successfuly but logs the error', (done) => {
-            expect.assertions(3);
-
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    done(err);
-                }
-
-                expect(logErrorSpy).toHaveBeenCalled();
-                const mock = logErrorSpy.mock;
-                const calls = mock.calls[0].toString();
-                expect(calls).toContain('postInteraction');
-                expect(calls).toContain(payload.type);
-                done();
-            });
-        });
-    });
-
     function test_submission(params: Record<string, unknown>): void {
         it('returns 200 OK', (done) => {
             storeSetSpy.mockImplementationOnce(() => {
@@ -149,6 +91,63 @@ describe('POST /api/slack/interaction', () => {
         });
     }
 
+    describe('when parsing payload fails', () => {
+        const bad_json_payload = 'this is not a json';
+        const params = { payload: bad_json_payload };
+
+        it('returns successfuly but logs the error', (done) => {
+            expect.assertions(2);
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    done(err);
+                }
+                expect(logErrorSpy).toHaveBeenCalled();
+                expect(logErrorSpy.mock.calls[0].toString())
+                    .toContain('postInteraction');
+                done();
+            });
+        });
+    });
+
+    describe('unknown interaction type', () => {
+        const payload = {
+            type: 'some_interaction',
+            token: '6ato2RrVWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'supportdemo'
+            },
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
+            },
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'support'
+            },
+            callback_id: '12345',
+            response_url: 'https://hooks.slack.com/app/response_url',
+        };
+        const params = { payload: JSON.stringify(payload) };
+
+        it('returns successfuly but logs the error', (done) => {
+            expect.assertions(3);
+
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    done(err);
+                }
+
+                expect(logErrorSpy).toHaveBeenCalled();
+                const mock = logErrorSpy.mock;
+                const calls = mock.calls[0].toString();
+                expect(calls).toContain('postInteraction');
+                expect(calls).toContain(payload.type);
+                done();
+            });
+        });
+    });
 
     describe('dialog_submission', () => {
         describe('support', () => {
