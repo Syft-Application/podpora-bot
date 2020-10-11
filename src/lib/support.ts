@@ -22,29 +22,9 @@ import {
 import { store } from './../util/secrets';
 import feature from './../util/feature';
 import {
-    viewInputVals,
     commandsNames,
     fileShareEventToIssueComment
 } from './slack_jira_helpers';
-
-function viewToSubmission(
-    view: ViewSubmission['view'],
-    request_type: string
-): Submission {
-    const values = view.state.values;
-    const submission: Submission = {};
-    if (request_type === 'bug') {
-        submission.title = viewInputVals('sl_title', values);
-        submission.description = viewInputVals('ml_description', values);
-        submission.currently = viewInputVals('sl_currently', values);
-        submission.expected = viewInputVals('sl_expected', values);
-    } else {
-        submission.title = viewInputVals('sl_title', values);
-        submission.description = viewInputVals('ml_description', values);
-    }
-
-    return submission;
-}
 
 const support = {
     showForm(
@@ -219,7 +199,8 @@ const support = {
         res: Response
     ): Response {
         const { user, view } = payload;
-        const submission = viewToSubmission(view, request_type);
+        const config = supportConfig(support.configName(slack));
+        const submission = config.viewToSubmission(view, request_type);
 
         support.createSupportRequest(
             slack, jira, submission, user, request_type

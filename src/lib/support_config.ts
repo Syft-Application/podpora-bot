@@ -1,7 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import { Dialog, View } from '@slack/web-api';
-import { SlackUser, Submission } from './slack/api_interfaces';
+import {
+    SlackUser,
+    Submission,
+    ViewSubmission
+} from './slack/api_interfaces';
+import {
+    viewInputVals
+} from './slack_jira_helpers';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -34,6 +41,10 @@ interface SupportConfig {
     commandsHelpText: () => string,
     dialogs: Dialogs,
     view: (key: string) => View,
+    viewToSubmission: (
+        view: ViewSubmission['view'],
+        request_type: string
+    ) => Submission,
     issueParams: (
         submission: Submission,
         user: SlackUser,
@@ -61,6 +72,25 @@ function commandsHelpText(commands: Array<SlackCommand>): string {
         (cmd) => {
             return `> ${cmd.desc}:\n>\`${cmd.example}\``;
         }).join('\n\n');
+}
+
+function viewToSubmission(
+    view: ViewSubmission['view'],
+    request_type: string
+): Submission {
+    const values = view.state.values;
+    const submission: Submission = {};
+    if (request_type === 'bug') {
+        submission.title = viewInputVals('sl_title', values);
+        submission.description = viewInputVals('ml_description', values);
+        submission.currently = viewInputVals('sl_currently', values);
+        submission.expected = viewInputVals('sl_expected', values);
+    } else {
+        submission.title = viewInputVals('sl_title', values);
+        submission.description = viewInputVals('ml_description', values);
+    }
+
+    return submission;
 }
 
 const configs: { [index: string]: SupportConfig } = {};
@@ -145,6 +175,7 @@ configs.default = {
     view: function(key: string): View {
         return views[key];
     },
+    viewToSubmission: viewToSubmission,
     issueParams: function(
         submission: Submission,
         user: SlackUser,
@@ -283,6 +314,7 @@ configs.syft = {
     view: function(key: string): View {
         return configs.default.view(key);
     },
+    viewToSubmission: viewToSubmission,
     issueParams: function(
         submission: Submission,
         user: SlackUser,
