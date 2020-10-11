@@ -64,6 +64,14 @@ function interactionHandler(params: PostInteractionPayload, res: Response): Resp
         return handleViewSubmission(params as ViewSubmission, res);
     }
 
+    if (params.type == InteractionTypes.shortcut) {
+        logger.debug(
+            'shortcut',
+            JSON.stringify(sanitise_for_log(params))
+        );
+        return res;
+    }
+
     throw new Error('Unexpected interaction: ' + params.type);
 }
 

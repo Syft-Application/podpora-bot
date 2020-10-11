@@ -16,17 +16,18 @@ interface PostCommandPayload {
 
 const enum InteractionTypes {
     dialog_submission = 'dialog_submission',
-    view_submission = 'view_submission'
+    view_submission = 'view_submission',
+    shortcut = 'shortcut'
 }
 
-type PostInteractionPayload = (DialogSubmission | ViewSubmission | UnknownSubmission)
+type PostInteractionPayload = (
+    DialogSubmission |
+    ViewSubmission |
+    Shortcut |
+    UnknownSubmission)
 
-interface UnknownSubmission {
-    type: string
-}
-
-interface DialogSubmission {
-    type: InteractionTypes.dialog_submission,
+interface Interaction {
+    [index: string]: string | unknown
     token: string,
     action_ts: string,
     team: {
@@ -41,14 +42,27 @@ interface DialogSubmission {
         id: string,
         name: string
     },
+    callback_id: string,
+    response_url: string
+}
+
+interface UnknownSubmission extends Interaction {
+    type: string
+}
+
+interface Shortcut extends Interaction {
+    type: InteractionTypes.shortcut,
+    payload: string
+}
+
+interface DialogSubmission extends Interaction {
+    type: InteractionTypes.dialog_submission,
     submission: {
         title: string,
         description: string
         currently: string,
         expected: string
     },
-    callback_id: string,
-    response_url: string,
     state: string
 }
 
@@ -70,17 +84,8 @@ interface ViewSubmissionSelectValue {
     }
 }
 
-
-interface ViewSubmission {
+interface ViewSubmission extends Interaction {
     type: InteractionTypes.view_submission,
-    team: {
-        id: string,
-        domain: string
-    },
-    user: {
-        id: string,
-        name: string
-    },
     view: {
         id: string,
         type: string,

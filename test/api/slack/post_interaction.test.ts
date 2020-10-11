@@ -423,4 +423,39 @@ describe('POST /api/slack/interaction', () => {
             });
         });
     });
+
+    describe('shortcut', () => {
+        const payload = {
+            type: 'shortcut',
+            token: '6ato2Rr VWQZwZ5Hwc91KnuTB',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'viewdemo'
+            },
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
+            },
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'foobar'
+            },
+            payload: 'foo',
+            callback_id: '12345',
+            response_url: 'https://hooks.slack.com/app/response_url'
+        };
+
+        const params = { payload: JSON.stringify(payload) };
+        it('returns 200 OK', (done) => {
+            const logDebugSpy = jest.spyOn(logger, 'debug').mockReturnValue({} as Logger);
+
+            service(params).expect(200).end((err) => {
+                expect(logErrorSpy).not.toHaveBeenCalled();
+                expect(logDebugSpy).toHaveBeenCalled();
+
+                done(err);
+            });
+        });
+    });
 });
