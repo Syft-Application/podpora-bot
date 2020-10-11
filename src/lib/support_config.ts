@@ -23,14 +23,15 @@ interface Views {
     [index: string]: View
 }
 
-interface SlackSupportCommand {
+interface SlackCommand {
     name: string,
     desc: string,
     example: string
 }
 
 interface SupportConfig {
-    commands: Array<SlackSupportCommand>,
+    commands: Array<SlackCommand>,
+    commandsHelpText: () => string,
     dialogs: Dialogs,
     view: (key: string) => View,
     issueParams: (
@@ -55,6 +56,13 @@ fs.readdirSync(viewsDirectoryPath).reduce((acc, name: string) => {
     return acc;
 }, views);
 
+function commandsHelpText(commands: Array<SlackCommand>): string {
+    return '👋 Need help with support bot?\n\n' + commands.map(
+        (cmd) => {
+            return `> ${cmd.desc}:\n>\`${cmd.example}\``;
+        }).join('\n\n');
+}
+
 const configs: { [index: string]: SupportConfig } = {};
 
 configs.default = {
@@ -70,6 +78,9 @@ configs.default = {
             example: '/support bug'
         }
     ],
+    commandsHelpText: function(): string {
+        return commandsHelpText(this.commands);
+    },
     dialogs: {
         bug: {
             callback_id: '',
@@ -205,6 +216,9 @@ configs.syft = {
             example: '/support bug'
         }
     ],
+    commandsHelpText: function(): string {
+        return commandsHelpText(this.commands);
+    },
     dialogs: {
         bug: {
             callback_id: '',

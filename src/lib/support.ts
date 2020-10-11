@@ -24,16 +24,8 @@ import { store } from './../util/secrets';
 import feature from './../util/feature';
 import {
     commandsNames,
-    fileShareEventToIssueComment,
-    SlackCommand,
+    fileShareEventToIssueComment
 } from './slack_jira_helpers';
-
-function supportCommandsHelpText(commands: Array<SlackCommand>): string {
-    return '👋 Need help with support bot?\n\n' + commands.map(
-        (cmd) => {
-            return `> ${cmd.desc}:\n>\`${cmd.example}\``;
-        }).join('\n\n');
-}
 
 function viewToSubmission(
     view: ViewSubmission['view'],
@@ -189,7 +181,8 @@ const support = {
     handleCommand(slack: Slack, payload: PostCommandPayload, res: Response): Response {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
-        const commands = supportConfig(support.configName(slack)).commands;
+        const config = supportConfig(support.configName(slack));
+        const commands = config.commands;
         const requests_types = commandsNames(commands);
         if (requests_types.includes(args[0])) {
             support.showForm(slack, args[0], trigger_id);
@@ -202,7 +195,7 @@ const support = {
         }
 
         return res.json({
-            text: supportCommandsHelpText(commands)
+            text: config.commandsHelpText()
         });
     },
 

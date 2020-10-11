@@ -97,5 +97,16 @@ Submitted by: ${slack_user.name}`;
                 ).toEqual(new Set(['title', 'type', 'blocks', 'submit', 'private_metadata']));
             });
         });
+
+        describe('#commandsHelpText()', () => {
+            const expected_text =
+                '👋 Need help with support bot?\n\n'
+                + '> Submit a request for data:\n>`/support data`\n\n'
+                + '> Submit a bug report:\n>`/support bug`'
+
+            it('matches expected text', () => {
+                expect(config.commandsHelpText()).toEqual(expected_text);
+            });
+        });
     });
 });
