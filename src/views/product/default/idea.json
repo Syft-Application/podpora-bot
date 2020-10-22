@@ -24,10 +24,6 @@
       "label": {
         "type": "plain_text",
         "text": "Summary"
-      },
-      "hint": {
-        "type": "plain_text",
-        "text": " "
       }
     },
     {
@@ -49,7 +45,7 @@
       },
       "hint": {
         "type": "plain_text",
-        "text": "You can attach supporting details (e.g. documents, images, and data) in Slack thread later."
+        "text": "You can attach supporting details (e.g. documents or images) in Slack thread later."
       }
     },
     {
