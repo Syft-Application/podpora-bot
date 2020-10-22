@@ -32,6 +32,12 @@
           "value": "bar"
         }
       },
+      "ml_impact_block": {
+        "ml_impact": {
+          "type": "plain_text_input",
+          "value": "some impact"
+        }
+      },
       "sl_product_area_block": {
         "sl_product_area": {
           "type": "static_select",

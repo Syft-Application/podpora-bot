@@ -72,6 +72,7 @@ function viewToSubmission(
     const submission: Submission = {};
     submission.title = viewInputVal('sl_title', values);
     submission.description = viewInputVal('ml_description', values);
+    submission.impact = viewInputVal('ml_impact', values);
     const prod_area_value = viewSelectedVal('sl_product_area', values);
     const urgency_value = viewSelectedVal('sl_urgency', values);
 
@@ -109,6 +110,9 @@ configs.default = {
         const board = 'IDEA';
         const issue_type = 'Idea';
         const desc = `${submission.description}
+
+Impact:
+${submission.impact}
 
 Product Area: ${submission.product_area}
 Urgency: ${submission.urgency}

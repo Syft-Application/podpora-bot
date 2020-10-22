@@ -14,10 +14,14 @@ describe('productConfig', () => {
                 const submission = {
                     title: 'A',
                     description: 'B',
-                    urgency: 'C',
-                    product_area: 'D'
+                    impact: 'C',
+                    urgency: 'D',
+                    product_area: 'E'
                 };
                 const desc = `${submission.description}
+
+Impact:
+${submission.impact}
 
 Product Area: ${submission.product_area}
 Urgency: ${submission.urgency}
