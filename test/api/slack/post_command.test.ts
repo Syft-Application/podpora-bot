@@ -224,19 +224,20 @@ describe('POST /api/slack/command', () => {
         });
     }
 
-    describe('command: /product', () => {
-        const product_params = merge(default_params, { command: '/product' });
+    describe('command: /idea', () => {
+        const product_params = merge(default_params, { command: '/idea' });
 
-        describe('text: anything else than `idea`', () => {
+        describe('text: help', () => {
+            const idea_params = merge(product_params, { text: 'help' });
             const commandHelpResponse = {
                 text: '👋 Need help with product bot?\n\n'
-                    + '> Submit new product idea:\n>`/product idea`'
+                    + '> Submit new product idea:\n>`/idea`'
             };
-            test_command_help(product_params, commandHelpResponse);
+            test_command_help(idea_params, commandHelpResponse);
         });
 
-        describe('text: idea', () => {
-            const idea_params = merge(product_params, { text: 'idea' });
+        describe('text: nothing', () => {
+            const idea_params = merge(product_params, { text: ' ' });
 
             test_command_with_modal(idea_params);
         });

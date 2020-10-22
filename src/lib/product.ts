@@ -18,7 +18,6 @@ import {
     ViewSubmission
 } from './slack/api_interfaces';
 import {
-    commandsNames,
     fileShareEventToIssueComment,
     SlackCommand,
 } from './slack_jira_helpers';
@@ -154,18 +153,18 @@ const product = {
         const { text, trigger_id } = payload;
         const args = text.trim().split(/\s+/);
         const commands = productConfig(product.configName(slack)).commands;
-        const requests_types = commandsNames(commands);
-        let request_type: string;
+        // const requests_types = commandsNames(commands);
+        // const request_type = requests_types.includes(args[0]) ? args[0] : 'idea';
+        const request_type = 'idea';
 
-        if (requests_types.includes(args[0])) {
-            request_type = args[0];
-            product.showForm(slack, request_type, trigger_id);
-            return res.status(200).send();
+        if (args[0] === 'help') {
+            return res.json({
+                text: productCommandsHelpText(commands)
+            });
         }
 
-        return res.json({
-            text: productCommandsHelpText(commands)
-        });
+        product.showForm(slack, request_type, trigger_id);
+        return res.status(200).send();
     },
 
     handleViewSubmission(

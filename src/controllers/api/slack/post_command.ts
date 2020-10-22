@@ -23,7 +23,7 @@ export const postCommand = (req: Request, res: Response): void => {
 
         if (command === '/support') {
             support.handleCommand(slack, payload, res);
-        } else if (command === '/product') {
+        } else if (command === '/idea') {
             product.handleCommand(slack, payload, res);
         } else {
             res.json({

@@ -93,7 +93,7 @@ configs.default = {
         {
             name: 'idea',
             desc: 'Submit new product idea',
-            example: '/product idea'
+            example: '/idea'
         }
     ],
     view: function(key: string): View {
