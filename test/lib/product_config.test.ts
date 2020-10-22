@@ -20,9 +20,7 @@ describe('productConfig', () => {
                 };
                 const desc = `${submission.description}
 
-Impact:
-${submission.impact}
-
+Impact: ${submission.impact}
 Product Area: ${submission.product_area}
 Urgency: ${submission.urgency}
 
@@ -50,7 +48,8 @@ Submitted by: ${slack_user.name}`;
                 title: 'A',
                 description: 'B',
                 urgency: 'C',
-                product_area: 'D'
+                product_area: 'D',
+                impact: 'E'
             };
             it('returns a string', () => {
                 const result = config.productMessageText(submission, slack_user, request_type);
@@ -58,6 +57,7 @@ Submitted by: ${slack_user.name}`;
                 expect(result).toContain('B');
                 expect(result).toContain('C');
                 expect(result).toContain('D');
+                expect(result).toContain('E');
             });
         });
     });

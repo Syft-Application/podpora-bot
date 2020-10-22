@@ -49,6 +49,28 @@
       }
     },
     {
+      "type": "input",
+      "block_id": "sl_impact_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_impact",
+        "multiline": false,
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Brief impact in terms of shifts, roles or workers."
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Impact"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "In case you don’t know the impact, mention the same."
+      }
+    },
+    {
       "type": "section",
       "block_id": "sl_product_area_block",
       "text": {
