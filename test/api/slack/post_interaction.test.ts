@@ -428,7 +428,7 @@ describe('POST /api/slack/interaction', () => {
     describe('shortcut', () => {
         const payload = {
             type: 'shortcut',
-            token: '6ato2Rr VWQZwZ5Hwc91KnuTB',
+            token: 'sikrit token',
             action_ts: '1591735130.109259',
             team: {
                 id: 'T0001',
@@ -518,6 +518,42 @@ describe('POST /api/slack/interaction', () => {
 
                     done(err);
                 });
+            });
+        });
+    });
+
+    describe('block_actions', () => {
+        const payload = {
+            type: 'block_actions',
+            token: 'sikrit token',
+            action_ts: '1591735130.109259',
+            team: {
+                id: 'T0001',
+                domain: 'viewdemo'
+            },
+            user: {
+                id: 'UHAV00MD0',
+                name: 'joe_wick'
+            },
+            channel: {
+                id: 'CHNBT34FJ',
+                name: 'foobar'
+            },
+            callback_id: 'foo bar',
+            response_url: 'https://hooks.slack.com/app/response_url'
+        };
+
+        it('returns 200 OK', (done) => {
+            const logDebugSpy = jest.spyOn(logger, 'debug').mockReturnValue({} as Logger);
+            const params = { payload: JSON.stringify(payload) };
+
+            service(params).expect(200).end((err) => {
+                const log_msg = logDebugSpy.mock.calls[0].toString();
+                expect(logErrorSpy).not.toHaveBeenCalled();
+                expect(logDebugSpy).toHaveBeenCalled();
+                expect(log_msg).toContain('block_actions');
+
+                done(err);
             });
         });
     });

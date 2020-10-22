@@ -12,7 +12,8 @@ import {
     ViewSubmission,
     InteractionTypes,
     PostInteractionPayload,
-    Shortcut
+    Shortcut,
+    BlockActions
 } from '../../../lib/slack/api_interfaces';
 
 function handleViewSubmission(params: ViewSubmission, res: Response): Response {
@@ -74,6 +75,14 @@ function handleShortcut(params: Shortcut, res: Response): Response {
     return res;
 }
 
+function handleBlockActions(params: BlockActions, res: Response): Response {
+    logger.debug(
+        'block_actions: ' + JSON.stringify(params)
+    );
+
+    return res;
+}
+
 function interactionHandler(params: PostInteractionPayload, res: Response): Response {
     if (params.type == InteractionTypes.dialog_submission) {
         return handleDialogSubmission(params as DialogSubmission, res);
@@ -85,6 +94,10 @@ function interactionHandler(params: PostInteractionPayload, res: Response): Resp
 
     if (params.type == InteractionTypes.shortcut) {
         return handleShortcut(params as Shortcut, res);
+    }
+
+    if (params.type == InteractionTypes.block_actions) {
+        return handleBlockActions(params as BlockActions, res);
     }
 
     throw new Error('Unexpected interaction: ' + params.type);

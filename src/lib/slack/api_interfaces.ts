@@ -17,6 +17,7 @@ interface PostCommandPayload {
 const enum InteractionTypes {
     dialog_submission = 'dialog_submission',
     view_submission = 'view_submission',
+    block_actions = 'block_actions',
     shortcut = 'shortcut'
 }
 
@@ -24,6 +25,7 @@ type PostInteractionPayload = (
     DialogSubmission |
     ViewSubmission |
     Shortcut |
+    BlockActions |
     UnknownSubmission)
 
 interface Interaction {
@@ -47,6 +49,10 @@ interface Interaction {
 }
 
 interface UnknownSubmission extends Interaction {
+    type: string
+}
+
+interface BlockActions extends Interaction {
     type: string
 }
 
@@ -201,5 +207,6 @@ export {
     ViewSubmission,
     ViewSubmissionInputValue,
     ViewSubmissionSelectValue,
-    Shortcut
+    Shortcut,
+    BlockActions
 };
