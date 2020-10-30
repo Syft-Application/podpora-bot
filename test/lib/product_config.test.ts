@@ -14,13 +14,13 @@ describe('productConfig', () => {
                 const submission = {
                     title: 'A',
                     description: 'B',
-                    impact: 'C',
+                    affected_users: 'C',
                     urgency: 'D',
                     product_area: 'E'
                 };
                 const desc = `${submission.description}
 
-Impact: ${submission.impact}
+Affected Users: ${submission.affected_users}
 Product Area: ${submission.product_area}
 Urgency: ${submission.urgency}
 
@@ -49,7 +49,7 @@ Submitted by: ${slack_user.name}`;
                 description: 'B',
                 urgency: 'C',
                 product_area: 'D',
-                impact: 'E'
+                affected_users: 'E'
             };
             it('returns a string', () => {
                 const result = config.productMessageText(submission, slack_user, request_type);

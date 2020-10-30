@@ -72,7 +72,7 @@ function viewToSubmission(
     const submission: Submission = {};
     submission.title = viewInputVal('sl_title', values);
     submission.description = viewInputVal('ml_description', values);
-    submission.impact = viewInputVal('sl_impact', values);
+    submission.affected_users = viewInputVal('sl_affected_users', values);
     const prod_area_value = viewSelectedVal('sl_product_area', values);
     const urgency_value = viewSelectedVal('sl_urgency', values);
 
@@ -111,7 +111,7 @@ configs.default = {
         const issue_type = 'Idea';
         const desc = `${submission.description}
 
-Impact: ${submission.impact}
+Affected Users: ${submission.affected_users}
 Product Area: ${submission.product_area}
 Urgency: ${submission.urgency}
 
@@ -135,7 +135,7 @@ Submitted by: ${user.name}`;
     ): string {
         return `<@${user.id}> has submitted a new product idea:\n\n` +
             `*${submission.title}*\n\n${submission.description}\n\n` +
-            `Impact: ${submission.impact}\n` +
+            `Affected Users: ${submission.affected_users}\n` +
             `Product Area: ${submission.product_area}\n` +
             `Urgency: ${submission.urgency}`;
     }
