@@ -1,6 +1,3 @@
-import feature from './../../src/util/feature';
-const featureSpy = jest.spyOn(feature, 'is_enabled');
-
 import productConfig from '../../src/lib/product_config';
 
 describe('productConfig', () => {
@@ -38,69 +35,55 @@ Submitted by: ${slack_user.name}`;
                             summary: 'A',
                             issuetype: { name: 'Idea' },
                             description: desc,
-                            labels: ['product']
+                            labels: ['product',
+                                     submission.urgency.toLowerCase(),
+                                     submission.product_area.toLowerCase()]
                         }
                     });
                 });
 
-                describe('feature: urgency_product_area_labels', () => {
-                    beforeEach(() => {
-                        featureSpy.mockImplementationOnce((key) => {
-                            return key == 'urgency_product_area_labels';
-                        });
-                    });
-
-                    it('includes urgency and product values as labels', () => {
-                        expect(
-                            config.issueParams(submission, slack_user, request_type)
-                                .fields.labels
-                        ).toEqual(['product',
-                                   submission.urgency.toLowerCase(),
-                                   submission.product_area.toLowerCase()]);
-                    });
-
-                    it('does not include empty urgency as label', () => {
-                        const submission = {
-                            title: 'A',
-                            description: 'B',
-                            affected_users: 'C',
-                            product_area: 'D'
-                        };
-                        expect(
-                            config.issueParams(submission, slack_user, request_type)
-                                .fields.labels
-                        ).toEqual(['product', 'd']);
-                    });
-
-                    it('does not include empty product_area as label', () => {
-                        const submission = {
-                            title: 'A',
-                            description: 'B',
-                            affected_users: 'C',
-                            urgency: 'X'
-                        };
-                        expect(
-                            config.issueParams(submission, slack_user, request_type)
-                                .fields.labels
-                        ).toEqual(['product', 'x']);
-                    });
-
-                    it('normalises text to be used as label', () => {
-                        const submission = {
-                            title: 'A',
-                            description: 'B',
-                            affected_users: 'C',
-                            urgency: 'Bony & Clyde (foo - bar)',
-                            product_area: 'Upcase / Downcase ^ sna_ke'
-                        };
-                        expect(
-                            config.issueParams(submission, slack_user, request_type)
-                                .fields.labels
-                        ).toEqual(['product',
-                                   'bony-and-clyde-foo-bar',
-                                   'upcase-downcase-sna-ke']);
-                    });
+                it('does not include empty urgency as label', () => {
+                    const submission = {
+                        title: 'A',
+                        description: 'B',
+                        affected_users: 'C',
+                        product_area: 'D'
+                    };
+                    expect(
+                        config.issueParams(submission, slack_user, request_type)
+                            .fields.labels
+                    ).toEqual(['product', 'd']);
                 });
+
+                it('does not include empty product_area as label', () => {
+                    const submission = {
+                        title: 'A',
+                        description: 'B',
+                        affected_users: 'C',
+                        urgency: 'X'
+                    };
+                    expect(
+                        config.issueParams(submission, slack_user, request_type)
+                            .fields.labels
+                    ).toEqual(['product', 'x']);
+                });
+
+                it('normalises text to be used as label', () => {
+                    const submission = {
+                        title: 'A',
+                        description: 'B',
+                        affected_users: 'C',
+                        urgency: 'Bony & Clyde (foo - bar)',
+                        product_area: 'Upcase / Downcase ^ sna_ke'
+                    };
+                    expect(
+                        config.issueParams(submission, slack_user, request_type)
+                            .fields.labels
+                    ).toEqual(['product',
+                               'bony-and-clyde-foo-bar',
+                               'upcase-downcase-sna-ke']);
+                });
+
             });
         });
 
