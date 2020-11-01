@@ -78,8 +78,7 @@ npm run --list
 
 # To-do
 
-- Upgrade Slack dialog to modal https://api.slack.com/block-kit/dialogs-to-modals
-- Define shortcuts for support requests https://api.slack.com/interactivity/shortcuts
+https://github.com/Syft-Application/podpora-bot/issues
 
 # License
 Copyright (c) Marek L. All rights reserved.
