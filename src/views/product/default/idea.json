@@ -1,200 +1,200 @@
 {
-	"private_metadata": "product_idea",
-	"type": "modal",
-	"title": {
-		"type": "plain_text",
-		"text": "Product idea",
-		"emoji": true
-	},
-	"submit": {
-		"type": "plain_text",
-		"text": "Submit",
-		"emoji": true
-	},
-	"close": {
-		"type": "plain_text",
-		"text": "Cancel",
-		"emoji": true
-	},
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "plain_text",
-				"text": "* Required",
-				"emoji": true
-			}
-		},
-		{
-			"type": "input",
-			"block_id": "sl_title_block",
-			"optional": false,
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "sl_title",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "One line summary, e.g. Language courses for workers"
-				}
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Summary *"
-			}
-		},
-		{
-			"type": "input",
-			"block_id": "ml_description_block",
-			"optional": false,
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "ml_description",
-				"multiline": true,
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Describe the problem you're trying to solve and the impact"
-				}
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Description *"
-			},
-			"hint": {
-				"type": "plain_text",
-				"text": "You can attach supporting details (e.g. data or images) in the Slack thread later"
-			}
-		},
-		{
-			"type": "input",
-			"block_id": "sl_affected_users_block",
-			"optional": false,
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "sl_affected_users",
-				"multiline": false,
-				"placeholder": {
-					"type": "plain_text",
-					"text": "e.g. Workers, Ops team"
-				}
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Affected users *"
-			},
-			"hint": {
-				"type": "plain_text",
-				"text": "This can be external users (e.g. workers, clients, agencies) and/or internal users (e.g. Sales team, Ops team)"
-			}
-		},
-		{
-			"type": "section",
-			"block_id": "sl_product_area_block",
-			"text": {
-				"type": "mrkdwn",
-				"text": "Product area"
-			},
-			"accessory": {
-				"type": "static_select",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select a product area",
-					"emoji": false
-				},
-				"options": [
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Worker experience",
-							"emoji": false
-						},
-						"value": "0"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Employer experience",
-							"emoji": false
-						},
-						"value": "1"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "US product",
-							"emoji": false
-						},
-						"value": "2"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "ACP internal operations",
-							"emoji": false
-						},
-						"value": "3"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Finance & billing",
-							"emoji": false
-						},
-						"value": "4"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Ops efficiency",
-							"emoji": false
-						},
-						"value": "5"
-					}
-				],
-				"action_id": "sl_product_area"
-			}
-		},
-		{
-			"type": "section",
-			"block_id": "sl_urgency_block",
-			"text": {
-				"type": "mrkdwn",
-				"text": "Urgency"
-			},
-			"accessory": {
-				"type": "static_select",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select an urgency",
-					"emoji": false
-				},
-				"options": [
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Short term (1 - 3 months)",
-							"emoji": false
-						},
-						"value": "0"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Medium term (4 - 6 months)",
-							"emoji": false
-						},
-						"value": "1"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Long term (6+ months)",
-							"emoji": false
-						},
-						"value": "2"
-					}
-				],
-				"action_id": "sl_urgency"
-			}
-		}
-	]
+  "private_metadata": "product_idea",
+  "type": "modal",
+  "title": {
+    "type": "plain_text",
+    "text": "Product idea",
+    "emoji": true
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit",
+    "emoji": true
+  },
+  "close": {
+    "type": "plain_text",
+    "text": "Cancel",
+    "emoji": true
+  },
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "plain_text",
+        "text": "* Required",
+        "emoji": true
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "sl_title_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_title",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "One line summary, e.g. Language courses for workers"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Summary *"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "ml_description_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "ml_description",
+        "multiline": true,
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Describe the problem you're trying to solve and the impact"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Description *"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "You can attach supporting details (e.g. data or images) in the Slack thread later"
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "sl_affected_users_block",
+      "optional": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "sl_affected_users",
+        "multiline": false,
+        "placeholder": {
+          "type": "plain_text",
+          "text": "e.g. Workers, Ops team"
+        }
+      },
+      "label": {
+        "type": "plain_text",
+        "text": "Affected users *"
+      },
+      "hint": {
+        "type": "plain_text",
+        "text": "This can be external users (e.g. workers, clients, agencies) and/or internal users (e.g. Sales team, Ops team)"
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "sl_product_area_block",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Product area"
+      },
+      "accessory": {
+        "type": "static_select",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select a product area",
+          "emoji": false
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Worker experience",
+              "emoji": false
+            },
+            "value": "0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Employer experience",
+              "emoji": false
+            },
+            "value": "1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "US product",
+              "emoji": false
+            },
+            "value": "2"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "ACP internal operations",
+              "emoji": false
+            },
+            "value": "3"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Finance & billing",
+              "emoji": false
+            },
+            "value": "4"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Ops efficiency",
+              "emoji": false
+            },
+            "value": "5"
+          }
+        ],
+        "action_id": "sl_product_area"
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "sl_urgency_block",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Urgency"
+      },
+      "accessory": {
+        "type": "static_select",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select an urgency",
+          "emoji": false
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Short term (1 - 3 months)",
+              "emoji": false
+            },
+            "value": "0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Medium term (4 - 6 months)",
+              "emoji": false
+            },
+            "value": "1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Long term (6+ months)",
+              "emoji": false
+            },
+            "value": "2"
+          }
+        ],
+        "action_id": "sl_urgency"
+      }
+    }
+  ]
 }
