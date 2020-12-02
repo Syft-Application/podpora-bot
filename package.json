@@ -30,7 +30,7 @@
     "@sindresorhus/slugify": "^1.1.0",
     "@slack/events-api": "^2.3.4",
     "@slack/interactive-messages": "^1.7.0",
-    "@slack/web-api": "^5.13.0",
+    "@slack/web-api": "^5.14.0",
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
