@@ -1,0 +1,322 @@
+{
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+  "id": "10088",
+  "self": "https://example-bot.atlassian.net/rest/agile/1.0/issue/10088",
+  "key": "SUP-82",
+  "fields": {
+    "statuscategorychangedate": "2020-12-06T12:42:43.526+0000",
+    "issuetype": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/issuetype/10004",
+      "id": "10004",
+      "description": "A problem or error.",
+      "iconUrl": "https://example-bot.atlassian.net/secure/viewavatar?size=medium&avatarId=10303&avatarType=issuetype",
+      "name": "Bug",
+      "subtask": false,
+      "avatarId": 10303
+    },
+    "timespent": null,
+    "sprint": null,
+    "project": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/project/10000",
+      "id": "10000",
+      "key": "SUP",
+      "name": "support",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "avatarUrls": {
+        "48x48": "https://example-bot.atlassian.net/secure/projectavatar?pid=10000&avatarId=10414",
+        "24x24": "https://example-bot.atlassian.net/secure/projectavatar?size=small&s=small&pid=10000&avatarId=10414",
+        "16x16": "https://example-bot.atlassian.net/secure/projectavatar?size=xsmall&s=xsmall&pid=10000&avatarId=10414",
+        "32x32": "https://example-bot.atlassian.net/secure/projectavatar?size=medium&s=medium&pid=10000&avatarId=10414"
+      }
+    },
+    "fixVersions": [],
+    "aggregatetimespent": null,
+    "resolution": null,
+    "resolutiondate": null,
+    "workratio": -1,
+    "issuerestriction": {
+      "issuerestrictions": {},
+      "shouldDisplay": false
+    },
+    "lastViewed": "2020-12-06T14:31:38.478+0000",
+    "watches": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/issue/SUP-82/watchers",
+      "watchCount": 1,
+      "isWatching": true
+    },
+    "created": "2020-12-06T11:52:50.679+0000",
+    "customfield_10020": null,
+    "customfield_10021": null,
+    "epic": null,
+    "customfield_10022": null,
+    "priority": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/priority/3",
+      "iconUrl": "https://example-bot.atlassian.net/images/icons/priorities/medium.svg",
+      "name": "Medium",
+      "id": "3"
+    },
+    "customfield_10023": null,
+    "customfield_10024": null,
+    "customfield_10025": null,
+    "labels": [
+      "support"
+    ],
+    "customfield_10016": null,
+    "customfield_10017": null,
+    "customfield_10018": {
+      "hasEpicLinkFieldDependency": false,
+      "showField": false,
+      "nonEditableReason": {
+        "reason": "PLUGIN_LICENSE_ERROR",
+        "message": "The Parent Link is only available to Jira Premium users."
+      }
+    },
+    "customfield_10019": "0|i0006v:",
+    "aggregatetimeoriginalestimate": null,
+    "timeestimate": null,
+    "versions": [],
+    "issuelinks": [
+      {
+        "id": "10002",
+        "self": "https://example-bot.atlassian.net/rest/api/2/issueLink/10002",
+        "type": {
+          "id": "10001",
+          "name": "Cloners",
+          "inward": "is cloned by",
+          "outward": "clones",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issueLinkType/10001"
+        },
+        "outwardIssue": {
+          "id": "10073",
+          "key": "SUP-72",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issue/10073",
+          "fields": {
+            "summary": "Some linked issue summary",
+            "status": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/status/10000",
+              "description": "",
+              "iconUrl": "https://example-bot.atlassian.net/",
+              "name": "Backlog",
+              "id": "10000",
+              "statusCategory": {
+                "self": "https://example-bot.atlassian.net/rest/api/2/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/priority/3",
+              "iconUrl": "https://example-bot.atlassian.net/images/icons/priorities/medium.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/issuetype/10002",
+              "id": "10002",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://example-bot.atlassian.net/secure/viewavatar?size=medium&avatarId=10318&avatarType=issuetype",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318
+            }
+          }
+        }
+      },
+      {
+        "id": "10006",
+        "self": "https://example-bot.atlassian.net/rest/api/2/issueLink/10006",
+        "type": {
+          "id": "10002",
+          "name": "Duplicate",
+          "inward": "is duplicated by",
+          "outward": "duplicates",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issueLinkType/10002"
+        },
+        "inwardIssue": {
+          "id": "10076",
+          "key": "SUP-75",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issue/10076",
+          "fields": {
+            "summary": "afddf",
+            "status": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/status/10000",
+              "description": "",
+              "iconUrl": "https://example-bot.atlassian.net/",
+              "name": "Backlog",
+              "id": "10000",
+              "statusCategory": {
+                "self": "https://example-bot.atlassian.net/rest/api/2/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/priority/3",
+              "iconUrl": "https://example-bot.atlassian.net/images/icons/priorities/medium.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/issuetype/10004",
+              "id": "10004",
+              "description": "A problem or error.",
+              "iconUrl": "https://example-bot.atlassian.net/secure/viewavatar?size=medium&avatarId=10303&avatarType=issuetype",
+              "name": "Bug",
+              "subtask": false,
+              "avatarId": 10303
+            }
+          }
+        }
+      },
+      {
+        "id": "10005",
+        "self": "https://example-bot.atlassian.net/rest/api/2/issueLink/10005",
+        "type": {
+          "id": "10003",
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issueLinkType/10003"
+        },
+        "inwardIssue": {
+          "id": "10086",
+          "key": "SUP-81",
+          "self": "https://example-bot.atlassian.net/rest/api/2/issue/10086",
+          "fields": {
+            "summary": "Macros - Clojure clojure.org › reference › macros Macros",
+            "status": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/status/10000",
+              "description": "",
+              "iconUrl": "https://example-bot.atlassian.net/",
+              "name": "Backlog",
+              "id": "10000",
+              "statusCategory": {
+                "self": "https://example-bot.atlassian.net/rest/api/2/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/priority/3",
+              "iconUrl": "https://example-bot.atlassian.net/images/icons/priorities/medium.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://example-bot.atlassian.net/rest/api/2/issuetype/10002",
+              "id": "10002",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://example-bot.atlassian.net/secure/viewavatar?size=medium&avatarId=10318&avatarType=issuetype",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318
+            }
+          }
+        }
+      }
+    ],
+    "assignee": null,
+    "updated": "2020-12-06T14:33:32.634+0000",
+    "status": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/status/10001",
+      "description": "",
+      "iconUrl": "https://example-bot.atlassian.net/",
+      "name": "Selected for Development",
+      "id": "10001",
+      "statusCategory": {
+        "self": "https://example-bot.atlassian.net/rest/api/2/statuscategory/2",
+        "id": 2,
+        "key": "new",
+        "colorName": "blue-gray",
+        "name": "To Do"
+      }
+    },
+    "components": [],
+    "timeoriginalestimate": null,
+    "description": "bbb\n\nCurrently:\nccc\n\nExpected:\nddd\n\nSubmitted by: foo",
+    "customfield_10010": null,
+    "customfield_10014": null,
+    "timetracking": {},
+    "customfield_10015": null,
+    "customfield_10005": null,
+    "customfield_10006": null,
+    "security": null,
+    "customfield_10007": null,
+    "customfield_10008": null,
+    "aggregatetimeestimate": null,
+    "customfield_10009": null,
+    "attachment": [],
+    "flagged": false,
+    "summary": "aaa",
+    "creator": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+      "accountId": "5edfdc75f557470abafa39fa",
+      "emailAddress": "email@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+      },
+      "displayName": "John Swift",
+      "active": true,
+      "timeZone": "Europe/London",
+      "accountType": "atlassian"
+    },
+    "subtasks": [],
+    "reporter": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/user?accountId=5edfdc75f557470abafa39fa",
+      "accountId": "5edfdc75f557470abafa39fa",
+      "emailAddress": "email@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "24x24": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "16x16": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png",
+        "32x32": "https://secure.gravatar.com/avatar/db1827b25507c36d1d456e1dd267d59e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJS-4.png"
+      },
+      "displayName": "John Swift",
+      "active": true,
+      "timeZone": "Europe/London",
+      "accountType": "atlassian"
+    },
+    "aggregateprogress": {
+      "progress": 0,
+      "total": 0
+    },
+    "customfield_10000": "{}",
+    "customfield_10001": null,
+    "customfield_10002": null,
+    "customfield_10003": null,
+    "customfield_10004": null,
+    "environment": null,
+    "duedate": null,
+    "progress": {
+      "progress": 0,
+      "total": 0
+    },
+    "votes": {
+      "self": "https://example-bot.atlassian.net/rest/api/2/issue/SUP-82/votes",
+      "votes": 0,
+      "hasVoted": false
+    },
+    "comment": {
+      "comments": [],
+      "maxResults": 0,
+      "total": 0,
+      "startAt": 0
+    },
+    "worklog": {
+      "startAt": 0,
+      "maxResults": 20,
+      "total": 0,
+      "worklogs": []
+    }
+  }
+}

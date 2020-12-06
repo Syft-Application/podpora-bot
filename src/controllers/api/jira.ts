@@ -5,37 +5,14 @@ import logger from '../../util/logger';
 import { store } from '../../util/secrets';
 import { Slack } from '../../lib/slack';
 import { Jira } from '../../lib/jira';
+import {
+    IssueChangelog,
+    Issue ,
+    IssueLink ,
+    DetailIssueLink
+} from '../../lib/jira/api_interfaces';
+
 import feature from '../../util/feature';
-
-interface IssueChangelog {
-    id: string
-    items: Array<{
-        field: string
-        fieldtype: string
-        fieldId: string
-        from: string
-        fromString: string
-        to: string
-        toString: string
-    }>
-}
-
-interface Attachment {
-    self: string
-    id: string
-    filename: string
-    mimeType: string
-    content: string
-}
-
-interface Issue {
-    id: string
-    key: string,
-    self: string,
-    fields: {
-        attachment: Array<Attachment>
-    }
-}
 
 interface SlackThread {
     team: string
@@ -103,15 +80,53 @@ function handleAttachmentChange(
     );
 }
 
-// function handleLinksChange(
-//     issue: Issue,
-//     changelog: IssueChangelog,
-//     slack_thread: SlackThread
-// ): void {
-//     if (feature.is_enabled('jira_links_change_updates')) {
-//         logger.info(JSON.stringify(changelog));
-//     }
-// }
+function issueLinksToMessage(jira: Jira, links: Array<DetailIssueLink>): string {
+    const links_text = links.map((link) => {
+        let issue;
+        if (link.outwardIssue) {
+            issue = link.outwardIssue;
+        } else {
+            issue = link.inwardIssue;
+        }
+
+        const url = jira.issueUrl(issue);
+        const summary = issue.fields.summary;
+        return ` - ${link.type.inward} ${url} "${summary}"`;
+    });
+
+    return links_text.join('\n');
+}
+
+function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink):void {
+    const issue_promise = jira.find(issueLink.sourceIssueId);
+
+    issue_promise.then((issue: Issue) => {
+        const issue_key = jira.toKey(issue);
+
+        store.get(issue_key)
+            .then((res) => {
+                if (res === null) {
+                    return;
+                }
+
+                const message = issueLinksToMessage(jira, issue.fields.issuelinks);
+
+                const [team, channel, ts] = res.split(',');
+                const slack_thread = { team, channel, ts };
+                const slack_options = store.slackOptions(slack_thread.team);
+                const slack = new Slack(slack_options);
+
+                slack.postOnThread(
+                    message,
+                    slack_thread.channel,
+                    slack_thread.ts
+                );
+            }).catch((error) => {
+                logger.error(error.message);
+                // return Promise.resolve(null);
+            });
+    });
+}
 
 /**
  * POST /api/jira/:team_id
@@ -122,6 +137,7 @@ export const postEvent = (req: Request, res: Response): void => {
     const { webhookEvent, issue, changelog } = req.body;
     const team_id = req.params.team_id;
     const jira_options = store.jiraOptions(team_id);
+
     if (jira_options) {
         if (webhookEvent === 'jira:issue_updated') {
             const jira = new Jira(jira_options);
@@ -142,10 +158,12 @@ export const postEvent = (req: Request, res: Response): void => {
                 }).catch((error) => {
                     logger.error(error.message);
                 });
-        } else {
-            // handleLinksChange(issue, changelog, slack_thread);
+        } else if (webhookEvent === 'issuelink_created') {
+            const jira = new Jira(jira_options);
+            const { issueLink } = req.body;
+
             if (feature.is_enabled('jira_links_change_updates')) {
-                logger.info(JSON.stringify(req.body));
+                handleIssueLinkCreated(jira, issueLink);
             }
         }
     } else {

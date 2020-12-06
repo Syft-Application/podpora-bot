@@ -1,16 +1,13 @@
 import { Client } from 'jira.js';
 import logger from '../util/logger';
+import {
+    Issue
+} from './jira/api_interfaces';
 
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
     title: 'Slack'
 };
-
-interface Issue {
-    id: string
-    key: string
-    self: string
-}
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -90,6 +87,16 @@ class Jira {
 
     toKey(issue: Issue): string {
         return [this.host, issue.id].join(',');
+    }
+
+    find(id: number): Promise<Issue> {
+        const issue_params = { issueIdOrKey: `${id}` };
+
+        return this.client.issue.getIssue(issue_params)
+            .catch((err) => {
+                logger.error('find', id, err);
+                return Promise.reject({ ok: false });
+            });
     }
 }
 

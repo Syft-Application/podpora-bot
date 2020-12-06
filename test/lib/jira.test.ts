@@ -157,4 +157,23 @@ describe('Jira', () => {
                 });
         });
     });
+
+    describe('#find(id)', () => {
+        it('logs the error', (done) => {
+            expect.assertions(4);
+            nock('https://example.com')
+                .get('/rest/agile/1.0/issue/123')
+                .reply(404);
+
+            jira.find(123)
+                .catch((res) => {
+                    expect(res).toEqual({ ok: false });
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const logger_call = logErrorSpy.mock.calls[0].toString();
+                    expect(logger_call).toContain('123');
+                    expect(logger_call).toContain('find');
+                    done();
+                });
+        });
+    });
 });

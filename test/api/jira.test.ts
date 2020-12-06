@@ -9,7 +9,7 @@ import feature from './../../src/util/feature';
 const featureSpy = jest.spyOn(feature, 'is_enabled');
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
-const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
+// const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
 const storeGetSpy = jest.spyOn(store, 'get');
 
 beforeAll(() => {
@@ -25,6 +25,17 @@ describe('POST /api/jira/event/:team_id', () => {
     const service = build_service(app, api_path);
     const params = {};
     const response = build_response(service(params));
+    type CallbackHandler = (err: Error) => void;
+
+    function serviceCall(params: Record<string, unknown>, callback: CallbackHandler): void {
+        service(params).expect(200)
+            .end((err) => {
+                if (err) {
+                    return callback(err);
+                }
+            });
+    }
+
     storeGetSpy.mockImplementation(() => {
         return Promise.resolve('T0001,some_channel_id,some_thread_ts');
     });
@@ -216,35 +227,107 @@ describe('POST /api/jira/event/:team_id', () => {
         });
     });
 
-    describe('link added', () => {
-        const params = { webhookEvent: 'foo' };
+    describe('webhookEvent: issuelink_created', () => {
+        const params = {
+            'timestamp': 1607259320352,
+            'webhookEvent': 'issuelink_created',
+            'issueLink': {
+                'id': 10004,
+                'sourceIssueId': 10072,
+                'destinationIssueId': 10088,
+                'issueLinkType': {
+                    'id': 10000,
+                    'name': 'Blocks',
+                    'outwardName': 'blocks',
+                    'inwardName': 'is blocked by',
+                    'isSubTaskLinkType': false,
+                    'isSystemLinkType': false
+                },
+                'systemLink': false
+            }
+        };
 
-        it('returns 200 OK and logs the changelog', (done) => {
-            let api_call_body: string;
+        it('returns 200 OK and sends the links to slack thread', (done) => {
+            const issue = fixture('jira/issue.getIssue');
             featureSpy.mockImplementationOnce((key) => {
                 return key == 'jira_links_change_updates';
             });
 
-            expect.assertions(4);
+            storeGetSpy.mockImplementation(() => {
+                return Promise.resolve('T0001,some_channel_id,some_thread_ts');
+            });
+
+            expect.assertions(3);
+            nock('https://example.com')
+                .get('/rest/agile/1.0/issue/10072')
+                .reply(200, issue);
 
             nock('https://slack.com')
                 .post('/api/chat.postMessage', (body) => {
-                    api_call_body = JSON.stringify(body);
+                    const api_call_body = JSON.stringify(body);
+                    expect(api_call_body).toContain('relates to');
+                    expect(api_call_body).toContain('is cloned by');
+                    expect(api_call_body).toContain('is duplicated by');
+
+                    done();
                     return body;
                 })
                 .reply(200, { ok: true });
 
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    return done(err);
-                }
-                expect(logInfoSpy).toHaveBeenCalled();
-                const log_args = JSON.stringify(logInfoSpy.mock.calls[0]);
-                expect(log_args).toContain('foo');
-                expect(log_args).toContain('webhookEvent');
-                expect(api_call_body).not.toBeNull();
+            serviceCall(params, done);
+        });
 
-                done();
+        describe('slack thread not found', () => {
+            it('returns 200 OK', (done) => {
+                const issue = fixture('jira/issue.getIssue');
+                featureSpy.mockImplementationOnce((key) => {
+                    return key == 'jira_links_change_updates';
+                });
+
+                storeGetSpy.mockImplementation(() => {
+                    done();
+                    return Promise.resolve(null);
+                });
+
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10072')
+                    .reply(200, issue);
+
+                serviceCall(params, done);
+            });
+        });
+
+        describe('store returns an error', () => {
+            it('logs the event', (done) => {
+                const issue = fixture('jira/issue.getIssue');
+                featureSpy.mockImplementationOnce((key) => {
+                    return key == 'jira_links_change_updates';
+                });
+
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10072')
+                    .reply(200, issue);
+
+                expect.assertions(1);
+                storeGetSpy.mockImplementationOnce(() => {
+                    done();
+                    return Promise.reject(new Error('Some store error'));
+                });
+
+                logErrorSpy.mockImplementationOnce((...args) => {
+                    const log_args = JSON.stringify(args);
+                    expect(log_args).toContain('Some store error');
+                    done();
+                    return logger;
+                });
+
+                serviceCall(params, done);
+            });
+
+            describe('when feature jira_links_change_updates is not enabled', () => {
+                it('ignores the event', () => {
+                    return service(params).expect(200);
+                });
             });
         });
     });
