@@ -70,7 +70,7 @@ class Jira {
             });
     }
 
-    issueUrl(issue: Issue): string {
+    issueUrl(issue: { key: string }): string {
         return `${this.host}/browse/${issue.key}`;
     }
 
@@ -101,7 +101,6 @@ class Jira {
 }
 
 export {
-    Issue,
     IssueParams,
     Jira
 };

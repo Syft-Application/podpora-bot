@@ -7,9 +7,12 @@ import { Slack } from '../../lib/slack';
 import { Jira } from '../../lib/jira';
 import {
     IssueChangelog,
-    Issue ,
-    IssueLink ,
-    DetailIssueLink
+    Issue,
+    IssueLink,
+    DetailIssueLinks,
+    isOutwardIssueDetailLink,
+    DetailInwardIssueLink,
+    DetailOutwardIssueLink
 } from '../../lib/jira/api_interfaces';
 
 import feature from '../../util/feature';
@@ -80,30 +83,27 @@ function handleAttachmentChange(
     );
 }
 
-function issueLinksToMessage(jira: Jira, links: Array<DetailIssueLink>): string {
-    const links_text = links.map((link) => {
-        let issue;
-        let what;
-        if (link.outwardIssue) {
-            what = link.type.outward;
-            issue = link.outwardIssue;
-        } else {
-            what = link.type.inward;
-            issue = link.inwardIssue;
-        }
+function issueLinkToMessage(jira: Jira, link: DetailIssueLinks): string {
+    let issue;
+    let what;
+    let lnk;
+    if (isOutwardIssueDetailLink(link)) {
+        lnk = link as DetailOutwardIssueLink;
+        what = lnk.type.outward;
+        issue = lnk.outwardIssue;
+    } else {
+        lnk = link as DetailInwardIssueLink;
+        what = lnk.type.inward;
+        issue = lnk.inwardIssue;
+    }
 
-        const url = jira.issueUrl(issue);
-        const summary = issue.fields.summary;
-        return ` - ${what} ${url} "${summary}"`;
-    });
-
-    return links_text.join('\n');
+    const url = jira.issueUrl(issue);
+    const summary = issue.fields.summary;
+    return `${what} ${url} "${summary}"`;
 }
 
-function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink):void {
-    const issue_promise = jira.find(issueLink.sourceIssueId);
-
-    issue_promise.then((issue: Issue) => {
+function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink): void {
+    function updateIssueSlackThread(issue: Issue): void {
         const issue_key = jira.toKey(issue);
 
         store.get(issue_key)
@@ -112,7 +112,16 @@ function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink):void {
                     return;
                 }
 
-                const message = issueLinksToMessage(jira, issue.fields.issuelinks);
+                const link = issue.fields.issuelinks
+                    .find((el) => {
+                        return parseInt(el.id) === issueLink.id;
+                    });
+
+                if (link === undefined) {
+                    return;
+                }
+
+                const message = issueLinkToMessage(jira, link);
 
                 const [team, channel, ts] = res.split(',');
                 const slack_thread = { team, channel, ts };
@@ -126,9 +135,18 @@ function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink):void {
                 );
             }).catch((error) => {
                 logger.error(error.message);
-                // return Promise.resolve(null);
             });
-    });
+    }
+
+    const source_issue_promise = jira.find(issueLink.sourceIssueId);
+
+    source_issue_promise
+        .then(updateIssueSlackThread);
+
+    const dest_issue_promise = jira.find(issueLink.destinationIssueId);
+
+    dest_issue_promise
+        .then(updateIssueSlackThread);
 }
 
 /**

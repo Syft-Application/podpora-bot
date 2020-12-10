@@ -4,8 +4,10 @@ import { fixture } from '../helpers';
 import logger from '../../src/util/logger';
 import {
     Jira,
-    Issue
 } from '../../src/lib/jira';
+import {
+    Issue,
+} from '../../src/lib/jira/api_interfaces';
 import supportConfig from '../../src/lib/support_config';
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 

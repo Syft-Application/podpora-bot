@@ -20,13 +20,13 @@ interface Attachment {
 }
 
 interface Issue {
-    id: number,
+    id: number | string,
     key: string,
     self: string,
     fields: {
         summary: string,
         attachment: Array<Attachment>,
-        issuelinks: Array<DetailIssueLink>
+        issuelinks: Array<DetailIssueLinks>
     }
 }
 
@@ -46,23 +46,66 @@ interface IssueLink {
 }
 
 interface DetailIssueLink {
-    id: number,
+    id: string,
     self: string,
     type: {
-        id: number,
+        id: string,
         name: string,
         inward: string,
         outward: string,
         self: string,
-    },
-    outwardIssue: Issue,
-    inwardIssue: Issue
+    }
 }
+
+interface LinkIssue {
+    id: string,
+    key: string,
+    self: string,
+    fields: {
+        summary: string
+        status: { id: string, name: string }
+        issuetype: {
+            self: string
+            id: string
+            description: string
+            iconUrl: string
+            name: string
+            subtask: boolean
+            avatarId: number
+        }
+    }
+}
+
+interface DetailOutwardIssueLink extends DetailIssueLink {
+    outwardIssue: LinkIssue
+}
+
+interface DetailInwardIssueLink extends DetailIssueLink {
+    inwardIssue: LinkIssue
+}
+
+function isOutwardIssueDetailLink(
+    link: DetailIssueLinks
+): link is DetailOutwardIssueLink {
+    return (<DetailOutwardIssueLink>link).outwardIssue !== undefined;
+}
+
+// function isInwardIssueDetailLink(
+//     link: DetailIssueLinks
+// ): link is DetailInwardIssueLink {
+//     return (<DetailInwardIssueLink>link).inwardIssue !== undefined;
+// }
+
+type DetailIssueLinks = DetailOutwardIssueLink | DetailInwardIssueLink;
 
 export {
     IssueChangelog,
     Attachment,
-    Issue ,
-    IssueLink ,
-    DetailIssueLink ,
+    Issue,
+    IssueLink,
+    DetailIssueLinks,
+    // isInwardIssueDetailLink,
+    isOutwardIssueDetailLink,
+    DetailInwardIssueLink,
+    DetailOutwardIssueLink
 };

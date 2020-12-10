@@ -1,11 +1,12 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response, fixture } from '../helpers';
+import { build_service, build_response, fixture, merge } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 
 import feature from './../../src/util/feature';
+import { Issue } from '../../src/lib/jira/api_interfaces';
 const featureSpy = jest.spyOn(feature, 'is_enabled');
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
@@ -227,51 +228,139 @@ describe('POST /api/jira/event/:team_id', () => {
         });
     });
 
+    // TODO Fix this
+    // eslint-disable-next-line sonarjs/cognitive-complexity
     describe('webhookEvent: issuelink_created', () => {
         const params = {
-            'timestamp': 1607259320352,
             'webhookEvent': 'issuelink_created',
             'issueLink': {
-                'id': 10004,
+                'id': 10002,
                 'sourceIssueId': 10072,
                 'destinationIssueId': 10088,
-                'issueLinkType': {
-                    'id': 10000,
-                    'name': 'Blocks',
-                    'outwardName': 'blocks',
-                    'inwardName': 'is blocked by',
-                    'isSubTaskLinkType': false,
-                    'isSystemLinkType': false
-                },
-                'systemLink': false
             }
         };
+        const issue = fixture('jira/issue.getIssue');
+        const inward_issue_link = {
+            'id': '10002',
+            'self': 'https://example-bot.atlassian.net/rest/api/2/issueLink/10002',
+            'type': {
+                'id': '10001',
+                'name': 'Clones',
+                'inward': 'is cloned by a i inward',
+                'outward': 'clones b i outward',
+                'self': 'https://example-bot.atlassian.net/rest/api/2/issueLinkType/10001'
+            },
+            'inwardIssue': {
+                'id': '10088',
+                'key': 'SUP-82',
+                'self': 'https://example-bot.atlassian.net/rest/api/2/issue/10073',
+                'fields': {
+                    'summary': 'Some linked issue summary',
+                    'status': {},
+                    'issuetype': {
+                        'self': 'https://example-bot.atlassian.net/rest/api/2/issuetype/10002',
+                        'id': '10002',
+                        'name': 'Task'
+                    }
+                }
+            }
+        };
+        const outward_issue_link = {
+            'id': '10002',
+            'self': 'https://example-bot.atlassian.net/rest/api/2/issueLink/10002',
+            'type': {
+                'id': '10001',
+                'name': 'Clones',
+                'inward': 'is cloned by c o inward',
+                'outward': 'clones d o outward',
+                'self': 'https://example-bot.atlassian.net/rest/api/2/issueLinkType/1001'
+            },
+            'outwardIssue': {
+                'id': '10088',
+                'key': 'SUP-82',
+                'self': 'https://example-bot.atlassian.net/rest/api/2/issue/10073',
+                'fields': {
+                    'summary': 'Some linked issue summary',
+                    'status': {},
+                    'issuetype': {
+                        'self': 'https://example-bot.atlassian.net/rest/api/2/issuetype/10002',
+                        'id': '10002',
+                        'name': 'Task',
+                    }
+                }
+            }
+        };
+        const issue_outward = merge(issue, {
+            id: '10088',
+            key: 'SUP-82'
+        }) as unknown as Issue;
+        const issue_inward = merge(issue, {
+            id: '10072',
+            key: 'SUP-72'
+        }) as unknown as Issue;
+
+        issue_outward.fields = merge(issue_outward.fields, {
+            issuelinks: [outward_issue_link]
+        }) as unknown as Issue['fields'];
+
+        issue_inward.fields = merge(issue_inward.fields, {
+            issuelinks: [inward_issue_link]
+        }) as unknown as Issue['fields'];
 
         it('returns 200 OK and sends the links to slack thread', (done) => {
-            const issue = fixture('jira/issue.getIssue');
+            expect.assertions(5);
+
             featureSpy.mockImplementationOnce((key) => {
                 return key == 'jira_links_change_updates';
             });
 
-            storeGetSpy.mockImplementation(() => {
-                return Promise.resolve('T0001,some_channel_id,some_thread_ts');
+            storeGetSpy.mockImplementation((k) => {
+                expect(/10088|10072/.test(k)).toBe(true);
+
+                if (/10088/.test(k)) {
+                    return Promise.resolve('T0001,some_channel_id,outward_issue_thread_ts');
+                } else {
+                    return Promise.resolve('T0001,some_channel_id,inward_issue_thread_ts');
+                }
             });
 
-            expect.assertions(3);
             nock('https://example.com')
                 .get('/rest/agile/1.0/issue/10072')
-                .reply(200, issue);
+                .reply(200, issue_inward);
+
+            nock('https://example.com')
+                .get('/rest/agile/1.0/issue/10088')
+                .reply(200, issue_outward);
+
+            let slack_updates = 0;
+
+            const slackThreadUpdate = (body: Record<string, unknown>): boolean => {
+                const api_call_body = JSON.stringify(body);
+
+                // 10072 inward, cloned, source
+                if (/inward_issue_thread_ts/.test(api_call_body)) {
+                    expect(api_call_body).toContain('cloned');
+                    slack_updates = slack_updates + 1;
+                } else {
+                    // 10088 outward, clones, destination
+                    expect(api_call_body).toContain('outward_issue_thread_ts');
+                    expect(api_call_body).toContain('clones');
+                    slack_updates = slack_updates + 1;
+                }
+
+                if (slack_updates > 1) {
+                    done();
+                }
+
+                return true;
+            };
 
             nock('https://slack.com')
-                .post('/api/chat.postMessage', (body) => {
-                    const api_call_body = JSON.stringify(body);
-                    expect(api_call_body).toContain('relates to');
-                    expect(api_call_body).toContain('clones');
-                    expect(api_call_body).toContain('is duplicated by');
+                .post('/api/chat.postMessage', slackThreadUpdate)
+                .reply(200, { ok: true });
 
-                    done();
-                    return body;
-                })
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', slackThreadUpdate)
                 .reply(200, { ok: true });
 
             serviceCall(params, done);
@@ -279,18 +368,27 @@ describe('POST /api/jira/event/:team_id', () => {
 
         describe('slack thread not found', () => {
             it('returns 200 OK', (done) => {
-                const issue = fixture('jira/issue.getIssue');
+                let store_calls = 0;
                 featureSpy.mockImplementationOnce((key) => {
                     return key == 'jira_links_change_updates';
                 });
 
                 storeGetSpy.mockImplementation(() => {
-                    done();
+                    if (store_calls > 0) {
+                        done();
+                    } else {
+                        store_calls = store_calls + 1;
+                    }
+
                     return Promise.resolve(null);
                 });
 
                 nock('https://example.com')
                     .get('/rest/agile/1.0/issue/10072')
+                    .reply(200, issue);
+
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10088')
                     .reply(200, issue);
 
                 serviceCall(params, done);
@@ -299,7 +397,8 @@ describe('POST /api/jira/event/:team_id', () => {
 
         describe('store returns an error', () => {
             it('logs the event', (done) => {
-                const issue = fixture('jira/issue.getIssue');
+                expect.assertions(2);
+                let store_calls = 0;
                 featureSpy.mockImplementationOnce((key) => {
                     return key == 'jira_links_change_updates';
                 });
@@ -308,16 +407,22 @@ describe('POST /api/jira/event/:team_id', () => {
                     .get('/rest/agile/1.0/issue/10072')
                     .reply(200, issue);
 
-                expect.assertions(1);
-                storeGetSpy.mockImplementationOnce(() => {
-                    done();
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10088')
+                    .reply(200, issue);
+
+                storeGetSpy.mockImplementation(() => {
+                    store_calls = store_calls + 1;
                     return Promise.reject(new Error('Some store error'));
                 });
 
-                logErrorSpy.mockImplementationOnce((...args) => {
+                logErrorSpy.mockImplementation((...args) => {
                     const log_args = JSON.stringify(args);
                     expect(log_args).toContain('Some store error');
-                    done();
+                    if (store_calls > 1) {
+                        done();
+                    }
+
                     return logger;
                 });
 
@@ -328,6 +433,38 @@ describe('POST /api/jira/event/:team_id', () => {
                 it('ignores the event', () => {
                     return service(params).expect(200);
                 });
+            });
+        });
+
+        describe('link not found', () => {
+            it('returns 200 OK', (done) => {
+                // expect.assertions(1);
+                let store_calls = 0;
+                const issue = fixture('jira/issue.getIssue') as unknown as Issue;
+                issue.fields.issuelinks = [];
+
+                featureSpy.mockImplementationOnce((key) => {
+                    return key == 'jira_links_change_updates';
+                });
+
+                storeGetSpy.mockImplementation(() => {
+                    store_calls = store_calls + 1;
+                    if (store_calls > 1) {
+                        done();
+                    }
+
+                    return Promise.resolve('T0001,some_channel_id,some_thread_ts');
+                });
+
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10072')
+                    .reply(200, issue);
+
+                nock('https://example.com')
+                    .get('/rest/agile/1.0/issue/10088')
+                    .reply(200, issue);
+
+                serviceCall(params, done);
             });
         });
     });
