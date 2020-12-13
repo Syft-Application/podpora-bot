@@ -75,17 +75,17 @@ const product = {
         const message_text = product_config.productMessageText(
             submission, user, request_type
         );
-        const p1 = slack.postMessage(
+        const post_message = slack.postMessage(
             message_text,
             product.channel(slack)
         );
         const issue_params = product_config.issueParams(
             submission, user, request_type
         );
-        const p2 = jira.createIssue(issue_params);
+        const create_issue = jira.createIssue(issue_params);
 
-        p1.then((message) => {
-            p2.then((issue) => {
+        post_message.then((message) => {
+            create_issue.then((issue) => {
                 jira.addSlackThreadUrlToIssue(
                     slack.messageUrl(message),
                     issue
