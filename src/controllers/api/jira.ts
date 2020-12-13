@@ -189,12 +189,8 @@ export const postEvent = (req: Request, res: Response): void => {
                 handleIssueLinkCreated(jira, issueLink);
             }
         }
+        res.status(200).send();
     } else {
-        logger.error(`Missing config for team ${team_id}`);
+        res.status(404).send({ error: 'Team not found' });
     }
-    // } catch (error) {
-    //     logger.error('postEvent', error, req.body);
-    // }
-
-    res.status(200).send();
 };

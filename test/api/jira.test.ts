@@ -55,10 +55,19 @@ describe('POST /api/jira/event/:team_id', () => {
     describe('jira config not found', () => {
         const api_path = '/api/jira/event/BAD-TEAM-ID';
         const service = build_service(app, api_path);
-        const params = {};
 
-        it('returns 200 OK', () => {
-            return service(params).expect(200);
+        it('returns 404 Not found', (done) => {
+            expect.assertions(1);
+            const api_call = service(params);
+            const response = build_response(api_call);
+
+            api_call.expect(404);
+
+            response((body: Record<string, unknown>) => {
+                expect(JSON.stringify(body)).toContain('not found');
+
+                done();
+            }, done);
         });
     });
 
