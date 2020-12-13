@@ -4,10 +4,7 @@ import logger from '../../src/util/logger';
 import { build_service, build_response, fixture, merge } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
-
-import feature from './../../src/util/feature';
 import { Issue } from '../../src/lib/jira/api_interfaces';
-const featureSpy = jest.spyOn(feature, 'is_enabled');
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 // const logInfoSpy = jest.spyOn(logger, 'info').mockReturnValue({} as Logger);
@@ -312,10 +309,6 @@ describe('POST /api/jira/event/:team_id', () => {
         it('returns 200 OK and sends the links to slack thread', (done) => {
             expect.assertions(7);
 
-            featureSpy.mockImplementationOnce((key) => {
-                return key == 'jira_links_change_updates';
-            });
-
             storeGetSpy.mockImplementation((k) => {
                 expect(/10088|10072/.test(k)).toBe(true);
 
@@ -373,9 +366,6 @@ describe('POST /api/jira/event/:team_id', () => {
         describe('slack thread not found', () => {
             it('returns 200 OK', (done) => {
                 let store_calls = 0;
-                featureSpy.mockImplementationOnce((key) => {
-                    return key == 'jira_links_change_updates';
-                });
 
                 storeGetSpy.mockImplementation(() => {
                     if (store_calls > 0) {
@@ -403,9 +393,6 @@ describe('POST /api/jira/event/:team_id', () => {
             it('logs the event', (done) => {
                 expect.assertions(2);
                 let store_calls = 0;
-                featureSpy.mockImplementationOnce((key) => {
-                    return key == 'jira_links_change_updates';
-                });
 
                 nock('https://example.com')
                     .get('/rest/agile/1.0/issue/10072')
@@ -432,12 +419,6 @@ describe('POST /api/jira/event/:team_id', () => {
 
                 serviceCall(params, done);
             });
-
-            describe('when feature jira_links_change_updates is not enabled', () => {
-                it('ignores the event', () => {
-                    return service(params).expect(200);
-                });
-            });
         });
 
         describe('link not found', () => {
@@ -446,10 +427,6 @@ describe('POST /api/jira/event/:team_id', () => {
                 let store_calls = 0;
                 const issue = fixture('jira/issue.getIssue') as unknown as Issue;
                 issue.fields.issuelinks = [];
-
-                featureSpy.mockImplementationOnce((key) => {
-                    return key == 'jira_links_change_updates';
-                });
 
                 storeGetSpy.mockImplementation(() => {
                     store_calls = store_calls + 1;

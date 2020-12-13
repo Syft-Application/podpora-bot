@@ -1,5 +1,6 @@
 'use strict';
 
+// import feature from '../../util/feature';
 import { Response, Request } from 'express';
 import logger from '../../util/logger';
 import { store } from '../../util/secrets';
@@ -14,8 +15,6 @@ import {
     DetailInwardIssueLink,
     DetailOutwardIssueLink
 } from '../../lib/jira/api_interfaces';
-
-import feature from '../../util/feature';
 
 interface SlackThread {
     team: string
@@ -183,9 +182,7 @@ export const postEvent = (req: Request, res: Response): void => {
 
         if (body.webhookEvent === 'jira:issue_updated') {
             handleIssueUpdate(jira, body.issue, body.changelog);
-        } else if (body.webhookEvent === 'issuelink_created' &&
-            feature.is_enabled('jira_links_change_updates')) {
-
+        } else if (body.webhookEvent === 'issuelink_created') {
             handleIssueLinkCreated(jira, body.issueLink);
         }
 
