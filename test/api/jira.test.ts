@@ -37,10 +37,6 @@ describe('POST /api/jira/event/:team_id', () => {
             });
     }
 
-    storeGetSpy.mockImplementation(() => {
-        return Promise.resolve('T0001,some_channel_id,some_thread_ts');
-    });
-
     it('returns 200 OK', () => {
         return service(params).expect(200);
     });
@@ -71,53 +67,80 @@ describe('POST /api/jira/event/:team_id', () => {
         });
     });
 
-    describe('slack thread not found', () => {
+    describe('webhookEvent: jira:issue_updated status change', () => {
         const params = fixture('jira/webhook.issue_updated_status_change');
+        storeGetSpy.mockImplementation(() => {
+            return Promise.resolve('T0001,some_channel_id,some_thread_ts');
+        });
 
-        it('silently ignores the event', (done) => {
-            expect.assertions(1);
-            storeGetSpy.mockImplementationOnce(() => {
-                return Promise.resolve(null);
+        describe('slack thread not found', () => {
+            it('silently ignores the event', (done) => {
+                expect.assertions(1);
+                storeGetSpy.mockImplementationOnce(() => {
+                    return Promise.resolve(null);
+                });
+
+                service(params).expect(200).end((err) => {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(logErrorSpy).not.toHaveBeenCalled();
+                    done();
+                });
             });
+        });
+
+        describe('store returns an error', () => {
+            it('logs the event', (done) => {
+                expect.assertions(2);
+                storeGetSpy.mockImplementationOnce(() => {
+                    return Promise.reject(new Error('Some store error'));
+                });
+
+                service(params).expect(200).end((err) => {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(logErrorSpy).toHaveBeenCalled();
+                    const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
+                    expect(log_args).toContain('Some store error');
+                    done();
+                });
+            });
+        });
+
+        it('sends message to Slack thread about status change', (done) => {
+            let api_call_body: string;
+            expect.assertions(6);
+
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', (body) => {
+                    api_call_body = JSON.stringify(body);
+                    return body;
+                })
+                .reply(200, { ok: true });
 
             service(params).expect(200).end((err) => {
                 if (err) {
                     return done(err);
                 }
-                expect(logErrorSpy).not.toHaveBeenCalled();
+
+                expect(storeGetSpy).toHaveBeenCalled();
+                expect(api_call_body).toContain('some_channel_id');
+                expect(api_call_body).toContain('some_thread_ts');
+                expect(api_call_body).toContain('changed from');
+                expect(api_call_body).toContain('Backlog');
+                expect(api_call_body).toContain('Selected for Development');
                 done();
             });
         });
-    });
 
-    describe('store returns an error', () => {
-        const params = fixture('jira/webhook.issue_updated_status_change');
+        describe('status: Done with resolution', () => {
+            const params = fixture('jira/webhook.issue_updated_status_change2');
 
-        it('logs the event', (done) => {
-            expect.assertions(2);
-            storeGetSpy.mockImplementationOnce(() => {
-                return Promise.reject(new Error('Some store error'));
-            });
-
-            service(params).expect(200).end((err) => {
-                if (err) {
-                    return done(err);
-                }
-                expect(logErrorSpy).toHaveBeenCalled();
-                const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
-                expect(log_args).toContain('Some store error');
-                done();
-            });
-        });
-    });
-
-    describe('webhookEvent: jira:issue_updated', () => {
-        describe('status change', () => {
-            const params = fixture('jira/webhook.issue_updated_status_change');
-
-            it('sends message to Slack thread about status change', (done) => {
+            it('includes the resolution in Slack message', (done) => {
                 let api_call_body: string;
-                expect.assertions(6);
+                expect.assertions(7);
 
                 nock('https://slack.com')
                     .post('/api/chat.postMessage', (body) => {
@@ -135,103 +158,75 @@ describe('POST /api/jira/event/:team_id', () => {
                     expect(api_call_body).toContain('some_channel_id');
                     expect(api_call_body).toContain('some_thread_ts');
                     expect(api_call_body).toContain('changed from');
-                    expect(api_call_body).toContain('Backlog');
                     expect(api_call_body).toContain('Selected for Development');
+                    expect(api_call_body).toContain('Done');
+                    expect(api_call_body).toContain('Duplicate');
+
                     done();
-                });
-            });
-
-            describe('status: Done with resolution', () => {
-                const params = fixture('jira/webhook.issue_updated_status_change2');
-
-                it('includes the resolution in Slack message', (done) => {
-                    let api_call_body: string;
-                    expect.assertions(7);
-
-                    nock('https://slack.com')
-                        .post('/api/chat.postMessage', (body) => {
-                            api_call_body = JSON.stringify(body);
-                            return body;
-                        })
-                        .reply(200, { ok: true });
-
-                    service(params).expect(200).end((err) => {
-                        if (err) {
-                            return done(err);
-                        }
-
-                        expect(storeGetSpy).toHaveBeenCalled();
-                        expect(api_call_body).toContain('some_channel_id');
-                        expect(api_call_body).toContain('some_thread_ts');
-                        expect(api_call_body).toContain('changed from');
-                        expect(api_call_body).toContain('Selected for Development');
-                        expect(api_call_body).toContain('Done');
-                        expect(api_call_body).toContain('Duplicate');
-
-                        done();
-                    });
                 });
             });
         });
+    });
 
-        describe('file attachment added', () => {
-            const params = fixture('jira/webhook.issue_file_attached');
+    describe('webhookEvent: jira:issue_updated file attachment added', () => {
+        const params = fixture('jira/webhook.issue_file_attached');
+        storeGetSpy.mockImplementation(() => {
+            return Promise.resolve('T0001,some_channel_id,some_thread_ts');
+        });
 
-            it('returns 200 OK and sends message to Slack thread', (done) => {
-                let api_call_body: string;
-                expect.assertions(2);
+        it('returns 200 OK and sends message to Slack thread', (done) => {
+            let api_call_body: string;
+            expect.assertions(2);
 
-                nock('https://slack.com')
-                    .post('/api/chat.postMessage', (body) => {
-                        api_call_body = JSON.stringify(body);
-                        return body;
-                    })
-                    .reply(200, { ok: true });
+            nock('https://slack.com')
+                .post('/api/chat.postMessage', (body) => {
+                    api_call_body = JSON.stringify(body);
+                    return body;
+                })
+                .reply(200, { ok: true });
 
-                service(params).expect(200).end((err) => {
-                    if (err) {
-                        return done(err);
-                    }
+            service(params).expect(200).end((err) => {
+                if (err) {
+                    return done(err);
+                }
 
-                    expect(storeGetSpy).toHaveBeenCalled();
-                    expect(api_call_body).toContain('has been attached');
-                    done();
-                });
+                expect(storeGetSpy).toHaveBeenCalled();
+                expect(api_call_body).toContain('has been attached');
+                done();
             });
+        });
 
-            describe('attachment not found in jira.fields.attachment', () => {
-                it('returns 200 OK', () => {
-                    const invalid_params = {
-                        webhookEvent: 'jira:issue_updated',
-                        issue_event_type_name: 'issue_updated',
-                        user: {},
-                        issue: {
-                            id: '10057',
-                            self: 'https://example.atlassian.net/rest/api/2/10057',
-                            key: 'SUP-58',
-                            fields: {
-                                attachment: []
-                            }
-                        },
-                        'changelog': {
-                            items: [
-                                {
-                                    field: 'Attachment',
-                                    fieldtype: 'jira',
-                                    fieldId: 'attachment',
-                                    from: null,
-                                    fromString: null,
-                                    to: '10000',
-                                    toString: 'dummy.png'
-                                }
-                            ]
+        describe('attachment not found in jira.fields.attachment', () => {
+            it('returns 200 OK', () => {
+                const invalid_params = {
+                    webhookEvent: 'jira:issue_updated',
+                    issue_event_type_name: 'issue_updated',
+                    user: {},
+                    issue: {
+                        id: '10057',
+                        self: 'https://example.atlassian.net/rest/api/2/10057',
+                        key: 'SUP-58',
+                        fields: {
+                            attachment: []
                         }
-                    };
+                    },
+                    'changelog': {
+                        items: [
+                            {
+                                field: 'Attachment',
+                                fieldtype: 'jira',
+                                fieldId: 'attachment',
+                                from: null,
+                                fromString: null,
+                                to: '10000',
+                                toString: 'dummy.png'
+                            }
+                        ]
+                    }
+                };
 
-                    return service(invalid_params).expect(200);
-                });
+                return service(invalid_params).expect(200);
             });
-
         });
     });
 
