@@ -151,44 +151,45 @@ function handleIssueLinkCreated(jira: Jira, issueLink: IssueLink): void {
         .then(updateIssueSlackThread);
 }
 
+function handleIssueUpdate(jira: Jira, issue: Issue, changelog: IssueChangelog): void {
+    const issue_key = jira.toKey(issue);
+
+    store.get(issue_key)
+        .then((res) => {
+            if (res === null) {
+                logger.error(`Slack thread not found for issue: ${issue_key}`);
+                return;
+            }
+
+            const [team, channel, ts] = res.split(',');
+            const slack_thread = { team, channel, ts };
+            handleStatusChange(issue, changelog, slack_thread);
+            handleAttachmentChange(issue, changelog, slack_thread);
+        }).catch((error) => {
+            logger.error(error.message);
+        });
+}
+
 /**
  * POST /api/jira/:team_id
  *
  */
 export const postEvent = (req: Request, res: Response): void => {
-    // try {
-    const { webhookEvent, issue, changelog } = req.body;
+    const body = req.body;
     const team_id = req.params.team_id;
     const jira_options = store.jiraOptions(team_id);
 
     if (jira_options) {
-        if (webhookEvent === 'jira:issue_updated') {
-            const jira = new Jira(jira_options);
-            const issue_key = jira.toKey(issue);
+        const jira = new Jira(jira_options);
 
-            store.get(issue_key)
-                .then((res) => {
-                    if (res === null) {
-                        logger.error(`Slack thread not found for issue: ${issue_key}`);
-                        return;
-                    }
+        if (body.webhookEvent === 'jira:issue_updated') {
+            handleIssueUpdate(jira, body.issue, body.changelog);
+        } else if (body.webhookEvent === 'issuelink_created' &&
+            feature.is_enabled('jira_links_change_updates')) {
 
-                    const [team, channel, ts] = res.split(',');
-                    const slack_thread = { team, channel, ts };
-                    handleStatusChange(issue, changelog, slack_thread);
-                    handleAttachmentChange(issue, changelog, slack_thread);
-
-                }).catch((error) => {
-                    logger.error(error.message);
-                });
-        } else if (webhookEvent === 'issuelink_created') {
-            const jira = new Jira(jira_options);
-            const { issueLink } = req.body;
-
-            if (feature.is_enabled('jira_links_change_updates')) {
-                handleIssueLinkCreated(jira, issueLink);
-            }
+            handleIssueLinkCreated(jira, body.issueLink);
         }
+
         res.status(200).send();
     } else {
         res.status(404).send({ error: 'Team not found' });
