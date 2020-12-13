@@ -74,8 +74,8 @@ describe('POST /api/jira/event/:team_id', () => {
     describe('slack thread not found', () => {
         const params = fixture('jira/webhook.issue_updated_status_change');
 
-        it('logs the event', (done) => {
-            expect.assertions(2);
+        it('silently ignores the event', (done) => {
+            expect.assertions(1);
             storeGetSpy.mockImplementationOnce(() => {
                 return Promise.resolve(null);
             });
@@ -84,9 +84,7 @@ describe('POST /api/jira/event/:team_id', () => {
                 if (err) {
                     return done(err);
                 }
-                expect(logErrorSpy).toHaveBeenCalled();
-                const log_args = JSON.stringify(logErrorSpy.mock.calls[0]);
-                expect(log_args).toContain('Slack thread not found for issue');
+                expect(logErrorSpy).not.toHaveBeenCalled();
                 done();
             });
         });

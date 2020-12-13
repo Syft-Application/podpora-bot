@@ -157,7 +157,6 @@ function handleIssueUpdate(jira: Jira, issue: Issue, changelog: IssueChangelog):
     store.get(issue_key)
         .then((res) => {
             if (res === null) {
-                logger.error(`Slack thread not found for issue: ${issue_key}`);
                 return;
             }
 
