@@ -36,8 +36,8 @@ Submitted by: ${slack_user.name}`;
                             issuetype: { name: 'Idea' },
                             description: desc,
                             labels: ['product',
-                                     submission.urgency.toLowerCase(),
-                                     submission.product_area.toLowerCase()]
+                                submission.urgency.toLowerCase(),
+                                submission.product_area.toLowerCase()]
                         }
                     });
                 });
@@ -80,8 +80,46 @@ Submitted by: ${slack_user.name}`;
                         config.issueParams(submission, slack_user, request_type)
                             .fields.labels
                     ).toEqual(['product',
-                               'bony-and-clyde-foo-bar',
-                               'upcase-downcase-sna-ke']);
+                        'bony-and-clyde-foo-bar',
+                        'upcase-downcase-sna-ke']);
+                });
+
+                describe('when long title', () => {
+                    const long_title = 'few random words repeated many times'.repeat(10);
+                    const submission = {
+                        title: long_title,
+                        description: 'B',
+                        affected_users: 'C',
+                        urgency: 'D',
+                        product_area: 'E'
+                    };
+                    const first_part_of_title = long_title.slice(0, 128);
+                    const second_part_of_title = long_title.slice(128, -1);
+                    const desc = `${second_part_of_title}
+
+${submission.description}
+
+Affected Users: ${submission.affected_users}
+Product Area: ${submission.product_area}
+Urgency: ${submission.urgency}
+
+Submitted by: ${slack_user.name}`;
+
+                    it('slice the title to acceptable length and prepend to description', () => {
+                        expect(
+                            config.issueParams(submission, slack_user, request_type)
+                        ).toEqual({
+                            fields: {
+                                project: { key: 'IDEA' },
+                                summary: first_part_of_title,
+                                issuetype: { name: 'Idea' },
+                                description: desc,
+                                labels: ['product',
+                                    submission.urgency.toLowerCase(),
+                                    submission.product_area.toLowerCase()]
+                            }
+                        });
+                    });
                 });
 
             });

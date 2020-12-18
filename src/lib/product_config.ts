@@ -87,6 +87,26 @@ function viewToSubmission(
     return submission;
 }
 
+
+function normalisedTitleAndDesc(
+    submission: Submission
+): { title: string, desc: string } {
+    let title = submission.title as string;
+    let desc = submission.description as string;
+    if (title.length > 128) {
+        const first_part_of_title = title.slice(0, 128);
+        const second_part_of_title = title.slice(128, -1);
+
+        title = first_part_of_title;
+        desc = `${second_part_of_title}\n\n${desc}`;
+    }
+
+    return {
+        title: title,
+        desc: desc
+    };
+}
+
 const configs: { [index: string]: ProductConfig } = {};
 
 configs.default = {
@@ -107,10 +127,12 @@ configs.default = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         request_type: string,
     ): IssueParams {
-        const title: string = submission.title as string;
+        const title_and_desc = normalisedTitleAndDesc(submission);
+        const title = title_and_desc.title;
+        let desc = title_and_desc.desc;
         const board = 'IDEA';
         const issue_type = 'Idea';
-        const desc = `${submission.description}
+        desc = `${desc}
 
 Affected Users: ${submission.affected_users}
 Product Area: ${submission.product_area}
