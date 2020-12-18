@@ -73,6 +73,35 @@ Submitted by: ${slack_user.name}`;
                     });
                 });
             });
+
+            describe('when long title', () => {
+                const request_type = 'data';
+                const long_title = 'few random words repeated many times'.repeat(10);
+                const submission = {
+                    title: long_title,
+                    description: 'B'
+                };
+                const first_part_of_title = long_title.slice(0, 128);
+                const second_part_of_title = long_title.slice(128, -1);
+                const desc = `${second_part_of_title}
+
+${submission.description}
+
+Submitted by: ${slack_user.name}`;
+                it('slice the title to acceptable length and prepend to description', () => {
+                    expect(
+                        config.issueParams(submission, slack_user, request_type)
+                    ).toEqual({
+                        fields: {
+                            project: { key: 'SUP' },
+                            summary: first_part_of_title,
+                            issuetype: { name: 'Data Request' },
+                            description: desc,
+                            labels: ['support']
+                        }
+                    });
+                });
+            });
         });
 
         describe('#supportMessageText(submission, user, request_type)', () => {

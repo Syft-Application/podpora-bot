@@ -91,6 +91,25 @@ function viewToSubmission(
     return submission;
 }
 
+function normalisedTitleAndDesc(
+    submission: Submission
+): { title: string, desc: string } {
+    let title = submission.title as string;
+    let desc = submission.description as string;
+    if (title.length > 128) {
+        const first_part_of_title = title.slice(0, 128);
+        const second_part_of_title = title.slice(128, -1);
+
+        title = first_part_of_title;
+        desc = `${second_part_of_title}\n\n${desc}`;
+    }
+
+    return {
+        title: title,
+        desc: desc
+    };
+}
+
 const configs: { [index: string]: SupportConfig } = {};
 
 configs.default = {
@@ -179,29 +198,29 @@ configs.default = {
         user: SlackUser,
         request_type: string,
     ): IssueParams {
-        const title: string = submission.title as string;
         const board = 'SUP';
+        const title_and_desc = normalisedTitleAndDesc(submission);
+        const title = title_and_desc.title;
+        let desc = title_and_desc.desc;
         let issue_type: string;
-        let desc: string;
 
         if (request_type === 'bug') {
             issue_type = 'Bug';
-            desc = `${submission.description}
+            desc = `${desc}
 
 Currently:
 ${submission.currently}
 
 Expected:
-${submission.expected}
-
-Submitted by: ${user.name}`;
+${submission.expected}`;
 
         } else {
             issue_type = 'Task';
-            desc = `${submission.description}
+        }
+
+        desc = `${desc}
 
 Submitted by: ${user.name}`;
-        }
 
         return {
             fields: {
@@ -318,31 +337,26 @@ configs.syft = {
         user: SlackUser,
         request_type: string,
     ): IssueParams {
-        const title: string = submission.title as string;
-        let board: string;
+        const board = 'SUP';
+        const title_and_desc = normalisedTitleAndDesc(submission);
+        const title = title_and_desc.title;
+        let desc = title_and_desc.desc;
         let issue_type: string;
-        let desc: string;
 
         if (request_type === 'bug') {
-            board = 'SUP';
             issue_type = 'Bug';
-            desc = `${submission.description}
+            desc = `${desc}
 
 Currently:
 ${submission.currently}
 
 Expected:
-${submission.expected}
-
-Submitted by: ${user.name}`;
+${submission.expected}`;
 
         } else {
-            board = 'SUP';
             issue_type = 'Data Request';
-            desc = `${submission.description}
-
-Submitted by: ${user.name}`;
         }
+        desc = `${desc}\n\nSubmitted by: ${user.name}`;
 
         return {
             fields: {
