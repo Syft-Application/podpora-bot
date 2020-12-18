@@ -34,8 +34,14 @@ describe('POST /api/jira/event/:team_id', () => {
             });
     }
 
-    it('returns 200 OK', () => {
-        return service(params).expect(200);
+    it('returns 200 OK', (done) => {
+        service(params).expect(200).end((err) => {
+            if (err) {
+                return done(err);
+            }
+
+            done();
+        });
     });
 
     it('returns empty', (done) => {
