@@ -6,6 +6,10 @@ import {
     ViewSubmissionInputValue,
     ViewSubmissionSelectValue
 } from './slack/api_interfaces';
+import {
+    IssueChangelog,
+    Issue,
+} from './jira/api_interfaces';
 
 function fileShareEventToIssueComment(
     event: ChannelThreadFileShareEvent,
@@ -70,11 +74,34 @@ function viewSelectedVal(
     return null;
 }
 
+function statusChangeMessage(
+    issue: Issue,
+    changelog: IssueChangelog
+): string | null {
+    const status_change = changelog.items.find((el) => el.field === 'status');
+    const resolution_change = changelog.items.find((el) => el.field === 'resolution');
+    if (!status_change) {
+        return null;
+    }
+
+    const changed_from = status_change.fromString;
+    const changed_to = status_change.toString;
+    const ignored_to_resolutions = [null, 'Done'];
+    let message = `Status changed from *${changed_from}* to *${changed_to}*`;
+
+    if (resolution_change && !ignored_to_resolutions.includes(resolution_change.toString)) {
+        message = `${message}\nResolution: ${resolution_change.toString}`;
+    }
+
+    return message;
+}
+
 export {
     commandsNames,
     fileShareEventToIssueComment,
     SlackCommand,
     slackFileToText,
+    statusChangeMessage,
     viewInputVal,
     viewSelectedVal
 };

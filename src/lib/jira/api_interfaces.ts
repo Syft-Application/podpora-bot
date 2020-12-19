@@ -4,10 +4,10 @@ interface IssueChangelog {
         field: string
         fieldtype: string
         fieldId: string
-        from: string
-        fromString: string
-        to: string
-        toString: string
+        from: string | null
+        fromString: string | null
+        to: string | null
+        toString: string | null
     }>
 }
 
