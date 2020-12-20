@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Dialog, View } from '@slack/web-api';
+import { View } from '@slack/web-api';
 import {
     SlackUser,
     Submission,
@@ -23,10 +23,6 @@ interface IssueParams {
     }
 }
 
-interface Dialogs {
-    [index: string]: Dialog
-}
-
 interface Views {
     [index: string]: View
 }
@@ -40,7 +36,6 @@ interface SlackCommand {
 interface SupportConfig {
     commands: Array<SlackCommand>,
     commandsHelpText: () => string,
-    dialogs: Dialogs,
     view: (key: string) => View,
     viewToSubmission: (
         view: ViewSubmission['view'],
@@ -109,67 +104,6 @@ configs.default = {
     ],
     commandsHelpText: function(): string {
         return commandsHelpText(this.commands);
-    },
-    dialogs: {
-        bug: {
-            callback_id: '',
-            title: 'Report Bug',
-            submit_label: 'Submit',
-            state: 'support_bug',
-            elements: [
-                {
-                    type: 'text',
-                    label: 'Title',
-                    placeholder: 'eg. Employer 1234 can\'t see shifts',
-                    name: 'title',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Steps to Reproduce',
-                    placeholder: 'Bullet point steps to reproduce. ' +
-                        'Include specifics, eg. urls and ids',
-                    name: 'description',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Current Outcome',
-                    placeholder: 'What *currently* happens when the above steps are taken?',
-                    name: 'currently',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Expected Outcome',
-                    placeholder: 'What *should* happen when the above steps are taken?',
-                    name: 'expected',
-                    value: '',
-                },
-            ]
-        },
-        data: {
-            callback_id: '',
-            title: 'New Data Request',
-            submit_label: 'Submit',
-            state: 'support_data',
-            elements: [
-                {
-                    type: 'text',
-                    name: 'title',
-                    label: 'Title',
-                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Description',
-                    placeholder: 'Please include any extra information required, eg. column names',
-                    name: 'description',
-                    value: '',
-                },
-            ]
-        }
     },
     view: function(key: string): View {
         return views[key];
@@ -248,67 +182,6 @@ configs.syft = {
     ],
     commandsHelpText: function(): string {
         return commandsHelpText(this.commands);
-    },
-    dialogs: {
-        bug: {
-            callback_id: '',
-            title: 'Report Bug',
-            submit_label: 'Submit',
-            state: 'support_bug',
-            elements: [
-                {
-                    type: 'text',
-                    label: 'Title',
-                    placeholder: 'eg. Employer 1234 can\'t see shifts',
-                    name: 'title',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Steps to Reproduce',
-                    placeholder: 'Bullet point steps to reproduce. ' +
-                        'Include specifics, eg. urls and ids',
-                    name: 'description',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Current Outcome',
-                    placeholder: 'What *currently* happens when the above steps are taken?',
-                    name: 'currently',
-                    value: '',
-                },
-                {
-                    type: 'text',
-                    label: 'Expected Outcome',
-                    placeholder: 'What *should* happen when the above steps are taken?',
-                    name: 'expected',
-                    value: '',
-                },
-            ]
-        },
-        data: {
-            callback_id: '',
-            title: 'New Data Request',
-            submit_label: 'Submit',
-            state: 'support_data',
-            elements: [
-                {
-                    type: 'text',
-                    name: 'title',
-                    label: 'Title',
-                    placeholder: 'eg. Number of shifts per employer in Feb 2019',
-                    value: '',
-                },
-                {
-                    type: 'textarea',
-                    label: 'Description',
-                    placeholder: 'Please include any extra information required, eg. column names',
-                    name: 'description',
-                    value: '',
-                },
-            ]
-        }
     },
     view: function(key: string): View {
         return configs.default.view(key);

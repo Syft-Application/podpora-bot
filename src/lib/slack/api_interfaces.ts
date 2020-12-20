@@ -15,14 +15,12 @@ interface PostCommandPayload {
 }
 
 const enum InteractionTypes {
-    dialog_submission = 'dialog_submission',
     view_submission = 'view_submission',
     block_actions = 'block_actions',
     shortcut = 'shortcut'
 }
 
 type PostInteractionPayload = (
-    DialogSubmission |
     ViewSubmission |
     Shortcut |
     BlockActions |
@@ -59,17 +57,6 @@ interface BlockActions extends Interaction {
 interface Shortcut extends Interaction {
     type: InteractionTypes.shortcut,
     trigger_id: string
-}
-
-interface DialogSubmission extends Interaction {
-    type: InteractionTypes.dialog_submission,
-    submission: {
-        title: string,
-        description: string
-        currently: string,
-        expected: string
-    },
-    state: string
 }
 
 interface ViewSubmissionBlockValue {
@@ -203,7 +190,6 @@ export {
     SlackFiles,
     SlackUser,
     Submission,
-    DialogSubmission,
     ViewSubmission,
     ViewSubmissionInputValue,
     ViewSubmissionSelectValue,
