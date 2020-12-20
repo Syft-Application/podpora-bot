@@ -1,6 +1,7 @@
 import {
     ChannelThreadFileShareEvent,
     SlackFiles,
+    Submission,
     isSlackImageFile,
     ViewSubmission,
     ViewSubmissionInputValue,
@@ -96,6 +97,25 @@ function statusChangeMessage(
     return message;
 }
 
+function normalisedTitleAndDesc(
+    submission: Submission
+): { title: string, desc: string } {
+    let title = submission.title as string;
+    let desc = submission.description as string;
+    if (title.length > 128) {
+        const first_part_of_title = title.slice(0, 128);
+        const second_part_of_title = title.slice(128, -1);
+
+        title = first_part_of_title;
+        desc = `${second_part_of_title}\n\n${desc}`;
+    }
+
+    return {
+        title: title,
+        desc: desc
+    };
+}
+
 export {
     commandsNames,
     fileShareEventToIssueComment,
@@ -103,5 +123,6 @@ export {
     slackFileToText,
     statusChangeMessage,
     viewInputVal,
-    viewSelectedVal
+    viewSelectedVal,
+    normalisedTitleAndDesc
 };
