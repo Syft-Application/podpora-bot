@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@sindresorhus/slugify": "^1.1.0",
-    "@slack/events-api": "^2.3.4",
+    "@slack/events-api": "^3.0.0",
     "@slack/interactive-messages": "^1.7.1",
     "@slack/web-api": "^5.15.0",
     "@types/response-time": "^2.3.4",
