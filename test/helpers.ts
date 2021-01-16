@@ -18,17 +18,7 @@ interface ServiceResponseCallback {
     (body: Record<string, unknown>): void;
 }
 
-export function merge(
-    target: Record<string, unknown>,
-    source: Record<string, unknown>
-): Record<string, unknown> {
-    const target_copy = Object.assign({}, target);
-
-    return Object.assign(target_copy, source);
-}
-
-// eslint-disable-next-line sonarjs/no-identical-functions
-export function mergeg<T>(
+export function merge<T>(
     target: T,
     source: Record<string, unknown>
 ): T {

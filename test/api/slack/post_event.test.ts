@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { mergeg, build_service, build_response, fixture } from '../../helpers';
+import { merge, build_service, build_response, fixture } from '../../helpers';
 import logger from '../../../src/util/logger';
 import { store } from '../../../src/util/secrets';
 import {
@@ -118,8 +118,8 @@ describe('POST /api/slack/event', () => {
             });
 
             describe('message not in a thread', () => {
-                const not_in_thread_params = mergeg<EventCallbackPayload>(params, {
-                    'event': mergeg<EventCallbackPayload['event']>(
+                const not_in_thread_params = merge<EventCallbackPayload>(params, {
+                    'event': merge<EventCallbackPayload['event']>(
                         params['event'], {
                             thread_ts: undefined
                         })
@@ -136,9 +136,9 @@ describe('POST /api/slack/event', () => {
                 fixture('slack/events.message_with_file') as EventCallbackPayload;
 
             describe('message on support channel', () => {
-                const params = mergeg<EventCallbackPayload>(
+                const params = merge<EventCallbackPayload>(
                     default_params, {
-                        'event': mergeg<EventCallbackPayload['event']>(
+                        'event': merge<EventCallbackPayload['event']>(
                             default_params['event'], { channel: 'suppchannel' }
                         )
                     });
@@ -147,9 +147,9 @@ describe('POST /api/slack/event', () => {
             });
 
             describe('message on product channel', () => {
-                const params = mergeg<EventCallbackPayload>(
+                const params = merge<EventCallbackPayload>(
                     default_params, {
-                        'event': mergeg<EventCallbackPayload['event']>(
+                        'event': merge<EventCallbackPayload['event']>(
                             default_params['event'], { channel: 'prodchannel' }
                         )
                     });
@@ -158,9 +158,9 @@ describe('POST /api/slack/event', () => {
             });
 
             describe('message not on support or product channel', () => {
-                const params = mergeg<EventCallbackPayload>(
+                const params = merge<EventCallbackPayload>(
                     default_params, {
-                        'event': mergeg<EventCallbackPayload['event']>(
+                        'event': merge<EventCallbackPayload['event']>(
                             default_params['event'], { channel: 'unknownchannel' }
                         )
                     });

@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { mergeg, build_service, build_response } from '../../helpers';
+import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
 import app from '../../../src/app';
 import { PostCommandPayload } from '../../../src/lib/slack/api_interfaces';
@@ -61,7 +61,7 @@ describe('POST /api/slack/command', () => {
         describe('when something goes wrong (wrong team id)', () => {
             it('logs the error', (done) => {
                 expect.assertions(2);
-                const bad_params = mergeg<PostCommandPayload>(params, { team_id: 'wrong team id' });
+                const bad_params = merge<PostCommandPayload>(params, { team_id: 'wrong team id' });
 
                 service(bad_params as unknown as Record<string, unknown>).expect(200).end((err) => {
                     if (err) {
@@ -75,7 +75,7 @@ describe('POST /api/slack/command', () => {
             });
 
             it('notify user about issue', (done) => {
-                const bad_params = mergeg<PostCommandPayload>(params, { team_id: 'wrong team id' });
+                const bad_params = merge<PostCommandPayload>(params, { team_id: 'wrong team id' });
                 const response = build_response(
                     service(bad_params as unknown as Record<string, unknown>)
                 );
@@ -108,22 +108,22 @@ describe('POST /api/slack/command', () => {
     });
 
     describe('command: /support', () => {
-        const support_params = mergeg<PostCommandPayload>(default_params, { command: '/support' });
+        const support_params = merge<PostCommandPayload>(default_params, { command: '/support' });
 
         describe('text: bug', () => {
-            const bug_params = mergeg<PostCommandPayload>(support_params, { text: 'bug' });
+            const bug_params = merge<PostCommandPayload>(support_params, { text: 'bug' });
 
             test_command_with_modal(bug_params);
         });
 
         describe('text: data', () => {
-            const data_params = mergeg<PostCommandPayload>(support_params, { text: 'data' });
+            const data_params = merge<PostCommandPayload>(support_params, { text: 'data' });
 
             test_command_with_modal(data_params);
         });
 
         describe('text: ping', () => {
-            const params = mergeg<PostCommandPayload>(support_params, { text: 'ping' });
+            const params = merge<PostCommandPayload>(support_params, { text: 'ping' });
             const response = build_response(service(params as unknown as Record<string, unknown>));
 
             it('respond with ephemeral message Pong!', (done) => {
@@ -149,10 +149,10 @@ describe('POST /api/slack/command', () => {
     });
 
     describe('command: /idea', () => {
-        const product_params = mergeg<PostCommandPayload>(default_params, { command: '/idea' });
+        const product_params = merge<PostCommandPayload>(default_params, { command: '/idea' });
 
         describe('text: help', () => {
-            const idea_params = mergeg<PostCommandPayload>(product_params, { text: 'help' });
+            const idea_params = merge<PostCommandPayload>(product_params, { text: 'help' });
             const commandHelpResponse = {
                 text: '👋 Need help with product bot?\n\n'
                     + '> Submit new product idea:\n>`/idea`'
@@ -161,14 +161,14 @@ describe('POST /api/slack/command', () => {
         });
 
         describe('text: nothing', () => {
-            const idea_params = mergeg<PostCommandPayload>(product_params, { text: ' ' });
+            const idea_params = merge<PostCommandPayload>(product_params, { text: ' ' });
 
             test_command_with_modal(idea_params);
         });
     });
 
     describe('command: /unknown', () => {
-        const params = mergeg<PostCommandPayload>(default_params, { command: '/unknown' });
+        const params = merge<PostCommandPayload>(default_params, { command: '/unknown' });
         const response = build_response(service(params as unknown as Record<string, unknown>));
 
         it('notify user that the command is not implemented yet', (done) => {

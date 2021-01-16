@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { build_service, build_response, fixture, mergeg } from '../../helpers';
+import { build_service, build_response, fixture, merge } from '../../helpers';
 import logger from '../../../src/util/logger';
 import feature from '../../../src/util/feature';
 import { store } from '../../../src/util/secrets';
@@ -378,7 +378,7 @@ describe('POST /api/slack/interaction', () => {
         });
 
         describe('callback_id: support_bug', () => {
-            const bug_payload = mergeg<PostInteractionPayload>(
+            const bug_payload = merge<PostInteractionPayload>(
                 payload, { callback_id: 'support_bug' }
             );
 
@@ -386,7 +386,7 @@ describe('POST /api/slack/interaction', () => {
         });
 
         describe('callback_id: support_data', () => {
-            const data_payload = mergeg<PostInteractionPayload>(
+            const data_payload = merge<PostInteractionPayload>(
                 payload, { callback_id: 'support_data' }
             );
 
@@ -394,7 +394,7 @@ describe('POST /api/slack/interaction', () => {
         });
 
         describe('callback_id: support_unknown-command', () => {
-            const shortcut_payload = mergeg<PostInteractionPayload>(
+            const shortcut_payload = merge<PostInteractionPayload>(
                 payload, { callback_id: 'support_unknown-command' }
             );
 

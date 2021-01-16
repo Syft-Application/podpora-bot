@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response, fixture, mergeg } from '../helpers';
+import { build_service, build_response, fixture, merge } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 import { Issue } from '../../src/lib/jira/api_interfaces';
@@ -296,20 +296,20 @@ describe('POST /api/jira/event/:team_id', () => {
                 }
             }
         };
-        const issue_outward = mergeg<Issue>(issue, {
+        const issue_outward = merge<Issue>(issue, {
             id: '10088',
             key: 'SUP-82'
         });
-        const issue_inward = mergeg<Issue>(issue, {
+        const issue_inward = merge<Issue>(issue, {
             id: '10072',
             key: 'SUP-72'
         });
 
-        issue_outward.fields = mergeg<Issue['fields']>(issue_outward.fields, {
+        issue_outward.fields = merge<Issue['fields']>(issue_outward.fields, {
             issuelinks: [outward_issue_link]
         });
 
-        issue_inward.fields = mergeg<Issue['fields']>(issue_inward.fields, {
+        issue_inward.fields = merge<Issue['fields']>(issue_inward.fields, {
             issuelinks: [inward_issue_link]
         });
 
