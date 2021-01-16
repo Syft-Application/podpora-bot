@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { merge, build_serviceg, build_response } from '../../helpers';
+import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
 import app from '../../../src/app';
 import { PostCommandPayload } from '../../../src/lib/slack/api_interfaces';
@@ -32,7 +32,7 @@ describe('POST /api/slack/command', () => {
         trigger_id: '13345224609.738474920.8088930838d88f008e0'
     } as PostCommandPayload;
     const api_path = '/api/slack/command';
-    const service = build_serviceg<PostCommandPayload>(app, api_path);
+    const service = build_service<PostCommandPayload>(app, api_path);
 
     function test_command_with_modal(params: PostCommandPayload): void {
         it('sends modal view to Slack', (done) => {

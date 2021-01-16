@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { merge, build_serviceg, build_response, fixture } from '../../helpers';
+import { merge, build_service, build_response, fixture } from '../../helpers';
 import logger from '../../../src/util/logger';
 import { store } from '../../../src/util/secrets';
 import {
@@ -22,7 +22,7 @@ afterEach(() => {
 
 describe('POST /api/slack/event', () => {
     const api_path = '/api/slack/event';
-    const service = build_serviceg<PostEventPayloads>(app, api_path);
+    const service = build_service<PostEventPayloads>(app, api_path);
 
     describe('type: url_verification', () => {
         const params = {

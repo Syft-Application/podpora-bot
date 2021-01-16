@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { build_serviceg, build_response, fixture, merge } from '../../helpers';
+import { build_service, build_response, fixture, merge } from '../../helpers';
 import logger from '../../../src/util/logger';
 import feature from '../../../src/util/feature';
 import { store } from '../../../src/util/secrets';
@@ -33,7 +33,7 @@ afterEach(() => {
 */
 describe('POST /api/slack/interaction', () => {
     const api_path = '/api/slack/interaction';
-    const service = build_serviceg<Record<string, unknown>>(app, api_path);
+    const service = build_service<Record<string, unknown>>(app, api_path);
 
     function test_submission(params: Record<string, unknown>): void {
         it('returns 200 OK', (done) => {
