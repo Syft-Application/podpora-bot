@@ -33,6 +33,13 @@ export function build_service(app: express.Application, api_path: string) {
     };
 }
 
+// eslint-disable-next-line sonarjs/no-identical-functions
+export function build_serviceg<T>(app: express.Application, api_path: string) {
+    return function(params: T): supertest.Test {
+        return request(app).post(api_path).send(params as unknown as Record<string, unknown>);
+    };
+}
+
 export function build_response(service: supertest.Test) {
     return function(callback: ServiceResponseCallback, onError: jest.DoneCallback): supertest.Test {
         // return service.end((err: any, res: Record<string, unknown>) => {

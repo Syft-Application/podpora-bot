@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { merge, build_service, build_response } from '../../helpers';
+import { merge, build_serviceg, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
 import app from '../../../src/app';
 import { PostCommandPayload } from '../../../src/lib/slack/api_interfaces';
@@ -32,7 +32,7 @@ describe('POST /api/slack/command', () => {
         trigger_id: '13345224609.738474920.8088930838d88f008e0'
     } as PostCommandPayload;
     const api_path = '/api/slack/command';
-    const service = build_service(app, api_path);
+    const service = build_serviceg<PostCommandPayload>(app, api_path);
 
     function test_command_with_modal(params: PostCommandPayload): void {
         it('sends modal view to Slack', (done) => {
@@ -40,11 +40,11 @@ describe('POST /api/slack/command', () => {
                 .post('/api/views.open')
                 .reply(200, { ok: true });
 
-            service(params as unknown as Record<string, unknown>).expect(200).end(done);
+            service(params).expect(200).end(done);
         });
 
         describe('response.body', () => {
-            const response = build_response(service(params as unknown as Record<string, unknown>));
+            const response = build_response(service(params));
 
             it('returns empty', (done) => {
                 nock('https://slack.com')
@@ -63,7 +63,7 @@ describe('POST /api/slack/command', () => {
                 expect.assertions(2);
                 const bad_params = merge<PostCommandPayload>(params, { team_id: 'wrong team id' });
 
-                service(bad_params as unknown as Record<string, unknown>).expect(200).end((err) => {
+                service(bad_params).expect(200).end((err) => {
                     if (err) {
                         done(err);
                     }
@@ -77,7 +77,7 @@ describe('POST /api/slack/command', () => {
             it('notify user about issue', (done) => {
                 const bad_params = merge<PostCommandPayload>(params, { team_id: 'wrong team id' });
                 const response = build_response(
-                    service(bad_params as unknown as Record<string, unknown>)
+                    service(bad_params)
                 );
 
                 response((body: Record<string, unknown>) => {
@@ -93,7 +93,7 @@ describe('POST /api/slack/command', () => {
         params: PostCommandPayload,
         commandHelpResponse: { text: string }
     ): void {
-        const response = build_response(service(params as unknown as Record<string, unknown>));
+        const response = build_response(service(params));
 
         it('contains command help message', (done) => {
             response((body: Record<string, unknown>) => {
@@ -104,7 +104,7 @@ describe('POST /api/slack/command', () => {
     }
 
     it('returns 200 OK', () => {
-        return service(default_params as unknown as Record<string, unknown>).expect(200);
+        return service(default_params).expect(200);
     });
 
     describe('command: /support', () => {
@@ -124,7 +124,7 @@ describe('POST /api/slack/command', () => {
 
         describe('text: ping', () => {
             const params = merge<PostCommandPayload>(support_params, { text: 'ping' });
-            const response = build_response(service(params as unknown as Record<string, unknown>));
+            const response = build_response(service(params));
 
             it('respond with ephemeral message Pong!', (done) => {
                 response((body: Record<string, unknown>) => {
@@ -169,7 +169,7 @@ describe('POST /api/slack/command', () => {
 
     describe('command: /unknown', () => {
         const params = merge<PostCommandPayload>(default_params, { command: '/unknown' });
-        const response = build_response(service(params as unknown as Record<string, unknown>));
+        const response = build_response(service(params));
 
         it('notify user that the command is not implemented yet', (done) => {
             response((body: Record<string, unknown>) => {
