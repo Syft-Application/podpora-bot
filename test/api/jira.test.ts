@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response, fixture, merge, mergeg } from '../helpers';
+import { build_service, build_response, fixture, mergeg } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 import { Issue } from '../../src/lib/jira/api_interfaces';
@@ -299,19 +299,19 @@ describe('POST /api/jira/event/:team_id', () => {
         const issue_outward = mergeg<Issue>(issue, {
             id: '10088',
             key: 'SUP-82'
-        }) ;
+        });
         const issue_inward = mergeg<Issue>(issue, {
             id: '10072',
             key: 'SUP-72'
-        }) ;
+        });
 
-        issue_outward.fields = merge(issue_outward.fields, {
+        issue_outward.fields = mergeg<Issue['fields']>(issue_outward.fields, {
             issuelinks: [outward_issue_link]
-        }) as unknown as Issue['fields'];
+        });
 
-        issue_inward.fields = merge(issue_inward.fields, {
+        issue_inward.fields = mergeg<Issue['fields']>(issue_inward.fields, {
             issuelinks: [inward_issue_link]
-        }) as unknown as Issue['fields'];
+        });
 
         it('returns 200 OK and sends the links to slack thread', (done) => {
             expect.assertions(7);
