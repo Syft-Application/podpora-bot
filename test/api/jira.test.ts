@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response, fixture, merge } from '../helpers';
+import { build_serviceg, build_response, fixture, merge } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 import { Issue } from '../../src/lib/jira/api_interfaces';
@@ -20,7 +20,7 @@ afterEach(() => {
 
 describe('POST /api/jira/event/:team_id', () => {
     const api_path = '/api/jira/event/T0001';
-    const service = build_service(app, api_path);
+    const service = build_serviceg<Record<string, unknown>>(app, api_path);
     const params = {};
     const response = build_response(service(params));
     type CallbackHandler = (err: Error) => void;
@@ -53,7 +53,7 @@ describe('POST /api/jira/event/:team_id', () => {
 
     describe('jira config not found', () => {
         const api_path = '/api/jira/event/BAD-TEAM-ID';
-        const service = build_service(app, api_path);
+        const service = build_serviceg<Record<string, unknown>>(app, api_path);
 
         it('returns 404 Not found', (done) => {
             expect.assertions(1);
