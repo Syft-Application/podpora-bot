@@ -27,6 +27,16 @@ export function merge(
     return Object.assign(target_copy, source);
 }
 
+// eslint-disable-next-line sonarjs/no-identical-functions
+export function mergeg<T>(
+    target: T,
+    source: Record<string, unknown>
+): T {
+    const target_copy = Object.assign({}, target);
+
+    return Object.assign(target_copy, source);
+}
+
 export function build_service(app: express.Application, api_path: string) {
     return function(params: Record<string, unknown>): supertest.Test {
         return request(app).post(api_path).send(params);

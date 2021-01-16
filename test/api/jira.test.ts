@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { Logger } from 'winston';
 import logger from '../../src/util/logger';
-import { build_service, build_response, fixture, merge } from '../helpers';
+import { build_service, build_response, fixture, merge, mergeg } from '../helpers';
 import { store } from '../../src/util/secrets';
 import app from '../../src/app';
 import { Issue } from '../../src/lib/jira/api_interfaces';
@@ -245,7 +245,7 @@ describe('POST /api/jira/event/:team_id', () => {
                 'destinationIssueId': 10088,
             }
         };
-        const issue = fixture('jira/issue.getIssue');
+        const issue = fixture('jira/issue.getIssue') as unknown as Issue;
         const inward_issue_link = {
             'id': '10002',
             'self': 'https://example-bot.atlassian.net/rest/api/2/issueLink/10002',
@@ -296,14 +296,14 @@ describe('POST /api/jira/event/:team_id', () => {
                 }
             }
         };
-        const issue_outward = merge(issue, {
+        const issue_outward = mergeg<Issue>(issue, {
             id: '10088',
             key: 'SUP-82'
-        }) as unknown as Issue;
-        const issue_inward = merge(issue, {
+        }) ;
+        const issue_inward = mergeg<Issue>(issue, {
             id: '10072',
             key: 'SUP-72'
-        }) as unknown as Issue;
+        }) ;
 
         issue_outward.fields = merge(issue_outward.fields, {
             issuelinks: [outward_issue_link]
@@ -432,7 +432,7 @@ describe('POST /api/jira/event/:team_id', () => {
             it('returns 200 OK', (done) => {
                 // expect.assertions(1);
                 let store_calls = 0;
-                const issue = fixture('jira/issue.getIssue') as unknown as Issue;
+
                 issue.fields.issuelinks = [];
 
                 storeGetSpy.mockImplementation(() => {
