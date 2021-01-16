@@ -1,9 +1,12 @@
 import nock from 'nock';
 import { Logger } from 'winston';
-import { merge, build_service, build_response, fixture } from '../../helpers';
+import { mergeg, build_service, build_response, fixture } from '../../helpers';
 import logger from '../../../src/util/logger';
 import { store } from '../../../src/util/secrets';
-import { EventCallbackPayload } from '../../../src/lib/slack/api_interfaces';
+import {
+    EventCallbackPayload,
+    PostEventPayloads
+} from '../../../src/lib/slack/api_interfaces';
 import app from '../../../src/app';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
@@ -26,7 +29,7 @@ describe('POST /api/slack/event', () => {
             type: 'url_verification',
             token: 'dummy token',
             challenge: 'dummy challenge'
-        };
+        } as PostEventPayloads;
         const response = build_response(service(params));
 
         it('responds back with the challenge param', (done) => {
@@ -39,12 +42,19 @@ describe('POST /api/slack/event', () => {
 
     describe('type: event_callback', () => {
         describe('subtype: not a file_share event', () => {
+            const dummy_event = {
+                ts: 'not important',
+                type: 'dummy',
+                channel: 'dummy',
+                thread_ts: 'foo-thread-ts'
+            };
             const params = {
                 type: 'event_callback',
+                token: 'dummy token',
                 subtype: 'not a file share',
                 team_id: 'T001',
-                event: { thread_ts: 'foo-thread-ts' }
-            };
+                event: dummy_event
+            } as EventCallbackPayload;
 
             it('will be ignored', () => {
                 return service(params).expect(200);
@@ -108,10 +118,11 @@ describe('POST /api/slack/event', () => {
             });
 
             describe('message not in a thread', () => {
-                const not_in_thread_params = merge(params, {
-                    'event': merge(params['event'], {
-                        thread_ts: undefined
-                    })
+                const not_in_thread_params = mergeg<EventCallbackPayload>(params, {
+                    'event': mergeg<EventCallbackPayload['event']>(
+                        params['event'], {
+                            thread_ts: undefined
+                        })
                 });
 
                 it('will be ignored', () => {
@@ -122,28 +133,37 @@ describe('POST /api/slack/event', () => {
 
         describe('subtype: file_share', () => {
             const default_params =
-                fixture('slack/events.message_with_file') as unknown as EventCallbackPayload;
+                fixture('slack/events.message_with_file') as EventCallbackPayload;
 
             describe('message on support channel', () => {
-                const params = merge(default_params, {
-                    'event': merge(default_params['event'], { channel: 'suppchannel' } )
-                }) as EventCallbackPayload;
+                const params = mergeg<EventCallbackPayload>(
+                    default_params, {
+                        'event': mergeg<EventCallbackPayload['event']>(
+                            default_params['event'], { channel: 'suppchannel' }
+                        )
+                    });
 
                 test_file_share_on_supported_channel(params);
             });
 
             describe('message on product channel', () => {
-                const params = merge(default_params, {
-                    'event': merge(default_params['event'], { channel: 'prodchannel' } )
-                }) as EventCallbackPayload;
+                const params = mergeg<EventCallbackPayload>(
+                    default_params, {
+                        'event': mergeg<EventCallbackPayload['event']>(
+                            default_params['event'], { channel: 'prodchannel' }
+                        )
+                    });
 
                 test_file_share_on_supported_channel(params);
             });
 
             describe('message not on support or product channel', () => {
-                const params = merge(default_params, {
-                    'event': merge(default_params['event'], { channel: 'unknownchannel' } )
-                });
+                const params = mergeg<EventCallbackPayload>(
+                    default_params, {
+                        'event': mergeg<EventCallbackPayload['event']>(
+                            default_params['event'], { channel: 'unknownchannel' }
+                        )
+                    });
 
                 it('will be ignored', () => {
                     return service(params).expect(200);
