@@ -192,9 +192,9 @@ configs.syft = {
         user: SlackUser,
         request_type: string,
     ): IssueParams {
-        const board = 'SUP';
         const title_and_desc = normalisedTitleAndDesc(submission);
         const title = title_and_desc.title;
+        let board = 'SUP';
         let desc = title_and_desc.desc;
         let issue_type: string;
 
@@ -209,6 +209,7 @@ Expected:
 ${submission.expected}`;
 
         } else {
+            board = 'INTOPS';
             issue_type = 'Data Request';
         }
         desc = `${desc}\n\nSubmitted by: ${user.name}`;
