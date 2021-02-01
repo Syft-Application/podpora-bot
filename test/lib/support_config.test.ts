@@ -64,7 +64,7 @@ Submitted by: ${slack_user.name}`;
                         config.issueParams(submission, slack_user, request_type)
                     ).toEqual({
                         fields: {
-                            project: { key: 'INTOPS' },
+                            project: { key: 'SUP' },
                             summary: 'A',
                             issuetype: { name: 'Data Request' },
                             description: desc,
@@ -93,7 +93,7 @@ Submitted by: ${slack_user.name}`;
                         config.issueParams(submission, slack_user, request_type)
                     ).toEqual({
                         fields: {
-                            project: { key: 'INTOPS' },
+                            project: { key: 'SUP' },
                             summary: first_part_of_title,
                             issuetype: { name: 'Data Request' },
                             description: desc,
