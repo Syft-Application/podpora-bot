@@ -68,6 +68,7 @@ Submitted by: ${slack_user.name}`;
                             summary: 'A',
                             issuetype: { name: 'Data Request' },
                             description: desc,
+                            components: 10274,
                             labels: ['support']
                         }
                     });
@@ -97,6 +98,7 @@ Submitted by: ${slack_user.name}`;
                             summary: first_part_of_title,
                             issuetype: { name: 'Data Request' },
                             description: desc,
+                            components: 10274,
                             labels: ['support']
                         }
                     });
