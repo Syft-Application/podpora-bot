@@ -19,7 +19,8 @@ interface IssueParams {
         summary: string,
         issuetype: { name: string },
         description: string,
-        labels: Array<string>
+        labels: Array<string>,
+        components?: Array<{ name: string }>,
     }
 }
 
@@ -196,33 +197,34 @@ configs.syft = {
         const title = title_and_desc.title;
         let board = 'SUP';
         let desc = title_and_desc.desc;
-        let issue_type: string;
+        let fields: IssueParams['fields'] = {
+            project: { key: board },
+            summary: title,
+            issuetype: { name: '' },
+            description: '',
+            labels: ['support']
+        };
 
         if (request_type === 'bug') {
-            issue_type = 'Bug';
-            desc = `${desc}
+            fields.issuetype.name = 'Bug';
+            fields.description = `${desc}
 
 Currently:
 ${submission.currently}
 
 Expected:
-${submission.expected}`;
+${submission.expected}
+
+Submitted by: ${user.name}`;
 
         } else {
-            board = 'INTOPS';
-            issue_type = 'Data Request';
+            fields.project.key = 'INTOPS';
+            fields.issuetype.name = 'Data Request';
+            fields.description = `${desc}\n\nSubmitted by: ${user.name}`;
+            fields.components = [{ name: 'Back-end' }];
         }
-        desc = `${desc}\n\nSubmitted by: ${user.name}`;
 
-        return {
-            fields: {
-                project: { key: board },
-                summary: title,
-                issuetype: { name: issue_type },
-                description: desc,
-                labels: ['support']
-            }
-        };
+        return { fields: fields };
     },
     supportMessageText(
         submission: Submission,
