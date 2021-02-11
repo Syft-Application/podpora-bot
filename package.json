@@ -47,7 +47,7 @@
   "devDependencies": {
     "@slack/types": "^2.0.0",
     "@types/async": "^3.2.5",
-    "@types/chai": "^4.2.14",
+    "@types/chai": "^4.2.15",
     "@types/concurrently": "^5.2.1",
     "@types/errorhandler": "^1.5.0",
     "@types/eslint": "^7.2.6",
