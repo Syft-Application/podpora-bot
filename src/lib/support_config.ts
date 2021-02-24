@@ -10,6 +10,7 @@ import {
     normalisedTitleAndDesc,
     viewInputVal
 } from './slack_jira_helpers';
+import feature from '../util/feature';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -83,6 +84,10 @@ function viewToSubmission(
     if (request_type === 'bug') {
         submission.currently = viewInputVal('sl_currently', values);
         submission.expected = viewInputVal('sl_expected', values);
+    }
+
+    if (request_type === 'data' && feature.is_enabled('data_request_with_reason')) {
+        submission.reason = viewInputVal('ml_reason', values) as string;
     }
 
     return submission;
@@ -160,6 +165,10 @@ Submitted by: ${user.name}`;
                 `*Steps to Reproduce*\n\n${submission.description}\n\n` +
                 `*Currently*\n\n${submission.currently}\n\n` +
                 `*Expected*\n\n${submission.expected}`;
+        } else if (feature.is_enabled('data_request_with_reason')) {
+            return `<@${user.id}> has submitted a data request:\n\n` +
+                `*${submission.title}*\n\n${submission.description}\n` +
+                `Reason and urgency: \n${submission.reason}`;
         } else {
             return `<@${user.id}> has submitted a data request:\n\n` +
                 `*${submission.title}*\n\n${submission.description}`;
@@ -196,7 +205,7 @@ configs.syft = {
         const title_and_desc = normalisedTitleAndDesc(submission);
         const title = title_and_desc.title;
         const board = 'SUP';
-        const desc = title_and_desc.desc;
+        let desc = title_and_desc.desc;
         const fields: IssueParams['fields'] = {
             project: { key: board },
             summary: title,
@@ -218,6 +227,9 @@ ${submission.expected}
 Submitted by: ${user.name}`;
 
         } else {
+            if (feature.is_enabled('data_request_with_reason')) {
+                desc = `${desc}\n\nReason and urgency:\n ${submission.reason}`;
+            }
             fields.project.key = 'INTOPS';
             fields.issuetype.name = 'Data Request';
             fields.description = `${desc}\n\nSubmitted by: ${user.name}`;

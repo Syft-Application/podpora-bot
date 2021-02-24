@@ -259,6 +259,80 @@ describe('POST /api/slack/interaction', () => {
                 const params = { payload: JSON.stringify(payload(view)) };
 
                 test_submission(params);
+
+                describe('feature: data request with reason', () => {
+                    const view_with_reason = {
+                        'private_metadata': 'support_data',
+                        'user': {
+                            'id': 'UHAV00MD0',
+                            'username': 'foo-username',
+                            'name': 'bar',
+                            'team_id': 'THS7JQ2RL'
+                        },
+                        'token': 'Shh_its_a_seekrit',
+                        'trigger_id': '12466734323.1395872398',
+                        'team': {
+                            'id': 'THS7JQ2RL',
+                            'domain': 'kudosdemo'
+                        },
+                        'state': {
+                            'values': {
+                                'sl_title_block': {
+                                    'sl_title': {
+                                        'type': 'plain_text_input',
+                                        'value': 'fii'
+                                    }
+                                },
+                                'ml_description_block': {
+                                    'ml_description': {
+                                        'type': 'plain_text_input',
+                                        'value': 'afdsfdsadfsaf'
+                                    }
+                                },
+                                'ml_reason_block': {
+                                    'ml_reason': {
+                                        'type': 'plain_text_input',
+                                        'value': 'some reason'
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    const params = { payload: JSON.stringify(payload(view_with_reason)) };
+
+                    const featureSpy = jest.spyOn(feature, 'is_enabled');
+                    function dataRequestWithReason(name: string): boolean {
+                        return name == 'data_request_with_reason';
+                    }
+
+                    it('returns 200 OK', (done) => {
+                        featureSpy.mockImplementation(dataRequestWithReason);
+
+                        storeSetSpy.mockImplementationOnce(() => {
+                            done();
+                            return true;
+                        });
+
+                        nock('https://slack.com')
+                            .post('/api/chat.postMessage')
+                            .reply(200, postMessageResponse);
+
+                        nock('https://example.com')
+                            .post('/rest/api/2/issue')
+                            .reply(200, createIssueResponse);
+
+                        nock('https://example.com')
+                            .post(`/rest/api/2/issue/${issue_key}/remotelink`)
+                            .reply(200);
+
+                        nock('https://slack.com')
+                            .post('/api/chat.postMessage', new RegExp(issue_key))
+                            .reply(200, { ok: true });
+
+                        return service(params).expect(200, () => { true; });
+                    });
+
+                });
             });
         });
 

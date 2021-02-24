@@ -1,4 +1,5 @@
 import supportConfig from '../../src/lib/support_config';
+import feature from '../../src/util/feature';
 
 describe('supportConfig', () => {
     const slack_user = { id: 'foo-user-id', name: 'Joe Doe' };
@@ -73,6 +74,25 @@ Submitted by: ${slack_user.name}`;
                         }
                     });
                 });
+
+                describe('feature: data request with reason', () => {
+                    const featureSpy = jest.spyOn(feature, 'is_enabled');
+                    const submission = {
+                        title: 'A',
+                        description: 'B',
+                        reason: 'some reason'
+                    };
+                    function dataRequestWithReason(name: string): boolean {
+                        return name == 'data_request_with_reason';
+                    }
+
+                    it('includes the reason in description', () => {
+                        featureSpy.mockImplementationOnce(dataRequestWithReason);
+                        const result = config.issueParams(submission, slack_user, request_type);
+                        expect(result.fields.description).toContain('some reason');
+                    });
+                });
+
             });
 
             describe('when long title', () => {
@@ -116,6 +136,33 @@ Submitted by: ${slack_user.name}`;
                 const result = config.supportMessageText(submission, slack_user, request_type);
                 expect(result).toContain('*A*');
                 expect(result).toContain('B');
+            });
+
+            describe('feature: data request with reason', () => {
+                const featureSpy = jest.spyOn(feature, 'is_enabled');
+                const submission = {
+                    title: 'A',
+                    description: 'B',
+                    reason: 'C'
+                };
+                function dataRequestWithReason(name: string): boolean {
+                    return name == 'data_request_with_reason';
+                }
+
+                it('contains the reason', () => {
+                    featureSpy.mockImplementationOnce(dataRequestWithReason);
+
+                    const result = config.supportMessageText(submission, slack_user, request_type);
+
+                    expect(result).toContain('*A*');
+                    expect(result).toContain('B');
+                    expect(result).toContain('C');
+                });
+
+                it('does not contain the reason if feature not enabled', () => {
+                    const result = config.supportMessageText(submission, slack_user, request_type);
+                    expect(result).not.toContain('C');
+                });
             });
         });
 
