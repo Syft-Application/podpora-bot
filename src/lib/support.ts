@@ -23,7 +23,9 @@ import {
     commandsNames,
     fileShareEventToIssueComment
 } from './slack_jira_helpers';
-import feature from '../util/feature';
+
+// import feature from '../util/feature';
+// feature.is_enabled('feature_name')
 
 const support = {
     showForm(
@@ -37,9 +39,6 @@ const support = {
             return Promise.reject({ ok: false });
         };
         let view_name = request_type;
-        if (request_type === 'data' && feature.is_enabled('data_request_with_reason')) {
-            view_name = `${view_name}_with_reason`;
-        }
 
         const config = supportConfig(support.configName(slack));
         const view: View = config.view(view_name);

@@ -4,7 +4,7 @@ import { merge, build_service, build_response } from '../../helpers';
 import logger from '../../../src/util/logger';
 import app from '../../../src/app';
 import { PostCommandPayload } from '../../../src/lib/slack/api_interfaces';
-import feature from '../../../src/util/feature';
+// import feature from '../../../src/util/feature';
 
 const logErrorSpy = jest.spyOn(logger, 'error').mockReturnValue({} as Logger);
 
@@ -122,30 +122,22 @@ describe('POST /api/slack/command', () => {
 
             test_command_with_modal(data_params);
 
-            describe('feature: data request with reason', () => {
-                const featureSpy = jest.spyOn(feature, 'is_enabled');
-                function dataRequestWithReason(name: string): boolean {
-                    return name == 'data_request_with_reason';
-                }
+            it('sends modal view to Slack with reason input field', (done) => {
+                let view: string;
 
-                it('sends modal view to Slack with reason input field', (done) => {
-                    featureSpy.mockImplementation(dataRequestWithReason);
-                    let view: string;
+                nock('https://slack.com')
+                    .post('/api/views.open', (body) => {
+                        view = JSON.stringify(body);
+                        return body;
+                    }).reply(200, { ok: true });
 
-                    nock('https://slack.com')
-                        .post('/api/views.open', (body) => {
-                            view = JSON.stringify(body);
-                            return body;
-                        }).reply(200, { ok: true });
+                service(data_params).expect(200).end((err) => {
+                    if (err) {
+                        done(err);
+                    }
 
-                    service(data_params).expect(200).end((err) => {
-                        if (err) {
-                            done(err);
-                        }
-
-                        expect(view).toContain('Reason for request');
-                        done();
-                    });
+                    expect(view).toContain('Reason for request');
+                    done();
                 });
             });
         });

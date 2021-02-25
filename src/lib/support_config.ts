@@ -10,7 +10,7 @@ import {
     normalisedTitleAndDesc,
     viewInputVal
 } from './slack_jira_helpers';
-import feature from '../util/feature';
+// import feature from '../util/feature';
 
 interface IssueParams {
     [index: string]: Record<string, unknown>;
@@ -86,7 +86,7 @@ function viewToSubmission(
         submission.expected = viewInputVal('sl_expected', values);
     }
 
-    if (request_type === 'data' && feature.is_enabled('data_request_with_reason')) {
+    if (request_type === 'data') {
         submission.reason = viewInputVal('ml_reason', values) as string;
     }
 
@@ -165,13 +165,10 @@ Submitted by: ${user.name}`;
                 `*Steps to Reproduce*\n\n${submission.description}\n\n` +
                 `*Currently*\n\n${submission.currently}\n\n` +
                 `*Expected*\n\n${submission.expected}`;
-        } else if (feature.is_enabled('data_request_with_reason')) {
-            return `<@${user.id}> has submitted a data request:\n\n` +
-                `*${submission.title}*\n\n${submission.description}\n` +
-                `Reason and urgency: \n${submission.reason}`;
         } else {
             return `<@${user.id}> has submitted a data request:\n\n` +
-                `*${submission.title}*\n\n${submission.description}`;
+                `*${submission.title}*\n\n${submission.description}\n` +
+                `Reason and urgency:\n${submission.reason}`;
         }
     }
 };
@@ -227,9 +224,7 @@ ${submission.expected}
 Submitted by: ${user.name}`;
 
         } else {
-            if (feature.is_enabled('data_request_with_reason')) {
-                desc = `${desc}\n\nReason and urgency:\n ${submission.reason}`;
-            }
+            desc = `${desc}\n\nReason and urgency:\n${submission.reason}`;
             fields.project.key = 'INTOPS';
             fields.issuetype.name = 'Data Request';
             fields.description = `${desc}\n\nSubmitted by: ${user.name}`;

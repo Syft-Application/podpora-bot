@@ -1,5 +1,5 @@
 import supportConfig from '../../src/lib/support_config';
-import feature from '../../src/util/feature';
+// import feature from '../../src/util/feature';
 
 describe('supportConfig', () => {
     const slack_user = { id: 'foo-user-id', name: 'Joe Doe' };
@@ -54,9 +54,13 @@ Submitted by: ${slack_user.name}`;
                 const request_type = 'data';
                 const submission = {
                     title: 'A',
-                    description: 'B'
+                    description: 'B',
+                    reason: 'some reason'
                 };
                 const desc = `${submission.description}
+
+Reason and urgency:
+some reason
 
 Submitted by: ${slack_user.name}`;
 
@@ -75,24 +79,10 @@ Submitted by: ${slack_user.name}`;
                     });
                 });
 
-                describe('feature: data request with reason', () => {
-                    const featureSpy = jest.spyOn(feature, 'is_enabled');
-                    const submission = {
-                        title: 'A',
-                        description: 'B',
-                        reason: 'some reason'
-                    };
-                    function dataRequestWithReason(name: string): boolean {
-                        return name == 'data_request_with_reason';
-                    }
-
-                    it('includes the reason in description', () => {
-                        featureSpy.mockImplementationOnce(dataRequestWithReason);
-                        const result = config.issueParams(submission, slack_user, request_type);
-                        expect(result.fields.description).toContain('some reason');
-                    });
+                it('includes the reason in description', () => {
+                    const result = config.issueParams(submission, slack_user, request_type);
+                    expect(result.fields.description).toContain('some reason');
                 });
-
             });
 
             describe('when long title', () => {
@@ -100,13 +90,17 @@ Submitted by: ${slack_user.name}`;
                 const long_title = 'few random words repeated many times'.repeat(10);
                 const submission = {
                     title: long_title,
-                    description: 'B'
+                    description: 'B',
+                    reason: ''
                 };
                 const first_part_of_title = long_title.slice(0, 128);
                 const second_part_of_title = long_title.slice(128, -1);
                 const desc = `${second_part_of_title}
 
 ${submission.description}
+
+Reason and urgency:
+
 
 Submitted by: ${slack_user.name}`;
                 it('slice the title to acceptable length and prepend to description', () => {
@@ -130,39 +124,14 @@ Submitted by: ${slack_user.name}`;
             const request_type = 'data';
             const submission = {
                 title: 'A',
-                description: 'B'
+                description: 'B',
+                reason: 'C'
             };
             it('returns a string', () => {
                 const result = config.messageText(submission, slack_user, request_type);
                 expect(result).toContain('*A*');
                 expect(result).toContain('B');
-            });
-
-            describe('feature: data request with reason', () => {
-                const featureSpy = jest.spyOn(feature, 'is_enabled');
-                const submission = {
-                    title: 'A',
-                    description: 'B',
-                    reason: 'C'
-                };
-                function dataRequestWithReason(name: string): boolean {
-                    return name == 'data_request_with_reason';
-                }
-
-                it('contains the reason', () => {
-                    featureSpy.mockImplementationOnce(dataRequestWithReason);
-
-                    const result = config.messageText(submission, slack_user, request_type);
-
-                    expect(result).toContain('*A*');
-                    expect(result).toContain('B');
-                    expect(result).toContain('C');
-                });
-
-                it('does not contain the reason if feature not enabled', () => {
-                    const result = config.messageText(submission, slack_user, request_type);
-                    expect(result).not.toContain('C');
-                });
+                expect(result).toContain('C');
             });
         });
 
