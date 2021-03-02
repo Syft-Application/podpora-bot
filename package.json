@@ -58,7 +58,7 @@
     "@types/request-promise": "^4.1.47",
     "@types/shelljs": "^0.8.8",
     "@types/supertest": "^2.0.10",
-    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.15.2",
     "chai": "^4.3.0",
     "concurrently": "^6.0.0",
