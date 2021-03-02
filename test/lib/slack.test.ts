@@ -22,7 +22,7 @@ describe('Slack', () => {
     const slack = new Slack(config);
     const postMsgResponse = fixture('slack/chat.postMessage.response');
     const slack_message = postMsgResponse as SlackMessage;
-    const supportMessageText = supportConfig('default').supportMessageText;
+    const messageText = supportConfig('default').messageText;
     describe('#postMessage(message_text, channel_id)', () => {
         const submission = {
             title: 'title of reported bug',
@@ -35,7 +35,7 @@ describe('Slack', () => {
             name: 'joe_wick'
         };
         const request_type = 'bug';
-        const message_text = supportMessageText(submission, user, request_type);
+        const message_text = messageText(submission, user, request_type);
         const channel_id = 'foo-channel-id';
 
         it('returns a Promise that resolves to SlackMessage', (done) => {
@@ -78,7 +78,7 @@ describe('Slack', () => {
                 description: 'Please provide some data',
             };
             const request_type = 'data';
-            const message_text = supportMessageText(submission, user, request_type);
+            const message_text = messageText(submission, user, request_type);
 
             it('returns a Promise that resolves to SlackMessage', (done) => {
                 expect.assertions(1);

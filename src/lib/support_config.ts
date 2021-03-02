@@ -48,7 +48,7 @@ interface SupportConfig {
         user: SlackUser,
         request_type: string
     ) => IssueParams,
-    supportMessageText: (
+    messageText: (
         submission: Submission,
         user: SlackUser,
         request_type: string
@@ -154,7 +154,7 @@ Submitted by: ${user.name}`;
             }
         };
     },
-    supportMessageText(
+    messageText(
         submission: Submission,
         user: SlackUser,
         request_type: string
@@ -238,12 +238,12 @@ Submitted by: ${user.name}`;
 
         return { fields: fields };
     },
-    supportMessageText(
+    messageText(
         submission: Submission,
         user: SlackUser,
         request_type: string
     ): string {
-        return configs.default.supportMessageText(submission, user, request_type);
+        return configs.default.messageText(submission, user, request_type);
     }
 };
 

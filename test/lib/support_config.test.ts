@@ -126,14 +126,14 @@ Submitted by: ${slack_user.name}`;
             });
         });
 
-        describe('#supportMessageText(submission, user, request_type)', () => {
+        describe('#messageText(submission, user, request_type)', () => {
             const request_type = 'data';
             const submission = {
                 title: 'A',
                 description: 'B'
             };
             it('returns a string', () => {
-                const result = config.supportMessageText(submission, slack_user, request_type);
+                const result = config.messageText(submission, slack_user, request_type);
                 expect(result).toContain('*A*');
                 expect(result).toContain('B');
             });
@@ -152,7 +152,7 @@ Submitted by: ${slack_user.name}`;
                 it('contains the reason', () => {
                     featureSpy.mockImplementationOnce(dataRequestWithReason);
 
-                    const result = config.supportMessageText(submission, slack_user, request_type);
+                    const result = config.messageText(submission, slack_user, request_type);
 
                     expect(result).toContain('*A*');
                     expect(result).toContain('B');
@@ -160,7 +160,7 @@ Submitted by: ${slack_user.name}`;
                 });
 
                 it('does not contain the reason if feature not enabled', () => {
-                    const result = config.supportMessageText(submission, slack_user, request_type);
+                    const result = config.messageText(submission, slack_user, request_type);
                     expect(result).not.toContain('C');
                 });
             });

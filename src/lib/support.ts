@@ -74,7 +74,7 @@ const support = {
         request_type: string
     ): void {
         const config = supportConfig(support.configName(slack));
-        const message_text = config.supportMessageText(
+        const message_text = config.messageText(
             submission, user, request_type
         );
         const post_message = slack.postMessage(
