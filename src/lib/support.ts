@@ -73,15 +73,15 @@ const support = {
         user: SlackUser,
         request_type: string
     ): void {
-        const support_config = supportConfig(support.configName(slack));
-        const message_text = support_config.supportMessageText(
+        const config = supportConfig(support.configName(slack));
+        const message_text = config.supportMessageText(
             submission, user, request_type
         );
         const post_message = slack.postMessage(
             message_text,
             support.channel(slack)
         );
-        const issue_params = support_config.issueParams(
+        const issue_params = config.issueParams(
             submission, user, request_type
         );
         const create_issue = jira.createIssue(issue_params);
