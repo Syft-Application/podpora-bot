@@ -12,8 +12,13 @@ import {
 } from './slack_jira_helpers';
 import feature from '../util/feature';
 
+interface Transition {
+    id: string,
+    looped: boolean
+};
+
 interface IssueParams {
-    [index: string]: Record<string, unknown>;
+    [index: string]: Record<string, unknown> | Transition;
 
     fields: {
         project: { key: string },
@@ -23,6 +28,8 @@ interface IssueParams {
         labels: Array<string>,
         components?: Array<{ name: string }>,
     }
+
+    transition?: Transition
 }
 
 interface Views {
@@ -197,6 +204,7 @@ configs.syft = {
         return configs.default.view(key);
     },
     viewToSubmission: viewToSubmission,
+
     issueParams: function(
         submission: Submission,
         user: SlackUser,
@@ -212,6 +220,9 @@ configs.syft = {
             issuetype: { name: '' },
             description: '',
             labels: ['support']
+        };
+        let result: IssueParams = {
+
         };
 
         if (request_type === 'bug') {
@@ -236,7 +247,16 @@ Submitted by: ${user.name}`;
             fields.components = [{ name: 'Back-end' }];
         }
 
-        return { fields: fields };
+        if (request_type === 'data') {
+            result.transition = {
+                "id": "131",
+                "looped": true
+            }
+        }
+
+        result.fields = field;
+
+        return result;
     },
     messageText(
         submission: Submission,

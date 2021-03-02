@@ -85,6 +85,7 @@ const support = {
             submission, user, request_type
         );
         const create_issue = jira.createIssue(issue_params);
+        // const callbacks = config.callbacks(request_type);
 
         post_message.then((message) => {
             create_issue.then((issue) => {
@@ -103,6 +104,8 @@ const support = {
                     slack.toKey(message),
                     jira.toKey(issue)
                 );
+
+                // callbacks(slack, jira, submission, message, issue)
             });
         });
     },
