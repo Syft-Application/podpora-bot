@@ -71,15 +71,15 @@ const product = {
         user: SlackUser,
         request_type: string
     ): void {
-        const product_config = productConfig(product.configName(slack));
-        const message_text = product_config.productMessageText(
+        const config = productConfig(product.configName(slack));
+        const message_text = config.messageText(
             submission, user, request_type
         );
         const post_message = slack.postMessage(
             message_text,
             product.channel(slack)
         );
-        const issue_params = product_config.issueParams(
+        const issue_params = config.issueParams(
             submission, user, request_type
         );
         const create_issue = jira.createIssue(issue_params);

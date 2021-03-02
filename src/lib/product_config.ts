@@ -47,7 +47,7 @@ interface ProductConfig {
         user: SlackUser,
         request_type: string
     ) => IssueParams,
-    productMessageText: (
+    messageText: (
         submission: Submission,
         user: SlackUser,
         request_type: string
@@ -141,7 +141,7 @@ Submitted by: ${user.name}`;
             }
         };
     },
-    productMessageText(
+    messageText(
         submission: Submission,
         user: SlackUser,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

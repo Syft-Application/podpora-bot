@@ -125,7 +125,7 @@ Submitted by: ${slack_user.name}`;
             });
         });
 
-        describe('#productMessageText(submission, user, request_type)', () => {
+        describe('#messageText(submission, user, request_type)', () => {
             const request_type = 'idea';
             const submission = {
                 title: 'A',
@@ -135,7 +135,7 @@ Submitted by: ${slack_user.name}`;
                 affected_users: 'E'
             };
             it('returns a string', () => {
-                const result = config.productMessageText(submission, slack_user, request_type);
+                const result = config.messageText(submission, slack_user, request_type);
                 expect(result).toContain('*A*');
                 expect(result).toContain('B');
                 expect(result).toContain('C');
