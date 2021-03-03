@@ -38,7 +38,7 @@ const support = {
 
             return Promise.reject({ ok: false });
         };
-        let view_name = request_type;
+        const view_name = request_type;
 
         const config = supportConfig(support.configName(slack));
         const view: View = config.view(view_name);

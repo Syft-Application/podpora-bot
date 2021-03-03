@@ -98,11 +98,32 @@ function isOutwardIssueDetailLink(
 
 type DetailIssueLinks = DetailOutwardIssueLink | DetailInwardIssueLink;
 
+// interface Transition {
+//     id: string,
+//     looped: boolean
+// };
+
+interface IssueParams {
+    [index: string]: Record<string, unknown>;
+
+    fields: {
+        project: { key: string },
+        summary: string,
+        issuetype: { name: string },
+        description: string,
+        labels: Array<string>,
+        components?: Array<{ name: string }>,
+    }
+
+    // transition?: Transition
+}
+
 export {
     IssueChangelog,
     Attachment,
     Issue,
     IssueLink,
+    IssueParams,
     DetailIssueLinks,
     // isInwardIssueDetailLink,
     isOutwardIssueDetailLink,

@@ -7,23 +7,13 @@ import {
     ViewSubmission
 } from './slack/api_interfaces';
 import {
+    IssueParams
+} from './jira/api_interfaces';
+import {
     normalisedTitleAndDesc,
     viewInputVal
 } from './slack_jira_helpers';
 // import feature from '../util/feature';
-
-interface IssueParams {
-    [index: string]: Record<string, unknown>;
-
-    fields: {
-        project: { key: string },
-        summary: string,
-        issuetype: { name: string },
-        description: string,
-        labels: Array<string>,
-        components?: Array<{ name: string }>,
-    }
-}
 
 interface Views {
     [index: string]: View
