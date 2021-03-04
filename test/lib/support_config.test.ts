@@ -75,6 +75,10 @@ Submitted by: ${slack_user.name}`;
                             description: desc,
                             components: [{ name: 'Back-end' }],
                             labels: ['support']
+                        },
+                        transition: {
+                            id: '131',
+                            looped: true
                         }
                     });
                 });
@@ -114,6 +118,10 @@ Submitted by: ${slack_user.name}`;
                             description: desc,
                             components: [{ name: 'Back-end' }],
                             labels: ['support']
+                        },
+                        transition: {
+                            id: '131',
+                            looped: true
                         }
                     });
                 });

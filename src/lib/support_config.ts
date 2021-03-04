@@ -200,6 +200,7 @@ configs.syft = {
             description: '',
             labels: ['support']
         };
+        let result: IssueParams = { fields: fields };
 
         if (request_type === 'bug') {
             fields.issuetype.name = 'Bug';
@@ -219,9 +220,14 @@ Submitted by: ${user.name}`;
             fields.issuetype.name = 'Data Request';
             fields.description = `${desc}\n\nSubmitted by: ${user.name}`;
             fields.components = [{ name: 'Back-end' }];
+
+            result.transition = {
+                'id': '131',
+                'looped': true
+            }
         }
 
-        return { fields: fields };
+        return result;
     },
     messageText(
         submission: Submission,
