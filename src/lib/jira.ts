@@ -1,24 +1,14 @@
 import { Client } from 'jira.js';
 import logger from '../util/logger';
 import {
-    Issue
+    Issue,
+    IssueParams
 } from './jira/api_interfaces';
 
 const slack_icon = {
     url16x16: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
     title: 'Slack'
 };
-
-interface IssueParams {
-    [index: string]: Record<string, unknown>;
-
-    fields: {
-        project: { key: string },
-        summary: string,
-        issuetype: { name: string },
-        description: string,
-    }
-}
 
 class Jira {
     constructor(config: { username: string, api_token: string, host: string }) {
