@@ -103,7 +103,7 @@ interface Transition {
 
     id: string,
     looped: boolean
-};
+}
 
 interface IssueParams {
     // [index: string]: Record<string, unknown>;

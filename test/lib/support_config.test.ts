@@ -1,5 +1,5 @@
 import supportConfig from '../../src/lib/support_config';
-// import feature from '../../src/util/feature';
+import feature from '../../src/util/feature';
 
 describe('supportConfig', () => {
     const slack_user = { id: 'foo-user-id', name: 'Joe Doe' };
@@ -75,10 +75,6 @@ Submitted by: ${slack_user.name}`;
                             description: desc,
                             components: [{ name: 'Back-end' }],
                             labels: ['support']
-                        },
-                        transition: {
-                            id: '131',
-                            looped: true
                         }
                     });
                 });
@@ -86,6 +82,19 @@ Submitted by: ${slack_user.name}`;
                 it('includes the reason in description', () => {
                     const result = config.issueParams(submission, slack_user, request_type);
                     expect(result.fields.description).toContain('some reason');
+                });
+
+                describe('feature: data_request_transition', () => {
+                    it('includes transition attribute in issue params', () => {
+                        const featureSpy = jest.spyOn(feature, 'is_enabled');
+                        featureSpy.mockImplementationOnce(() => { return true; });
+
+                        const result = config.issueParams(submission, slack_user, request_type);
+                        expect(result.transition).toEqual({
+                            id: '131',
+                            looped: true
+                        });
+                    });
                 });
             });
 
@@ -118,13 +127,10 @@ Submitted by: ${slack_user.name}`;
                             description: desc,
                             components: [{ name: 'Back-end' }],
                             labels: ['support']
-                        },
-                        transition: {
-                            id: '131',
-                            looped: true
                         }
                     });
                 });
+
             });
         });
 

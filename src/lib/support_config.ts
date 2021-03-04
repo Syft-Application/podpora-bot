@@ -13,7 +13,7 @@ import {
     normalisedTitleAndDesc,
     viewInputVal
 } from './slack_jira_helpers';
-// import feature from '../util/feature';
+import feature from '../util/feature';
 
 interface Views {
     [index: string]: View
@@ -200,7 +200,7 @@ configs.syft = {
             description: '',
             labels: ['support']
         };
-        let result: IssueParams = { fields: fields };
+        const result: IssueParams = { fields: fields };
 
         if (request_type === 'bug') {
             fields.issuetype.name = 'Bug';
@@ -221,9 +221,11 @@ Submitted by: ${user.name}`;
             fields.description = `${desc}\n\nSubmitted by: ${user.name}`;
             fields.components = [{ name: 'Back-end' }];
 
-            result.transition = {
-                'id': '131',
-                'looped': true
+            if (feature.is_enabled('data_request_transition')) {
+                result.transition = {
+                    'id': '131',
+                    'looped': true
+                };
             }
         }
 
