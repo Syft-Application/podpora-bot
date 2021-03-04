@@ -12,18 +12,9 @@ import {
     viewInputVal,
     viewSelectedVal
 } from './slack_jira_helpers';
-
-interface IssueParams {
-    [index: string]: Record<string, unknown>;
-
-    fields: {
-        project: { key: string },
-        summary: string,
-        issuetype: { name: string },
-        description: string,
-        labels: Array<string>
-    }
-}
+import {
+    IssueParams
+} from './jira/api_interfaces';
 
 interface Views {
     [index: string]: View
