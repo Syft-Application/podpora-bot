@@ -98,13 +98,15 @@ function isOutwardIssueDetailLink(
 
 type DetailIssueLinks = DetailOutwardIssueLink | DetailInwardIssueLink;
 
-// interface Transition {
-//     id: string,
-//     looped: boolean
-// };
+interface Transition {
+    [index: string]: string | boolean;
+
+    id: string,
+    looped: boolean
+};
 
 interface IssueParams {
-    [index: string]: Record<string, unknown>;
+    // [index: string]: Record<string, unknown>;
 
     fields: {
         project: { key: string },
@@ -115,7 +117,7 @@ interface IssueParams {
         components?: Array<{ name: string }>,
     }
 
-    // transition?: Transition
+    transition?: Transition
 }
 
 export {
