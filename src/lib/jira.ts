@@ -1,4 +1,6 @@
-import { Client } from 'jira.js';
+import {
+    Version2Client,
+} from 'jira.js';
 import logger from '../util/logger';
 import {
     Issue,
@@ -13,20 +15,21 @@ const slack_icon = {
 class Jira {
     constructor(config: { username: string, api_token: string, host: string }) {
         const client_cfg = {
+            telemetry: false,
             host: config.host,
             authentication: {
                 basic: {
-                    username: config.username,
+                    email: config.username,
                     apiToken: config.api_token
                 }
             }
         };
 
         this.host = config.host;
-        this.client = new Client(client_cfg);
+        this.client = new Version2Client(client_cfg);
     }
     host: string;
-    client: Client;
+    client: Version2Client;
 
     addSlackThreadUrlToIssue(
         url: string,
