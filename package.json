@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@slack/types": "^2.0.0",
-    "@types/async": "^3.2.5",
+    "@types/async": "^3.2.6",
     "@types/chai": "^4.2.15",
     "@types/concurrently": "^6.0.0",
     "@types/errorhandler": "^1.5.0",
