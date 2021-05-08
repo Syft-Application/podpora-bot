@@ -98,84 +98,85 @@ describe('Jira', () => {
         });
     });
 
-    describe('#addSlackThreadUrlToIssue(url, issue)', () => {
-        const url = 'some random url';
+    // describe('#addSlackThreadUrlToIssue(url, issue)', () => {
+    //     const url = 'some random url';
 
-        it('returns promise', (done) => {
-            nock(mock_config.host)
-                .post(
-                    `/rest/api/2/issue/${issue.key}/remotelink`
-                ).reply(200, { foo: 123 });
+    //     it('returns promise', (done) => {
+    //         nock(mock_config.host)
+    //             .post(
+    //                 `/rest/api/2/issue/${issue.key}/remotelink`
+    //             ).reply(200, { foo: 123 });
 
-            jira.addSlackThreadUrlToIssue(url, issue)
-                .then((res) => {
-                    expect(res).toEqual({ foo: 123 });
-                    done();
-                });
-        });
+    //         jira.addSlackThreadUrlToIssue(url, issue)
+    //             .then((res) => {
+    //                 expect(res).toEqual({ foo: 123 });
+    //                 done();
+    //             });
+    //     });
 
-        describe('api failure', () => {
-            it('returns promise that rejects', (done) => {
-                nock(mock_config.host)
-                    .post(
-                        `/rest/api/2/issue/${issue.key}/remotelink`
-                    ).reply(403, { ok: false });
+    //     describe('api failure', () => {
+    //         it('returns promise that rejects', (done) => {
+    //             nock(mock_config.host)
+    //                 .post(
+    //                     `/rest/api/2/issue/${issue.key}/remotelink`
+    //                 ).reply(403, { ok: false });
 
-                jira.addSlackThreadUrlToIssue(url, issue)
-                    .catch((res) => {
-                        expect(res).toEqual({ ok: false });
-                        expect(logErrorSpy).toHaveBeenCalled();
-                        done();
-                    });
-            });
-        });
-    });
+    //             jira.addSlackThreadUrlToIssue(url, issue)
+    //                 .catch((res) => {
+    //                     expect(res).toEqual({ ok: false });
+    //                     expect(logErrorSpy).toHaveBeenCalled();
+    //                     done();
+    //                 });
+    //         });
+    //     });
+    // });
 
-    describe('#issueUrl', () => {
-        it('returns url to jira issue on host domain', () => {
-            const issue = createIssueResponse as unknown as Issue;
-            const url = jira.issueUrl(issue);
+    // describe('#issueUrl', () => {
+    //     it('returns url to jira issue on host domain', () => {
+    //         const issue = createIssueResponse as unknown as Issue;
+    //         const url = jira.issueUrl(issue);
 
-            expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);
-        });
-    });
+    //         expect(url).toEqual(`${mock_config.host}/browse/${issue.key}`);
+    //     });
+    // });
 
-    describe('#addComment', () => {
-        it('logs the error', (done) => {
-            nock('https://example.com')
-                .post('/rest/api/2/issue/issue-key/comment')
-                .reply(404);
+    // describe('#addComment', () => {
+    //     it('logs the error', (done) => {
+    //         nock('https://example.com')
+    //             .post('/rest/api/2/issue/issue-key/comment')
+    //             .reply(404);
 
 
-            jira.addComment('issue-key', 'comment')
-                .then((res) => {
-                    expect(res).toEqual({ ok: false });
-                    expect(logErrorSpy).toHaveBeenCalled();
-                    const logger_call = logErrorSpy.mock.calls[0].toString();
-                    expect(logger_call).toContain('issue-key');
-                    expect(logger_call).toContain('addComment');
+    //         jira.addComment('issue-key', 'comment')
+    //             .then((res) => {
+    //                 expect(res).toEqual({ ok: false });
+    //                 expect(logErrorSpy).toHaveBeenCalled();
+    //                 const logger_call = logErrorSpy.mock.calls[0].toString();
+    //                 expect(logger_call).toContain('issue-key');
+    //                 expect(logger_call).toContain('addComment');
 
-                    done();
-                });
-        });
-    });
+    //                 done();
+    //             });
+    //     });
+    // });
 
-    describe('#find(id)', () => {
-        it('logs the error', (done) => {
-            expect.assertions(4);
-            nock('https://example.com')
-                .get('/rest/agile/1.0/issue/123')
-                .reply(404);
+    // describe('#find(id)', () => {
+    //     it('logs the error', (done) => {
+    //         expect.assertions(4);
+    //         nock('https://example.com')
+    //             .get('/rest/agile/1.0/issue/123')
+    //             .reply(404);
 
-            jira.find(123)
-                .catch((res) => {
-                    expect(res).toEqual({ ok: false });
-                    expect(logErrorSpy).toHaveBeenCalled();
-                    const logger_call = logErrorSpy.mock.calls[0].toString();
-                    expect(logger_call).toContain('123');
-                    expect(logger_call).toContain('find');
-                    done();
-                });
-        });
-    });
+    //         jira.find(123)
+    //             .catch((res) => {
+    //                 expect(res).toEqual({ ok: false });
+    //                 expect(logErrorSpy).toHaveBeenCalled();
+    //                 const logger_call = logErrorSpy.mock.calls[0].toString();
+    //                 expect(logger_call).toContain('123');
+    //                 expect(logger_call).toContain('find');
+    //                 done();
+    //             });
+    //     });
+    // });
+
 });
