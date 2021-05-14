@@ -30,7 +30,7 @@
     "@sindresorhus/slugify": "^1.1.2",
     "@slack/events-api": "^3.0.0",
     "@slack/interactive-messages": "^2.0.0",
-    "@slack/web-api": "^6.1.0",
+    "@slack/web-api": "^6.2.3",
     "@types/response-time": "^2.3.4",
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@slack/types": "^2.0.0",
     "@types/async": "^3.2.6",
-    "@types/chai": "^4.2.16",
+    "@types/chai": "^4.2.18",
     "@types/concurrently": "^6.0.0",
     "@types/errorhandler": "^1.5.0",
     "@types/eslint": "^7.2.10",
