@@ -3,7 +3,7 @@ import app from '../src/app';
 
 describe('GET /api', () => {
     it('returns 200 OK', (done) => {
-        return request(app).get('/api')
+        request(app).get('/api')
             .expect(200)
             .end(function(err, res) {
                 const body = res.body;

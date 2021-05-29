@@ -58,7 +58,7 @@ describe('POST /api/slack/interaction', () => {
                 .post('/api/chat.postMessage', new RegExp(issue_key))
                 .reply(200, { ok: true });
 
-            return service(params).expect(200, () => { true; });
+            service(params).expect(200, () => { true; });
         });
 
         describe('response.body', () => {
@@ -296,7 +296,7 @@ describe('POST /api/slack/interaction', () => {
             const params = { payload: JSON.stringify(payload(view)) };
 
             it('returns 200 OK', (done) => {
-                return service(params).expect(200, done);
+                service(params).expect(200, done);
             });
 
             it('returns successfuly but logs the error', (done) => {
