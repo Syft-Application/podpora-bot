@@ -63,7 +63,7 @@
     "chai": "^4.3.3",
     "concurrently": "^6.2.0",
     "eslint": "^7.30.0",
-    "eslint-plugin-sonarjs": "^0.8.0-125",
+    "eslint-plugin-sonarjs": "^0.9.1",
     "jest": "^27.0.6",
     "nock": "^13.1.0",
     "node-notifier": "^10.0.0",
