@@ -53,7 +53,7 @@
     "@types/eslint": "^7.2.14",
     "@types/express": "^4.17.13",
     "@types/jest": "^26.0.24",
-    "@types/node": "^15.6.1",
+    "@types/node": "^16.3.2",
     "@types/redis": "^2.8.31",
     "@types/request-promise": "^4.1.48",
     "@types/shelljs": "^0.8.9",
